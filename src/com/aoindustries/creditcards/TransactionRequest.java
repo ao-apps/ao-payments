@@ -21,7 +21,7 @@ import org.apache.commons.validator.GenericValidator;
 public class TransactionRequest implements Cloneable {
 
     /**
-     * These are obtained from {@link http://en.wikipedia.org/wiki/ISO_4217}
+     * These are obtained from <a href="http://en.wikipedia.org/wiki/ISO_4217">http://en.wikipedia.org/wiki/ISO_4217</a>
      *
      * Note: Add more as needed
      */
@@ -424,7 +424,7 @@ public class TransactionRequest implements Cloneable {
     /**
      * Gets the shipping two-digit ISO 3166-1 alpha-2 country code.
      *
-     * See {@link http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2}
+     * See <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2</a>
      */
     public String getShippingCountryCode() {
         return shippingCountryCode;
@@ -433,7 +433,7 @@ public class TransactionRequest implements Cloneable {
     /**
      * Trims, converts to upper case, and sets the shipping two-digit ISO 3166-1 alpha-2 country code.
      *
-     * See {@link http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2}
+     * See <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2</a>
      *
      * @throws  IllegalArgumentException  if not a two-character code (after trimming).
      */

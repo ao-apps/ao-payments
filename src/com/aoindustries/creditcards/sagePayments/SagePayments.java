@@ -39,7 +39,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Provider for Sage Payment Solutions {@link http://www.sagepayments.com/}<br>
+ * Provider for <a href="http://www.sagepayments.com/">Sage Payment Solutions</a><br>
  * <br>
  * Configuration parameters:
  * <ul>
