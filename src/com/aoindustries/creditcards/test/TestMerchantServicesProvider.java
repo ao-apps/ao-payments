@@ -24,8 +24,8 @@ import java.util.Random;
  * <br>
  * Configuration parameters:
  * <ol>
- *   <li>errorChance - percentage chance of some sort of error (during storeCard, payment, capture, void) - defaults to 10</li>
- *   <li>declineChance - percentage chance of being declined, otherwise accepted (during payment) - defaults to 20</li>
+ *   <li>errorChance - percentage chance of some sort of error (during storeCard, payment, capture, void)</li>
+ *   <li>declineChance - percentage chance of being declined, otherwise accepted (during payment)</li>
  * </ol>
  *
  * TODO: Add AVS, CVV, and ReviewReason responses.
@@ -54,8 +54,8 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
     public TestMerchantServicesProvider(String providerId, String errorChance, String declineChance) throws NumberFormatException {
         this(
             providerId,
-            errorChance==null || errorChance.length()==0 ? (byte)10 : Byte.parseByte(errorChance),
-            declineChance==null || declineChance.length()==0 ? (byte)20 : Byte.parseByte(declineChance)
+            Byte.parseByte(errorChance),
+            Byte.parseByte(declineChance)
         );
     }
 
@@ -328,11 +328,97 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
     }
 
     public CaptureResult capture(AuthorizationResult authorizationResult, Locale userLocale) {
-        throw new RuntimeException("TODO: Implement method");
+        // First allow for random errors
+        if(random.nextInt(100)<errorChance) {
+            // Random error class
+            TransactionResult.CommunicationResult communicationResult;
+            int randomInt = random.nextInt(3);
+            switch(randomInt) {
+                case 0: {
+                    communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
+                    break;
+                }
+                case 1: {
+                    communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
+                    break;
+                }
+                case 2: {
+                    communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+                    break;
+                }
+                default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
+            }
+
+            // Random error code
+            TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
+            TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
+
+            return new CaptureResult(
+                getProviderId(),
+                communicationResult,
+                null,
+                errorCode,
+                null,
+                authorizationResult.getProviderUniqueId()
+            );
+        }
+        
+        // Simulate success
+        return new CaptureResult(
+            getProviderId(),
+            TransactionResult.CommunicationResult.SUCCESS,
+            null,
+            null,
+            null,
+            authorizationResult.getProviderUniqueId()
+        );
     }
 
     public VoidResult voidTransaction(Transaction transaction, Locale userLocale) {
-        throw new RuntimeException("TODO: Implement method");
+        // First allow for random errors
+        if(random.nextInt(100)<errorChance) {
+            // Random error class
+            TransactionResult.CommunicationResult communicationResult;
+            int randomInt = random.nextInt(3);
+            switch(randomInt) {
+                case 0: {
+                    communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
+                    break;
+                }
+                case 1: {
+                    communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
+                    break;
+                }
+                case 2: {
+                    communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+                    break;
+                }
+                default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
+            }
+
+            // Random error code
+            TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
+            TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
+
+            return new VoidResult(
+                getProviderId(),
+                communicationResult,
+                null,
+                errorCode,
+                null,
+                transaction.getAuthorizationResult().getProviderUniqueId()
+            );
+        }
+        
+        // Simulate success
+        return new VoidResult(
+            getProviderId(),
+            TransactionResult.CommunicationResult.SUCCESS,
+            null,
+            null,
+            null,
+            transaction.getAuthorizationResult().getProviderUniqueId()
+        );
     }
 
     public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
@@ -344,18 +430,24 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
     }
 
     public String storeCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
-        throw new RuntimeException("TODO: Implement method");
+        // First allow for random errors
+        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated storeCreditCard error");
+        
+        return Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
     }
 
     public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
-        throw new RuntimeException("TODO: Implement method");
+        // First allow for random errors
+        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardNumberAndExpiration error");
     }
 
     public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
-        throw new RuntimeException("TODO: Implement method");
+        // First allow for random errors
+        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardExpiration error");
     }
 
     public void deleteCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
-        throw new RuntimeException("TODO: Implement method");
+        // First allow for random errors
+        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated deleteCreditCard error");
     }
 }
