@@ -38,7 +38,12 @@ public interface PersistenceMechanism {
     String insertTransaction(Principal principal, Group group, Transaction transaction, Locale userLocale) throws SQLException;
 
     /**
-     * Updates a transaction in the database.
+     * Updates a transaction in the database after the sale has completed.
      */
-    void updateTransaction(Principal principal, Transaction transaction, Locale userLocale) throws SQLException;
+    void saleCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException;
+
+    /**
+     * Updates a transaction in the database after the void has completed.
+     */
+    void voidCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException;
 }

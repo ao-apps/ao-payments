@@ -42,10 +42,10 @@ import org.w3c.dom.NodeList;
  * Provider for <a href="http://www.sagepayments.com/">Sage Payment Solutions</a><br>
  * <br>
  * Configuration parameters:
- * <ul>
- *   <li>com.aoindustries.creditcards.SagePayments.merchantId - Merchant ID</li>
- *   <li>com.aoindustries.creditcards.SagePayments.merchantKey - Merchant Key</li>
- * </ul>
+ * <ol>
+ *   <li>merchantId - Merchant ID</li>
+ *   <li>merchantKey - Merchant Key</li>
+ * </ol>
  *
  * Note: Commands to build .java files from WSDL:
  * <ol>
@@ -189,6 +189,14 @@ public class SagePayments implements MerchantServicesProvider {
 
     public String getProviderId() {
         return providerId;
+    }
+
+    public String getMerchantId() {
+        return merchantId;
+    }
+    
+    public String getMerchantKey() {
+        return merchantKey;
     }
 
     public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
@@ -772,24 +780,22 @@ public class SagePayments implements MerchantServicesProvider {
         }
     }
 
+    /*
     public static void main(String[] args) {
         try {
-            /*
             // Test expiration date update
             CreditCard creditCard = new CreditCard();
             creditCard.setProviderUniqueId("d7e61c0226014cd3a7eb911ca5545b5d");
             sagePayments.updateCreditCardExpiration(creditCard, (byte)2, (byte)9, userLocale);
-             */
 
-            /*
             // Test number and expiration date update
             CreditCard creditCard = new CreditCard();
             creditCard.setProviderUniqueId("d7e61c0226014cd3a7eb911ca5545b5d");
             creditCard.setPersistenceUniqueId("10");
             sagePayments.updateCreditCardNumberAndExpiration(principal, creditCard, "5212345678901234", (byte)2, (byte)9, userLocale);
-             */
         } catch(Exception err) {
             err.printStackTrace();
         }
     }
+     */
 }

@@ -109,7 +109,11 @@ public class CreditCardProcessor {
         transaction.setStatus(status);
 
         // Update persistence layer
-        persistenceMechanism.updateTransaction(principal, transaction, userLocale);
+        persistenceMechanism.saleCompleted(
+            principal,
+            transaction,
+            userLocale
+        );
 
         return transaction;
     }
@@ -121,8 +125,8 @@ public class CreditCardProcessor {
      * @see  #voidTransaction
      */
     public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        // TODO
-        return provider.authorize(transactionRequest, creditCard, userLocale);
+        throw new RuntimeException("TODO: Implement method");
+        // TODO: return provider.authorize(transactionRequest, creditCard, userLocale);
     }
 
     /**
@@ -131,8 +135,8 @@ public class CreditCardProcessor {
      * @see  #authorize
      */
     public CaptureResult capture(AuthorizationResult authorizationResult, Locale userLocale) {
-        // TODO
-        return provider.capture(authorizationResult, userLocale);
+        throw new RuntimeException("TODO: Implement method");
+        // TODO: return provider.capture(authorizationResult, userLocale);
     }
 
     /**
@@ -162,7 +166,7 @@ public class CreditCardProcessor {
                 // Update the status
                 transaction.setVoidResult(voidResult);
                 if(voidResult.getCommunicationResult()==TransactionResult.CommunicationResult.SUCCESS) transaction.setStatus(Transaction.Status.VOID);
-                persistenceMechanism.updateTransaction(principal, transaction, userLocale);
+                persistenceMechanism.voidCompleted(principal, transaction, userLocale);
 
                 return voidResult;
             } else {
@@ -177,8 +181,8 @@ public class CreditCardProcessor {
      * Requests a credit.
      */
     public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        // TODO
-        return provider.credit(transactionRequest, creditCard, userLocale);
+        throw new RuntimeException("TODO: Implement method");
+        // TODO: return provider.credit(transactionRequest, creditCard, userLocale);
     }
 
     /**

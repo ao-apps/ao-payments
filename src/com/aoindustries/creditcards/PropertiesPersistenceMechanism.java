@@ -507,7 +507,15 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
         return uniqueId;
     }
 
-    synchronized public void updateTransaction(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
+    public void saleCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
+        updateTransaction(principal, transaction, userLocale);
+    }
+
+    public void voidCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
+        updateTransaction(principal, transaction, userLocale);
+    }
+
+    synchronized private void updateTransaction(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
         loadIfNeeded(userLocale);
         // Find the transaction with the matching persistence unique ID
         for(int c=0;c<internalTransactions.size();c++) {
