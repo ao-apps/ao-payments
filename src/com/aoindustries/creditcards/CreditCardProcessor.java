@@ -75,7 +75,12 @@ public class CreditCardProcessor {
 
         // Perform sale
         SaleResult saleResult = provider.sale(transactionRequest, creditCard, userLocale);
+        long completedTimeMillis = System.currentTimeMillis();
+        //transaction.setAuthorizationTime(completedTimeMillis);
+        //transaction.setAuthorizationPrincipalName(principal.getName());
         transaction.setAuthorizationResult(saleResult.getAuthorizationResult());
+        transaction.setCaptureTime(completedTimeMillis);
+        transaction.setCapturePrincipalName(principal.getName());
         transaction.setCaptureResult(saleResult.getCaptureResult());
         Transaction.Status status;
         switch(saleResult.getAuthorizationResult().getCommunicationResult()) {

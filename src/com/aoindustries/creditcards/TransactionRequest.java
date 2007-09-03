@@ -26,13 +26,19 @@ public class TransactionRequest implements Cloneable {
      * Note: Add more as needed
      */
     public enum CurrencyCode {
-        CAD,
-        CLP,
-        EUR,
-        GBP,
-        JPY,
-        USD,
-        VEB;
+        CAD(2),
+        CLP(0),
+        EUR(2),
+        GBP(2),
+        JPY(0),
+        USD(2),
+        VEB(2);
+
+        final private int digits;
+
+        private CurrencyCode(int digits) {
+            this.digits = digits;
+        }
 
         /**
          * Gets the display value in the default locale.
@@ -46,6 +52,13 @@ public class TransactionRequest implements Cloneable {
          */
         public String toString(Locale userLocale) {
             return ApplicationResourcesAccessor.getMessage(userLocale, "TransactionRequest.CurrencyCode."+name());
+        }
+
+        /**
+         * Rounds to the expected number of decimal places, if loss of information would occur throws an ArithmeticException.
+         */
+        private BigDecimal normalizeCurrency(BigDecimal bigDecimal) throws ArithmeticException {
+            return bigDecimal.setScale(digits);
         }
     }
 
@@ -221,19 +234,25 @@ public class TransactionRequest implements Cloneable {
      * Sets the amount of the transaction.  This amount should not include any tax, shipping charges, or duty.
      * Thus the total amount of the transaction is the amount + taxAmount + shippingAmount + dutyAmount.
      *
-     * @throws  IllegalArgumentException  if amount <= 0
+     * The amount is normalized to the proper number of decimal places for the selected currency.
+     *
+     * @throws  IllegalArgumentException  if amount <= 0 or is incorrectly formatted for the currency.
      */
-    public void setAmount(BigDecimal amount, Locale userLocale) {
+    public void setAmount(BigDecimal amount, Locale userLocale) throws IllegalArgumentException {
         if(amount==null) {
             this.amount = null;
         } else {
             if(amount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setAmount.amount.lessThanEqualZero");
-            this.amount = amount;
+            try {
+                this.amount = currencyCode.normalizeCurrency(amount);
+            } catch(ArithmeticException err) {
+                throw new LocalizedIllegalArgumentException(err, userLocale, "TransactionRequest.setAmount.amount.cannotNormalize");
+            }
         }
     }
 
     /**
-     * Sets the tax amount of the transaction.
+     * Gets the tax amount of the transaction.
      */
     public BigDecimal getTaxAmount() {
         return taxAmount;
@@ -242,14 +261,20 @@ public class TransactionRequest implements Cloneable {
     /**
      * Sets the tax amount of the transaction.
      *
-     * @throws  IllegalArgumentException  if amount < 0
+     * The amount is normalized to the proper number of decimal places for the selected currency.
+     *
+     * @throws  IllegalArgumentException  if taxAmount < 0 or is incorrectly formatted for the currency.
      */
     public void setTaxAmount(BigDecimal taxAmount, Locale userLocale) {
         if(taxAmount==null) {
             this.taxAmount = null;
         } else {
             if(taxAmount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setTaxAmount.taxAmount.lessThanEqualZero");
-            this.taxAmount = taxAmount;
+            try {
+                this.taxAmount = currencyCode.normalizeCurrency(taxAmount);
+            } catch(ArithmeticException err) {
+                throw new LocalizedIllegalArgumentException(err, userLocale, "TransactionRequest.setTaxAmount.taxAmount.cannotNormalize");
+            }
         }
     }
 
@@ -268,7 +293,7 @@ public class TransactionRequest implements Cloneable {
     }
 
     /**
-     * Sets the shipping amount of the transaction.
+     * Gets the shipping amount of the transaction.
      */
     public BigDecimal getShippingAmount() {
         return shippingAmount;
@@ -277,14 +302,20 @@ public class TransactionRequest implements Cloneable {
     /**
      * Sets the shipping amount of the transaction.
      *
-     * @throws  IllegalArgumentException  if shippingAmount < 0
+     * The amount is normalized to the proper number of decimal places for the selected currency.
+     *
+     * @throws  IllegalArgumentException  if shippingAmount < 0 or is incorrectly formatted for the currency.
      */
     public void setShippingAmount(BigDecimal shippingAmount, Locale userLocale) {
         if(shippingAmount==null) {
             this.shippingAmount = null;
         } else {
             if(shippingAmount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setShippingAmount.shippingAmount.lessThanEqualZero");
-            this.shippingAmount = shippingAmount;
+            try {
+                this.shippingAmount = currencyCode.normalizeCurrency(shippingAmount);
+            } catch(ArithmeticException err) {
+                throw new LocalizedIllegalArgumentException(err, userLocale, "TransactionRequest.setShippingAmount.shippingAmount.cannotNormalize");
+            }
         }
     }
 
@@ -298,14 +329,20 @@ public class TransactionRequest implements Cloneable {
     /**
      * Sets the duty charges of the transaction.
      *
-     * @throws  IllegalArgumentException  if dutyAmount < 0
+     * The amount is normalized to the proper number of decimal places for the selected currency.
+     *
+     * @throws  IllegalArgumentException  if dutyAmount < 0 or is incorrectly formatted for the currency.
      */
     public void setDutyAmount(BigDecimal dutyAmount, Locale userLocale) {
         if(dutyAmount==null) {
             this.dutyAmount = null;
         } else {
             if(dutyAmount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setDutyAmount.dutyAmount.lessThanEqualZero");
-            this.dutyAmount = dutyAmount;
+            try {
+                this.dutyAmount = currencyCode.normalizeCurrency(dutyAmount);
+            } catch(ArithmeticException err) {
+                throw new LocalizedIllegalArgumentException(err, userLocale, "TransactionRequest.setDutyAmount.dutyAmount.cannotNormalize");
+            }
         }
     }
 

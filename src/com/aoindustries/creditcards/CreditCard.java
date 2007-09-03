@@ -20,7 +20,7 @@ import org.apache.commons.validator.GenericValidator;
 public class CreditCard implements Cloneable {
 
     /**
-     * Only shows the first two and last four digits of a card number.
+     * Only shows the first four and last four digits of a card number.
      * If the number is <code>null</code>, returns an empty string.
      */
     public static String maskCreditCardNumber(String cardNumber) {
@@ -34,7 +34,7 @@ public class CreditCard implements Cloneable {
             if(
                 ch<'0'
                 || ch>'9'
-                || c<2
+                || c<4
                 || c>=(len-4)
             ) SB.append(cardNumber.charAt(c));
             else SB.append('X');

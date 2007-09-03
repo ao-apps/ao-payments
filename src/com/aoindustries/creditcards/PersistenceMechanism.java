@@ -38,7 +38,15 @@ public interface PersistenceMechanism {
     String insertTransaction(Principal principal, Group group, Transaction transaction, Locale userLocale) throws SQLException;
 
     /**
-     * Updates a transaction in the database after the sale has completed.
+     * Updates a transaction in the database after the sale has completed.  The following transaction fields have been updated
+     * and must be stored:
+     * <ol>
+     *   <li>authorizationResult</li>
+     *   <li>captureTime</li>
+     *   <li>capturePrincipalName</li>
+     *   <li>captureResult</li>
+     *   <li>status</li>
+     * </ol>
      */
     void saleCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException;
 
