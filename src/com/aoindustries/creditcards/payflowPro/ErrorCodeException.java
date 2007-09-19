@@ -10,7 +10,7 @@ import com.aoindustries.creditcards.TransactionResult;
 import java.util.Locale;
 
 /**
- * Extends <code>LocalizedIOException</code> to provide exceptions along with the corresponsing error code.
+ * Extends <code>LocalizedIOException</code> to provide exceptions along with the corresponding error code.
  *
  * @author  AO Industries, Inc.
  */
