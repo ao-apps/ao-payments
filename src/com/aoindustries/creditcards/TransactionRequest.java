@@ -26,6 +26,7 @@ public class TransactionRequest implements Cloneable {
      * Note: Add more as needed
      */
     public enum CurrencyCode {
+        AUD(2),
         CAD(2),
         CLP(0),
         EUR(2),
@@ -68,6 +69,7 @@ public class TransactionRequest implements Cloneable {
     private static final int DEFAULT_DUPLICATE_WINDOW = 120;
 
     private boolean testMode;
+    private String customerIp;
     private int duplicateWindow = DEFAULT_DUPLICATE_WINDOW;
     private String orderNumber;
     private CurrencyCode currencyCode;
@@ -106,6 +108,7 @@ public class TransactionRequest implements Cloneable {
     public TransactionRequest(
         Locale userLocale,
         boolean testMode,
+        String customerIp,
         int duplicateWindow,
         String orderNumber,
         CurrencyCode currencyCode,
@@ -130,6 +133,7 @@ public class TransactionRequest implements Cloneable {
         String description
     ) {
         setTestMode(testMode);
+        setCustomerIp(customerIp);
         setDuplicateWindow(duplicateWindow);
         setOrderNumber(orderNumber);
         if(currencyCode==null) setCurrencyCode(CurrencyCode.valueOf(ApplicationResourcesAccessor.getMessage(userLocale, "TransactionRequest.currencyCode.default")));
@@ -174,6 +178,20 @@ public class TransactionRequest implements Cloneable {
      */
     public void setTestMode(boolean testMode) {
         this.testMode = testMode;
+    }
+
+    /**
+     * Gets the customer IP
+     */
+    public String getCustomerIp() {
+        return customerIp;
+    }
+    
+    /**
+     * Sets the customer IP
+     */
+    public void setCustomerIp(String customerIp) {
+        this.customerIp = customerIp;
     }
 
     /**

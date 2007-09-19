@@ -42,6 +42,9 @@ abstract public class TransactionResult {
         HASH_CHECK_FAILED,
         // IO_ERROR
         // GATEWAY_ERROR
+        INVALID_TRANSACTION_TYPE,
+        VOICE_AUTHORIZATION_REQUIRED,
+        INSUFFICIENT_PERMISSIONS,
         INVALID_AMOUNT,
         INVALID_CARD_NUMBER,
         INVALID_EXPIRATION_DATE,
@@ -49,6 +52,7 @@ abstract public class TransactionResult {
         DUPLICATE,
         APPROVAL_CODE_REQUIRED,
         INVALID_MERCHANT_ID,
+        INVALID_PARTNER,
         INVALID_PROVIDER_UNIQUE_ID,
         TRANSACTION_NOT_FOUND,
         CARD_TYPE_NOT_SUPPORTED,
@@ -75,6 +79,7 @@ abstract public class TransactionResult {
         INVALID_CUSTOMER_TAX_ID,
         INVALID_CARD_CODE,
         CUSTOMER_ACCOUNT_DISABLED,
+        INVALID_INVOICE_NUMBER,
         INVALID_ORDER_NUMBER,
         INVALID_CARD_NAME,
         INVALID_CARD_ADDRESS,

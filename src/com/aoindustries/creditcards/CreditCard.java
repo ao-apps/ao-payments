@@ -57,6 +57,23 @@ public class CreditCard implements Cloneable {
         return SB.length() == len ? S : SB.toString();
     }
 
+    /**
+     * Gets an expiration date in MMYY format.
+     *
+     * @throws  IllegalArgumentException  if invalid date
+     */
+    public static String getExpirationDateMMYY(byte month, short year, Locale userLocale) {
+        if(month==-1) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setExpirationMonth.expirationMonth.invalid");
+        if(year==-1) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setExpirationYear.expirationYear.invalid");
+        StringBuilder SB = new StringBuilder(4);
+        if(month<10) SB.append('0');
+        SB.append(month);
+        int modYear = year%100;
+        if(modYear<10) SB.append('0');
+        SB.append(modYear);
+        return SB.toString();
+    }
+
     private String persistenceUniqueId;
     private String principalName;
     private String groupName;
@@ -306,6 +323,15 @@ public class CreditCard implements Cloneable {
         }
         if(expirationYear!=-1 && (expirationYear<1977 || expirationYear>(currentYear+12))) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setExpirationYear.expirationYear.invalid");
         this.expirationYear = expirationYear;
+    }
+
+    /**
+     * Gets the expiration date in MMYY format.
+     *
+     * @throws  IllegalArgumentException  if invalid date
+     */
+    public String getExpirationDateMMYY(Locale userLocale) {
+        return getExpirationDateMMYY(getExpirationMonth(), getExpirationYear(), userLocale);
     }
 
     /**

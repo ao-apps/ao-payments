@@ -15,7 +15,7 @@ import java.util.ResourceBundle;
  *
  * @author  AO Industries, Inc.
  */
-final class ApplicationResourcesAccessor {
+public final class ApplicationResourcesAccessor {
 
     /**
      * Make no instances.

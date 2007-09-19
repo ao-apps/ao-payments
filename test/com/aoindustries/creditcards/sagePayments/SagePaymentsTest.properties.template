@@ -1,0 +1,3 @@
+MERCHANT_ID=
+MERCHANT_KEY=
+PERSISTENCE_PATH=/path/to/PropertiesPersistenceMechanism.properties

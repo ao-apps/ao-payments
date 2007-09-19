@@ -5,6 +5,7 @@ package com.aoindustries.creditcards.sagePayments;
  * 816 Azalea Rd, Mobile, Alabama, 36693, U.S.A.
  * All rights reserved.
  */
+import com.aoindustries.creditcards.ApplicationResourcesAccessor;
 import com.aoindustries.creditcards.AuthorizationResult;
 import com.aoindustries.creditcards.CaptureResult;
 import com.aoindustries.creditcards.CreditCard;
@@ -57,36 +58,11 @@ import org.w3c.dom.NodeList;
  *
  * TODO: invalid expiration with valid CVV causes CVV2 failure.  I notified Sage on 2007-06-20
  *       David Landrum ext 3025
+ * TODO: Check for test mode and don't allow transaction because test mode not supported (all calls)
  *
  * @author  AO Industries, Inc.
  */
 public class SagePayments implements MerchantServicesProvider {
-
-    /**
-     * Gets the expiration date for a credit card in MMYY format.
-     *
-     * @throws  IllegalArgumentException  if invalid date
-     */
-    protected static String getExpirationDate(CreditCard creditCard, Locale userLocale) {
-        return getExpirationDate(creditCard.getExpirationMonth(), creditCard.getExpirationYear(), userLocale);
-    }
-
-    /**
-     * Gets the expiration date in MMYY format.
-     *
-     * @throws  IllegalArgumentException  if invalid date
-     */
-    protected static String getExpirationDate(byte month, short year, Locale userLocale) {
-        if(month==-1) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setExpirationMonth.expirationMonth.invalid");
-        if(year==-1) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setExpirationYear.expirationYear.invalid");
-        StringBuilder SB = new StringBuilder(4);
-        if(month<10) SB.append('0');
-        SB.append(month);
-        int modYear = year%100;
-        if(modYear<10) SB.append('0');
-        SB.append(modYear);
-        return SB.toString();
-    }
 
     /**
      * Combines the first and last names into a single name String.
@@ -202,13 +178,16 @@ public class SagePayments implements MerchantServicesProvider {
     public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
         // Only supports USD
         if(transactionRequest.getCurrencyCode()!=TransactionRequest.CurrencyCode.USD) {
+            // The default locale is used because that represents the locale of the system admin, and they are the ones who need to
+            // use this message (processor-specific, behind-the-scenes value)
+            String message = ApplicationResourcesAccessor.getMessage(Locale.getDefault(), "TransactionRequest.currencyCode.onlyOneSupported", TransactionRequest.CurrencyCode.USD);
             return new SaleResult(
                 new AuthorizationResult(
                     getProviderId(),
                     TransactionResult.CommunicationResult.LOCAL_ERROR,
-                    null,
+                    TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED.name(),
                     TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED,
-                    null,
+                    message,
                     null,
                     null,
                     null,
@@ -225,9 +204,9 @@ public class SagePayments implements MerchantServicesProvider {
                 new CaptureResult(
                     getProviderId(),
                     TransactionResult.CommunicationResult.LOCAL_ERROR,
-                    null,
+                    TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED.name(),
                     TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED,
-                    null,
+                    message,
                     null
                 )
             );
@@ -259,6 +238,7 @@ public class SagePayments implements MerchantServicesProvider {
                             emptyStringIfNull(creditCard.getEmail()),
                             emptyStringIfNull(creditCard.getProviderUniqueId()),
                             emptyStringIfNull(null),
+                            // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
                             emptyStringIfNull(transactionRequest.getAmount().toString()),
                             emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
                             emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
@@ -285,9 +265,10 @@ public class SagePayments implements MerchantServicesProvider {
                             emptyStringIfNull(creditCard.getCountryCode()),
                             emptyStringIfNull(creditCard.getEmail()),
                             emptyStringIfNull(creditCard.getCardNumber()),
-                            emptyStringIfNull(getExpirationDate(creditCard, userLocale)),
+                            emptyStringIfNull(creditCard.getExpirationDateMMYY(userLocale)),
                             emptyStringIfNull(creditCard.getCardCode()),
                             emptyStringIfNull(null),
+                            // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
                             emptyStringIfNull(transactionRequest.getAmount().toString()),
                             emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
                             emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
@@ -643,7 +624,7 @@ public class SagePayments implements MerchantServicesProvider {
                     emptyStringIfNull(merchantId),
                     emptyStringIfNull(merchantKey),
                     emptyStringIfNull(creditCard.getCardNumber()),
-                    emptyStringIfNull(getExpirationDate(creditCard, userLocale))
+                    emptyStringIfNull(creditCard.getExpirationDateMMYY(userLocale))
                 ).get_any();
 
                 Node table1 = results[results.length-1].getFirstChild().getFirstChild();
@@ -689,7 +670,7 @@ public class SagePayments implements MerchantServicesProvider {
                     emptyStringIfNull(merchantKey),
                     emptyStringIfNull(creditCard.getProviderUniqueId()),
                     emptyStringIfNull(cardNumber),
-                    emptyStringIfNull(getExpirationDate(expirationMonth, expirationYear, userLocale))
+                    emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear, userLocale))
                 ).get_any();
                 Node table1 = results[results.length-1].getFirstChild().getFirstChild();
                 Node child = table1.getFirstChild();
@@ -731,7 +712,7 @@ public class SagePayments implements MerchantServicesProvider {
                     emptyStringIfNull(merchantId),
                     emptyStringIfNull(merchantKey),
                     emptyStringIfNull(creditCard.getProviderUniqueId()),
-                    emptyStringIfNull(getExpirationDate(expirationMonth, expirationYear, userLocale))
+                    emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear, userLocale))
                 ).get_any();
                 Node table1 = results[results.length-1].getFirstChild().getFirstChild();
                 Node child = table1.getFirstChild();

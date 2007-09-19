@@ -174,6 +174,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
                             new TransactionRequest(
                                 userLocale,
                                 "true".equals(props.getProperty("transactions."+counter+".transactionRequest.testMode")),
+                                props.getProperty("transactions."+counter+".transactionRequest.customerIp"),
                                 Integer.parseInt(props.getProperty("transactions."+counter+".transactionRequest.duplicateWindow")),
                                 props.getProperty("transactions."+counter+".transactionRequest.orderNumber"),
                                 currencyCode,
@@ -325,6 +326,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
                 TransactionRequest transactionRequest = internalTransaction.getTransactionRequest();
                 if(transactionRequest!=null) {
                     props.setProperty("transactions."+counter+".transactionRequest.testMode", transactionRequest.getTestMode() ? "true" : "false");
+                    if(transactionRequest.getCustomerIp()!=null) props.setProperty("transactions."+counter+".transactionRequest.customerIp", transactionRequest.getCustomerIp());
                     props.setProperty("transactions."+counter+".transactionRequest.duplicateWindow", Integer.toString(transactionRequest.getDuplicateWindow()));
                     if(transactionRequest.getOrderNumber()!=null) props.setProperty("transactions."+counter+".transactionRequest.orderNumber", transactionRequest.getOrderNumber());
                     if(transactionRequest.getCurrencyCode()!=null) props.setProperty("transactions."+counter+".transactionRequest.currencyCode", transactionRequest.getCurrencyCode().name());

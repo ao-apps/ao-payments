@@ -12,12 +12,15 @@ import com.aoindustries.creditcards.TransactionRequest;
 import com.aoindustries.creditcards.TransactionResult;
 import com.aoindustries.creditcards.VoidResult;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -29,11 +32,21 @@ import junit.framework.TestSuite;
  */
 public class SagePaymentsTest extends TestCase {
     
-    private static final String MERCHANT_ID = "107807366985";
-    private static final String MERCHANT_KEY = "V6M3P6U2M6H8";
-
-    private static final String PERSISTENCE_PATH = "/home/o/orion/PropertiesPersistenceMechanism.properties";
-    // private static final String PERSISTENCE_PATH = "E:\\ao\\cvswork\\ao-credit-cards\\src\\com\\aoindustries\\creditcards\\PropertiesPersistenceMechanism.properties";
+    private static Properties config;
+    synchronized private static String getConfig(String name) throws IOException {
+        if(config==null) {
+            InputStream in = SagePaymentsTest.class.getResourceAsStream("SagePaymentsTest.properties");
+            if(in==null) throw new IOException("Unable to find resource: SagePaymentsTest.properties");
+            try {
+                Properties props = new Properties();
+                props.load(in);
+                config = props;
+            } finally {
+                in.close();
+            }
+        }
+        return config.getProperty(name);
+    }
 
     private Locale userLocale;
     private CreditCardProcessor processor;
@@ -49,8 +62,8 @@ public class SagePaymentsTest extends TestCase {
         userLocale = Locale.getDefault();
 
         processor = new CreditCardProcessor(
-            new SagePayments("JUnit", MERCHANT_ID, MERCHANT_KEY),
-            PropertiesPersistenceMechanism.getInstance(PERSISTENCE_PATH)
+            new SagePayments("JUnit", getConfig("MERCHANT_ID"), getConfig("MERCHANT_KEY")),
+            PropertiesPersistenceMechanism.getInstance(getConfig("PERSISTENCE_PATH"))
         );
 
         principal = new Principal() {
@@ -143,6 +156,7 @@ public class SagePaymentsTest extends TestCase {
             new TransactionRequest(
                 userLocale,
                 true,
+                InetAddress.getLocalHost().getHostAddress(),
                 120,
                 "1",
                 TransactionRequest.CurrencyCode.USD,
@@ -223,6 +237,7 @@ public class SagePaymentsTest extends TestCase {
                 new TransactionRequest(
                     userLocale,
                     true,
+                    InetAddress.getLocalHost().getHostAddress(),
                     120,
                     "1",
                     TransactionRequest.CurrencyCode.USD,
