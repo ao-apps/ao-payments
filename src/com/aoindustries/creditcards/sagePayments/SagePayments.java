@@ -226,7 +226,7 @@ public class SagePayments implements MerchantServicesProvider {
                 {
                     MessageElement[] results;
                     if(creditCard.getProviderUniqueId()!=null) {
-                        System.out.println("sale, creditCard.providerUniqueId="+creditCard.getProviderUniqueId());
+                        //System.out.println("sale, creditCard.providerUniqueId="+creditCard.getProviderUniqueId());
                         results = new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_SALE(
                             emptyStringIfNull(merchantId),
                             emptyStringIfNull(merchantKey),
@@ -300,15 +300,15 @@ public class SagePayments implements MerchantServicesProvider {
                         child = child.getNextSibling();
                     }
 
-                    System.out.println("approvalIndicator="+approvalIndicator);
-                    System.out.println("code="+code);
-                    System.out.println("message="+message);
+                    //System.out.println("approvalIndicator="+approvalIndicator);
+                    //System.out.println("code="+code);
+                    //System.out.println("message="+message);
                     //System.out.println("frontEndIndicator="+frontEndIndicator);
-                    System.out.println("cvvIndicator="+cvvIndicator);
-                    System.out.println("avsIndicator="+avsIndicator);
-                    System.out.println("riskIndicator="+riskIndicator);
-                    System.out.println("reference="+reference);
-                    System.out.println("orderNumber="+orderNumber);
+                    //System.out.println("cvvIndicator="+cvvIndicator);
+                    //System.out.println("avsIndicator="+avsIndicator);
+                    //System.out.println("riskIndicator="+riskIndicator);
+                    //System.out.println("reference="+reference);
+                    //System.out.println("orderNumber="+orderNumber);
                 }
 
                 // Correct output for CVV2 failure not setting cvvIndicator and setting error instead
@@ -532,15 +532,15 @@ public class SagePayments implements MerchantServicesProvider {
                     child = child.getNextSibling();
                 }
 
-                System.out.println("approvalIndicator="+approvalIndicator);
-                System.out.println("code="+code);
-                System.out.println("message="+message);
+                //System.out.println("approvalIndicator="+approvalIndicator);
+                //System.out.println("code="+code);
+                //System.out.println("message="+message);
                 //System.out.println("frontEndIndicator="+frontEndIndicator);
-                System.out.println("cvvIndicator="+cvvIndicator);
-                System.out.println("avsIndicator="+avsIndicator);
-                System.out.println("riskIndicator="+riskIndicator);
-                System.out.println("reference="+reference);
-                System.out.println("orderNumber="+orderNumber);
+                //System.out.println("cvvIndicator="+cvvIndicator);
+                //System.out.println("avsIndicator="+avsIndicator);
+                //System.out.println("riskIndicator="+riskIndicator);
+                //System.out.println("reference="+reference);
+                //System.out.println("orderNumber="+orderNumber);
             }
 
             TransactionResult.CommunicationResult communicationResult;
@@ -637,9 +637,9 @@ public class SagePayments implements MerchantServicesProvider {
                     child = child.getNextSibling();
                 }
 
-                System.out.println("success="+success);
-                System.out.println("guid="+guid);
-                System.out.println("message="+message);
+                //System.out.println("success="+success);
+                //System.out.println("guid="+guid);
+                //System.out.println("message="+message);
             }
 
             if(!"true".equals(success)) throw new LocalizedIOException(userLocale, "MerchantServicesProvider.storeCreditCard.notSuccessful");
@@ -682,9 +682,9 @@ public class SagePayments implements MerchantServicesProvider {
                     child = child.getNextSibling();
                 }
 
-                System.out.println("success="+success);
-                System.out.println("guid="+guid);
-                System.out.println("message="+message);
+                //System.out.println("success="+success);
+                //System.out.println("guid="+guid);
+                //System.out.println("message="+message);
             }
 
             if(!"true".equals(success)) throw new LocalizedIOException(userLocale, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSuccessful");
@@ -724,9 +724,9 @@ public class SagePayments implements MerchantServicesProvider {
                     child = child.getNextSibling();
                 }
 
-                System.out.println("success="+success);
-                System.out.println("guid="+guid);
-                System.out.println("message="+message);
+                //System.out.println("success="+success);
+                //System.out.println("guid="+guid);
+                //System.out.println("message="+message);
             }
 
             if(!"true".equals(success)) throw new LocalizedIOException(userLocale, "MerchantServicesProvider.updateCreditCardExpiration.notSuccessful");
