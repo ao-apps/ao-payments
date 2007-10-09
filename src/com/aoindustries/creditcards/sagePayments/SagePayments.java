@@ -111,6 +111,7 @@ public class SagePayments implements MerchantServicesProvider {
         if(code==null) return null;
         // Not documented, from testing
         if("000014".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
+        if("000015".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NUMBER; // NO SUCH ISSUER (when using 4111 1111 1111 1111)
         // Documented
         if("000000".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
         if("900000".equals(code)) return TransactionResult.ErrorCode.INVALID_ORDER_NUMBER;
