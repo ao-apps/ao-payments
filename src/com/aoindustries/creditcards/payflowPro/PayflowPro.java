@@ -256,7 +256,7 @@ public class PayflowPro implements MerchantServicesProvider {
             request.put("TENDER", "C");
             request.put("TRXTYPE", trxType);
             addMaxLengthParameter(userLocale, request, "USER", user, 64, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET);
-            addMaxLengthParameter(userLocale, request, "VENDOR", vendor, 64, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET);
+            addMaxLengthParameter(userLocale, request, "VENDOR", vendor==null ? "" : vendor, 64, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET);
             String zip = creditCard.getPostalCode();
             if(zip!=null && zip.length()>0) addTrimmedParameter(request, "ZIP", CreditCard.numbersOnly(zip), 9);
 
