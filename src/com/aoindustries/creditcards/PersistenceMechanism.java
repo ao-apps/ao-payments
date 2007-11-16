@@ -34,6 +34,9 @@ public interface PersistenceMechanism {
     
     /**
      * Inserts a new transaction into the database and returns its persistenceUniqueId.
+     *
+     * @param  principal  <code>null</code> is acceptable
+     * @param  group      <code>null</code> is acceptable
      */
     String insertTransaction(Principal principal, Group group, Transaction transaction, Locale userLocale) throws SQLException;
 
