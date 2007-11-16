@@ -324,6 +324,7 @@ public class SagePayments implements MerchantServicesProvider {
                 String providerApprovalResult = approvalIndicator;
                 String providerReviewReason = null;
                 AuthorizationResult.ReviewReason reviewReason = null;
+                // CVV
                 String providerCvvResult = cvvIndicator;
                 AuthorizationResult.CvvResult cvvResult;
                 if("M".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.MATCH;
@@ -333,6 +334,7 @@ public class SagePayments implements MerchantServicesProvider {
                 else if("U".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.NOT_SUPPORTED_BY_ISSUER;
                 else if(cvvIndicator==null || "".equals(cvvIndicator)) cvvResult = null;
                 else cvvResult = AuthorizationResult.CvvResult.UNKNOWN;
+                // AVS
                 String providerAvsResult = avsIndicator;
                 AuthorizationResult.AvsResult avsResult;
                 if("X".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_9;
@@ -348,9 +350,12 @@ public class SagePayments implements MerchantServicesProvider {
                 else if("".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
                 else if("0".equals(avsIndicator) || avsIndicator==null) avsResult = null;
                 else avsResult = AuthorizationResult.AvsResult.UNKNOWN;
+                // Decline Reason
                 String providerDeclineReason = riskIndicator;
                 AuthorizationResult.DeclineReason declineReason;
-                if(riskIndicator==null || "".equals(riskIndicator) || "00".equals(riskIndicator)) declineReason = null;
+                // The 000054 is undocumented
+                if("000054".equals(code)) declineReason = AuthorizationResult.DeclineReason.EXPIRED_CARD;
+                else if(riskIndicator==null || "".equals(riskIndicator) || "00".equals(riskIndicator)) declineReason = null;
                 else if("01".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.MAX_SALE_EXCEEDED;
                 else if("02".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.MIN_SALE_NOT_MET;
                 else if("03".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.VOLUME_EXCEEDED_1_DAY;
