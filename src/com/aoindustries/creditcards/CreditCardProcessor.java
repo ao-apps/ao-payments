@@ -45,7 +45,10 @@ public class CreditCardProcessor {
      * The transaction is inserted into the persistence layer first in a PROCESSING state,
      * the provider performs the sale, and then the persistence layer transaction state is changed to the appropriate
      * final state.  Thus, any problem or restart will not lose record of the transaction, and the PROCESSING
-     * state transaction may be manually resolved through manual intervention.
+     * state transaction may be manually resolved.
+     *
+     * @param  principal  <code>null</code> is acceptable
+     * @param  group      <code>null</code> is acceptable
      *
      * @see  #authorize
      * @see  #capture
@@ -56,14 +59,14 @@ public class CreditCardProcessor {
         Transaction transaction = new Transaction(
             provider.getProviderId(),
             null,
-            group.getName(),
+            group==null ? null : group.getName(),
             transactionRequest,
             creditCard,
             currentTimeMillis,
-            principal.getName(),
+            principal==null ? null : principal.getName(),
             null,
             currentTimeMillis,
-            principal.getName(),
+            principal==null ? null : principal.getName(),
             null,
             (long)-1,
             null,
@@ -77,10 +80,10 @@ public class CreditCardProcessor {
         SaleResult saleResult = provider.sale(transactionRequest, creditCard, userLocale);
         long completedTimeMillis = System.currentTimeMillis();
         //transaction.setAuthorizationTime(completedTimeMillis);
-        //transaction.setAuthorizationPrincipalName(principal.getName());
+        //transaction.setAuthorizationPrincipalName(principal==null ? null : principal.getName());
         transaction.setAuthorizationResult(saleResult.getAuthorizationResult());
         transaction.setCaptureTime(completedTimeMillis);
-        transaction.setCapturePrincipalName(principal.getName());
+        transaction.setCapturePrincipalName(principal==null ? null : principal.getName());
         transaction.setCaptureResult(saleResult.getCaptureResult());
         Transaction.Status status;
         switch(saleResult.getAuthorizationResult().getCommunicationResult()) {
