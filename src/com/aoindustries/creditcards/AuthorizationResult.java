@@ -38,6 +38,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
 
     public enum DeclineReason {
         NO_SPECIFIC,
+        EXPIRED_CARD,
         PICK_UP_CARD,
         AVS_MISMATCH,
         CVV2_MISMATCH,
