@@ -435,6 +435,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
         }
     }
 
+    @Override
     public synchronized String storeCreditCard(Principal principal, CreditCard creditCard, Locale userLocale) throws SQLException {
         loadIfNeeded(userLocale);
         long highest = 0;
@@ -455,16 +456,26 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
         return uniqueId;
     }
 
-    synchronized public void updateMaskedCardNumber(Principal principal, CreditCard creditCard, String maskedCardNumber, Locale userLocale) throws SQLException {
+    /**
+     * Card numbers and expiration dates are not persisted to the properties files - encrypted local storage not supported.
+     */
+    @Override
+    synchronized public void updateCardNumber(Principal principal, CreditCard creditCard, String maskedCardNumber, String cardNumber, byte expirationMonth, short expirationYear, Locale userLocale) throws SQLException {
         loadIfNeeded(userLocale);
-        creditCard.setMaskedCardNumber(maskedCardNumber);
         // Find the card with matching persistence id
         CreditCard internalCreditCard = getCreditCard(creditCard.getPersistenceUniqueId(), userLocale);
-        if(internalCreditCard==null) throw new LocalizedSQLException(userLocale, "PersistenceMechanism.updateMaskedCardNumber.unableToFindCard", creditCard.getPersistenceUniqueId());
+        if(internalCreditCard==null) throw new LocalizedSQLException(userLocale, "PersistenceMechanism.updateCardNumber.unableToFindCard", creditCard.getPersistenceUniqueId());
         internalCreditCard.setMaskedCardNumber(maskedCardNumber);
         save(userLocale);
     }
     
+    /**
+     * Expiration dates are not persisted to the properties files - encrypted local storage not supported.
+     */
+    @Override
+    public void updateExpiration(Principal principal, CreditCard creditCard, byte expirationMonth, short expirationYear, Locale userLocale) throws SQLException {
+    }
+
     synchronized private CreditCard getCreditCard(String persistenceUniqueId, Locale userLocale) throws SQLException {
         loadIfNeeded(userLocale);
         for(CreditCard internalCreditCard : internalCreditCards) {
@@ -473,6 +484,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
         return null;
     }
 
+    @Override
     synchronized public void deleteCreditCard(Principal principal, CreditCard creditCard, Locale userLocale) throws SQLException {
         if(creditCard.getPersistenceUniqueId()!=null) {
             loadIfNeeded(userLocale);
@@ -489,6 +501,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
         }
     }
 
+    @Override
     synchronized public String insertTransaction(Principal principal, Group group, Transaction transaction, Locale userLocale) throws SQLException {
         loadIfNeeded(userLocale);
         long highest = 0;
@@ -509,10 +522,12 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
         return uniqueId;
     }
 
+    @Override
     public void saleCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
         updateTransaction(principal, transaction, userLocale);
     }
 
+    @Override
     public void voidCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
         updateTransaction(principal, transaction, userLocale);
     }

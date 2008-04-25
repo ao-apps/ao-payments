@@ -23,9 +23,14 @@ public interface PersistenceMechanism {
     String storeCreditCard(Principal principal, CreditCard creditCard, Locale userLocale) throws SQLException;
 
     /**
-     * Updates the store masked card number for a credit card.  Updates the masked value on the provided creditCard.
+     * Updates the store masked card number and optionally the card number and expiration for a credit card.
      */
-    void updateMaskedCardNumber(Principal principal, CreditCard creditCard, String maskedCardNumber, Locale userLocale) throws SQLException;
+    void updateCardNumber(Principal principal, CreditCard creditCard, String maskedCardNumber, String cardNumber, byte expirationMonth, short expirationYear, Locale userLocale) throws SQLException;
+
+    /**
+     * Optionally updates the expiration for a credit card.
+     */
+    void updateExpiration(Principal principal, CreditCard creditCard, byte expirationMonth, short expirationYear, Locale userLocale) throws SQLException;
 
     /**
      * Deletes the credit card from the credit card list.

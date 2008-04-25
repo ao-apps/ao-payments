@@ -13,6 +13,8 @@ import java.util.ResourceBundle;
 /**
  * Provides a simplified interface for obtaining localized values from the ApplicationResources.properties files.
  *
+ * This does not use the code from aocode-public to avoid any external JAR file dependencies.
+ *
  * @author  AO Industries, Inc.
  */
 public final class ApplicationResourcesAccessor {
