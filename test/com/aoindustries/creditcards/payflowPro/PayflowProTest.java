@@ -61,6 +61,7 @@ public class PayflowProTest extends TestCase {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         userLocale = Locale.getDefault();
 
@@ -172,19 +173,19 @@ public class PayflowProTest extends TestCase {
                 (byte)4,
                 (short)(Calendar.getInstance().get(Calendar.YEAR)+3),
                 "123",
-                "MC First",
-                "MC Last",
-                "MC AO Inc",
-                "mc@aoindustries.com",
+                "First",
+                "Last",
+                "AO Inc",
+                "accounting@aoindustries.com",
                 "(251)661-6195",
                 "(251)661-6957",
                 null,
                 null,
-                "MC 816 Azalea Rd",
+                "816 Azalea Rd",
                 null,
-                "MC Mobile",
-                "MC AL",
-                "MC 36693",
+                "Mobile",
+                "AL",
+                "36693",
                 "US",
                 "Test MasterCard card"
             )
