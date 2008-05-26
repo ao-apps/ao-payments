@@ -58,19 +58,19 @@ public class CreditCardProcessor {
         long currentTimeMillis = System.currentTimeMillis();
         Transaction transaction = new Transaction(
             provider.getProviderId(),
-            null,
+            null, // persistenceUniqueId
             group==null ? null : group.getName(),
             transactionRequest,
             creditCard,
             currentTimeMillis,
             principal==null ? null : principal.getName(),
-            null,
+            null, // authorizationResult
             currentTimeMillis,
             principal==null ? null : principal.getName(),
-            null,
-            (long)-1,
-            null,
-            null,
+            null, // captureResult
+            (long)-1, // voidTime
+            null, // voidPrincipalName
+            null, // voidResult
             Transaction.Status.PROCESSING
         );
         String persistenceUniqueId = persistenceMechanism.insertTransaction(principal, group, transaction, userLocale);
@@ -79,8 +79,6 @@ public class CreditCardProcessor {
         // Perform sale
         SaleResult saleResult = provider.sale(transactionRequest, creditCard, userLocale);
         long completedTimeMillis = System.currentTimeMillis();
-        //transaction.setAuthorizationTime(completedTimeMillis);
-        //transaction.setAuthorizationPrincipalName(principal==null ? null : principal.getName());
         transaction.setAuthorizationResult(saleResult.getAuthorizationResult());
         transaction.setCaptureTime(completedTimeMillis);
         transaction.setCapturePrincipalName(principal==null ? null : principal.getName());
@@ -128,13 +126,82 @@ public class CreditCardProcessor {
 
     /**
      * Authorizes a sale.  The funds are reserved but not captured until a later call to capture.
+     * The transaction is inserted into the persistence layer first in a PROCESSING state,
+     * the provider performs the authorization, and then the persistence layer transaction state is changed to the appropriate
+     * final state.  Thus, any problem or restart will not lose record of the transaction, and the PROCESSING
+     * state transaction may be manually resolved.
      *
+     * @param  principal  <code>null</code> is acceptable
+     * @param  group      <code>null</code> is acceptable
+     * 
      * @see  #capture
      * @see  #voidTransaction
      */
-    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        throw new RuntimeException("TODO: Implement method");
-        // TODO: return provider.authorize(transactionRequest, creditCard, userLocale);
+    public Transaction authorize(Principal principal, Group group, TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) throws SQLException {
+        // Insert into persistence layer
+        long currentTimeMillis = System.currentTimeMillis();
+        Transaction transaction = new Transaction(
+            provider.getProviderId(),
+            null, // persistenceUniqueId
+            group==null ? null : group.getName(),
+            transactionRequest,
+            creditCard,
+            currentTimeMillis,
+            principal==null ? null : principal.getName(),
+            null, // authorizationResult
+            (long)-1, // captureTime
+            null, // capturePricipalName
+            null, // captureResult
+            (long)-1, // voidTime
+            null, // voidPrincipalName
+            null, // voidResult
+            Transaction.Status.PROCESSING
+        );
+        String persistenceUniqueId = persistenceMechanism.insertTransaction(principal, group, transaction, userLocale);
+        transaction.setPersistenceUniqueId(persistenceUniqueId);
+
+        // Perform authorization
+        AuthorizationResult authorizationResult = provider.authorize(transactionRequest, creditCard, userLocale);
+        transaction.setAuthorizationResult(authorizationResult);
+        Transaction.Status status;
+        switch(authorizationResult.getCommunicationResult()) {
+            case LOCAL_ERROR:
+                status = Transaction.Status.LOCAL_ERROR;
+                break;
+            case IO_ERROR:
+                status = Transaction.Status.IO_ERROR;
+                break;
+            case GATEWAY_ERROR:
+                status = Transaction.Status.GATEWAY_ERROR;
+                break;
+            case SUCCESS:
+                switch(authorizationResult.getApprovalResult()) {
+                    case APPROVED:
+                        status = Transaction.Status.AUTHORIZED;
+                        break;
+                    case DECLINED:
+                        status = Transaction.Status.DECLINED;
+                        break;
+                    case HOLD:
+                        status = Transaction.Status.HOLD;
+                        break;
+                    default:
+                        throw new LocalizedSQLException(userLocale, "CreditCardProcessor.sale.unexpectedApprovalResult", authorizationResult.getApprovalResult());
+                }
+                break;
+            default:
+                throw new LocalizedSQLException(userLocale, "CreditCardProcessor.sale.unexpectedCommunicationResult", authorizationResult.getCommunicationResult());
+        }
+        transaction.setStatus(status);
+
+        // Update persistence layer
+        persistenceMechanism.authorizeCompleted(
+            principal,
+            transaction,
+            userLocale
+        );
+
+        return transaction;
     }
 
     /**
@@ -156,6 +223,10 @@ public class CreditCardProcessor {
      *
      * @throws  IOException   when unable to contact the bank
      * @throws  SQLException  when unable to update the persistence layer
+     * 
+     * @see  #sale
+     * @see  #authorize
+     * @see  #capture
      */
     public VoidResult voidTransaction(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
         Transaction.Status status = transaction.getStatus();

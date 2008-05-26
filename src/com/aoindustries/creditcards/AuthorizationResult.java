@@ -1,7 +1,7 @@
 package com.aoindustries.creditcards;
 
 /*
- * Copyright 2007 by AO Industries, Inc.,
+ * Copyright 2007-2008 by AO Industries, Inc.,
  * 816 Azalea Rd, Mobile, Alabama, 36693, U.S.A.
  * All rights reserved.
  */
@@ -24,6 +24,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
         /**
          * Gets the display value in the default locale.
          */
+        @Override
         public String toString() {
             return toString(Locale.getDefault());
         }
@@ -64,6 +65,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
         /**
          * Gets the display value in the default locale.
          */
+        @Override
         public String toString() {
             return toString(Locale.getDefault());
         }
@@ -84,6 +86,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
         /**
          * Gets the display value in the default locale.
          */
+        @Override
         public String toString() {
             return toString(Locale.getDefault());
         }
@@ -107,6 +110,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
         /**
          * Gets the display value in the default locale.
          */
+        @Override
         public String toString() {
             return toString(Locale.getDefault());
         }
@@ -138,6 +142,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
         /**
          * Gets the display value in the default locale.
          */
+        @Override
         public String toString() {
             return toString(Locale.getDefault());
         }
@@ -202,6 +207,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
         this.approvalCode = approvalCode;
     }
 
+    @Override
     public AuthorizationResult clone() {
         try {
             return (AuthorizationResult)super.clone();

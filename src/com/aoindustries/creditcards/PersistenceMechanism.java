@@ -59,6 +59,16 @@ public interface PersistenceMechanism {
     void saleCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException;
 
     /**
+     * Updates a transaction in the database after the authorize has completed.  The following transaction fields have been updated
+     * and must be stored:
+     * <ol>
+     *   <li>authorizationResult</li>
+     *   <li>status</li>
+     * </ol>
+     */
+    void authorizeCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException;
+
+    /**
      * Updates a transaction in the database after the void has completed.
      */
     void voidCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException;

@@ -528,6 +528,11 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
     }
 
     @Override
+    public void authorizeCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
+        updateTransaction(principal, transaction, userLocale);
+    }
+
+    @Override
     public void voidCompleted(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
         updateTransaction(principal, transaction, userLocale);
     }
