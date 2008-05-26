@@ -10,34 +10,22 @@ import com.aoindustries.creditcards.AuthorizationResult;
 import com.aoindustries.creditcards.CaptureResult;
 import com.aoindustries.creditcards.CreditCard;
 import com.aoindustries.creditcards.CreditResult;
-import com.aoindustries.creditcards.LocalizedIllegalArgumentException;
-import com.aoindustries.creditcards.PropertiesPersistenceMechanism;
 import com.aoindustries.creditcards.LocalizedIOException;
 import com.aoindustries.creditcards.MerchantServicesProvider;
-import com.aoindustries.creditcards.PersistenceMechanism;
 import com.aoindustries.creditcards.SaleResult;
 import com.aoindustries.creditcards.Transaction;
 import com.aoindustries.creditcards.TransactionRequest;
 import com.aoindustries.creditcards.TransactionResult;
 import com.aoindustries.creditcards.VoidResult;
 import com.aoindustries.creditcards.sagePayments.transaction_processing.TRANSACTION_PROCESSINGLocator;
-import com.aoindustries.creditcards.sagePayments.wsVault.INSERT_CREDIT_CARD_DATAResponseINSERT_CREDIT_CARD_DATAResult;
 import com.aoindustries.creditcards.sagePayments.wsVault.WsVaultLocator;
 import com.aoindustries.creditcards.sagePayments.wsVaultBankcard.WsVaultBankcardLocator;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URL;
 import java.rmi.RemoteException;
-import java.security.Principal;
-import java.security.acl.Group;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import javax.xml.rpc.ServiceException;
 import org.apache.axis.message.MessageElement;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Provider for <a href="http://www.sagepayments.com/">Sage Payment Solutions</a><br>
@@ -177,39 +165,48 @@ public class SagePayments implements MerchantServicesProvider {
     }
 
     public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
+        AuthorizationResult authorizationResult = saleOrAuthorize(transactionRequest, creditCard, userLocale, true);
+        return new SaleResult(
+            authorizationResult,
+            new CaptureResult(
+                authorizationResult.getProviderId(),
+                authorizationResult.getCommunicationResult(),
+                authorizationResult.getProviderErrorCode(),
+                authorizationResult.getErrorCode(),
+                authorizationResult.getProviderErrorMessage(),
+                authorizationResult.getProviderUniqueId()
+            )
+        );
+    }
+
+    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
+        return saleOrAuthorize(transactionRequest, creditCard, userLocale, false);
+    }
+
+    private AuthorizationResult saleOrAuthorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale, boolean capture) {
         // Only supports USD
         if(transactionRequest.getCurrencyCode()!=TransactionRequest.CurrencyCode.USD) {
             // The default locale is used because that represents the locale of the system admin, and they are the ones who need to
             // use this message (processor-specific, behind-the-scenes value)
             String message = ApplicationResourcesAccessor.getMessage(Locale.getDefault(), "TransactionRequest.currencyCode.onlyOneSupported", TransactionRequest.CurrencyCode.USD);
-            return new SaleResult(
-                new AuthorizationResult(
-                    getProviderId(),
-                    TransactionResult.CommunicationResult.LOCAL_ERROR,
-                    TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED.name(),
-                    TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED,
-                    message,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-                ),
-                new CaptureResult(
-                    getProviderId(),
-                    TransactionResult.CommunicationResult.LOCAL_ERROR,
-                    TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED.name(),
-                    TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED,
-                    message,
-                    null
-                )
+            return new AuthorizationResult(
+                getProviderId(),
+                TransactionResult.CommunicationResult.LOCAL_ERROR,
+                TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED.name(),
+                TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED,
+                message,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
             );
         } else {
             try {
@@ -227,62 +224,122 @@ public class SagePayments implements MerchantServicesProvider {
                     MessageElement[] results;
                     if(creditCard.getProviderUniqueId()!=null) {
                         //System.out.println("sale, creditCard.providerUniqueId="+creditCard.getProviderUniqueId());
-                        results = new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_SALE(
-                            emptyStringIfNull(merchantId),
-                            emptyStringIfNull(merchantKey),
-                            emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
-                            emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
-                            emptyStringIfNull(creditCard.getCity()),
-                            emptyStringIfNull(creditCard.getState()),
-                            emptyStringIfNull(creditCard.getPostalCode()),
-                            emptyStringIfNull(creditCard.getCountryCode()),
-                            emptyStringIfNull(creditCard.getEmail()),
-                            emptyStringIfNull(creditCard.getProviderUniqueId()),
-                            emptyStringIfNull(null),
-                            // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
-                            emptyStringIfNull(transactionRequest.getAmount().toString()),
-                            emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
-                            emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
-                            emptyStringIfNull(transactionRequest.getOrderNumber()),
-                            emptyStringIfNull(creditCard.getPhone()),
-                            emptyStringIfNull(creditCard.getFax()),
-                            emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
-                            emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
-                            emptyStringIfNull(transactionRequest.getShippingCity()),
-                            emptyStringIfNull(transactionRequest.getShippingState()),
-                            emptyStringIfNull(transactionRequest.getShippingPostalCode()),
-                            emptyStringIfNull(transactionRequest.getShippingCountryCode())
-                        ).get_any();
+                        results =
+                            capture
+                            ? new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_SALE(
+                                emptyStringIfNull(merchantId),
+                                emptyStringIfNull(merchantKey),
+                                emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+                                emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
+                                emptyStringIfNull(creditCard.getCity()),
+                                emptyStringIfNull(creditCard.getState()),
+                                emptyStringIfNull(creditCard.getPostalCode()),
+                                emptyStringIfNull(creditCard.getCountryCode()),
+                                emptyStringIfNull(creditCard.getEmail()),
+                                emptyStringIfNull(creditCard.getProviderUniqueId()),
+                                emptyStringIfNull(null),
+                                // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
+                                emptyStringIfNull(transactionRequest.getAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getOrderNumber()),
+                                emptyStringIfNull(creditCard.getPhone()),
+                                emptyStringIfNull(creditCard.getFax()),
+                                emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+                                emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
+                                emptyStringIfNull(transactionRequest.getShippingCity()),
+                                emptyStringIfNull(transactionRequest.getShippingState()),
+                                emptyStringIfNull(transactionRequest.getShippingPostalCode()),
+                                emptyStringIfNull(transactionRequest.getShippingCountryCode())
+                            ).get_any()
+                            : new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_AUTHONLY(
+                                emptyStringIfNull(merchantId),
+                                emptyStringIfNull(merchantKey),
+                                emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+                                emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
+                                emptyStringIfNull(creditCard.getCity()),
+                                emptyStringIfNull(creditCard.getState()),
+                                emptyStringIfNull(creditCard.getPostalCode()),
+                                emptyStringIfNull(creditCard.getCountryCode()),
+                                emptyStringIfNull(creditCard.getEmail()),
+                                emptyStringIfNull(creditCard.getProviderUniqueId()),
+                                emptyStringIfNull(null),
+                                // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
+                                emptyStringIfNull(transactionRequest.getAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getOrderNumber()),
+                                emptyStringIfNull(creditCard.getPhone()),
+                                emptyStringIfNull(creditCard.getFax()),
+                                emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+                                emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
+                                emptyStringIfNull(transactionRequest.getShippingCity()),
+                                emptyStringIfNull(transactionRequest.getShippingState()),
+                                emptyStringIfNull(transactionRequest.getShippingPostalCode()),
+                                emptyStringIfNull(transactionRequest.getShippingCountryCode())
+                            ).get_any()
+                        ;
                     } else {
                         // Use new card
-                        results = new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_SALE(
-                            emptyStringIfNull(merchantId),
-                            emptyStringIfNull(merchantKey),
-                            emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
-                            emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
-                            emptyStringIfNull(creditCard.getCity()),
-                            emptyStringIfNull(creditCard.getState()),
-                            emptyStringIfNull(creditCard.getPostalCode()),
-                            emptyStringIfNull(creditCard.getCountryCode()),
-                            emptyStringIfNull(creditCard.getEmail()),
-                            emptyStringIfNull(creditCard.getCardNumber()),
-                            emptyStringIfNull(creditCard.getExpirationDateMMYY(userLocale)),
-                            emptyStringIfNull(creditCard.getCardCode()),
-                            emptyStringIfNull(null),
-                            // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
-                            emptyStringIfNull(transactionRequest.getAmount().toString()),
-                            emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
-                            emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
-                            emptyStringIfNull(transactionRequest.getOrderNumber()),
-                            emptyStringIfNull(creditCard.getPhone()),
-                            emptyStringIfNull(creditCard.getFax()),
-                            emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
-                            emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
-                            emptyStringIfNull(transactionRequest.getShippingCity()),
-                            emptyStringIfNull(transactionRequest.getShippingState()),
-                            emptyStringIfNull(transactionRequest.getShippingPostalCode()),
-                            emptyStringIfNull(transactionRequest.getShippingCountryCode())
-                        ).get_any();
+                        results =
+                            capture
+                             ? new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_SALE(
+                                emptyStringIfNull(merchantId),
+                                emptyStringIfNull(merchantKey),
+                                emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+                                emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
+                                emptyStringIfNull(creditCard.getCity()),
+                                emptyStringIfNull(creditCard.getState()),
+                                emptyStringIfNull(creditCard.getPostalCode()),
+                                emptyStringIfNull(creditCard.getCountryCode()),
+                                emptyStringIfNull(creditCard.getEmail()),
+                                emptyStringIfNull(creditCard.getCardNumber()),
+                                emptyStringIfNull(creditCard.getExpirationDateMMYY(userLocale)),
+                                emptyStringIfNull(creditCard.getCardCode()),
+                                emptyStringIfNull(null),
+                                // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
+                                emptyStringIfNull(transactionRequest.getAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getOrderNumber()),
+                                emptyStringIfNull(creditCard.getPhone()),
+                                emptyStringIfNull(creditCard.getFax()),
+                                emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+                                emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
+                                emptyStringIfNull(transactionRequest.getShippingCity()),
+                                emptyStringIfNull(transactionRequest.getShippingState()),
+                                emptyStringIfNull(transactionRequest.getShippingPostalCode()),
+                                emptyStringIfNull(transactionRequest.getShippingCountryCode())
+                            ).get_any()
+                            : new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_AUTHONLY(
+                                emptyStringIfNull(merchantId),
+                                emptyStringIfNull(merchantKey),
+                                emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+                                emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
+                                emptyStringIfNull(creditCard.getCity()),
+                                emptyStringIfNull(creditCard.getState()),
+                                emptyStringIfNull(creditCard.getPostalCode()),
+                                emptyStringIfNull(creditCard.getCountryCode()),
+                                emptyStringIfNull(creditCard.getEmail()),
+                                emptyStringIfNull(creditCard.getCardNumber()),
+                                emptyStringIfNull(creditCard.getExpirationDateMMYY(userLocale)),
+                                emptyStringIfNull(creditCard.getCardCode()),
+                                emptyStringIfNull(null),
+                                // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
+                                emptyStringIfNull(transactionRequest.getAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
+                                emptyStringIfNull(transactionRequest.getOrderNumber()),
+                                emptyStringIfNull(creditCard.getPhone()),
+                                emptyStringIfNull(creditCard.getFax()),
+                                emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+                                emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
+                                emptyStringIfNull(transactionRequest.getShippingCity()),
+                                emptyStringIfNull(transactionRequest.getShippingState()),
+                                emptyStringIfNull(transactionRequest.getShippingPostalCode()),
+                                emptyStringIfNull(transactionRequest.getShippingCountryCode())
+                            ).get_any()
+                        ;
                     }
 
                     Node table1 = results[results.length-1].getFirstChild().getFirstChild();
@@ -400,103 +457,69 @@ public class SagePayments implements MerchantServicesProvider {
                     approvalResult = null;
                     approvalCode = null;
                 }
-                return new SaleResult(
-                    new AuthorizationResult(
-                        getProviderId(),
-                        communicationResult,
-                        providerErrorCode,
-                        errorCode,
-                        providerErrorMessage,
-                        providerUniqueId,
-                        providerApprovalResult,
-                        approvalResult,
-                        providerDeclineReason,
-                        declineReason,
-                        providerReviewReason,
-                        reviewReason,
-                        providerCvvResult,
-                        cvvResult,
-                        providerAvsResult,
-                        avsResult,
-                        approvalCode
-                    ),
-                    new CaptureResult(
-                        getProviderId(),
-                        communicationResult,
-                        providerErrorCode,
-                        errorCode,
-                        providerErrorMessage,
-                        providerUniqueId
-                    )
+                return new AuthorizationResult(
+                    getProviderId(),
+                    communicationResult,
+                    providerErrorCode,
+                    errorCode,
+                    providerErrorMessage,
+                    providerUniqueId,
+                    providerApprovalResult,
+                    approvalResult,
+                    providerDeclineReason,
+                    declineReason,
+                    providerReviewReason,
+                    reviewReason,
+                    providerCvvResult,
+                    cvvResult,
+                    providerAvsResult,
+                    avsResult,
+                    approvalCode
                 );
             } catch(ServiceException err) {
                 err.printStackTrace();
-                return new SaleResult(
-                    new AuthorizationResult(
-                        getProviderId(),
-                        TransactionResult.CommunicationResult.LOCAL_ERROR,
-                        err.getClass().getName(),
-                        TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
-                        err.getMessage(),
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                    ),
-                    new CaptureResult(
-                        getProviderId(),
-                        TransactionResult.CommunicationResult.LOCAL_ERROR,
-                        err.getClass().getName(),
-                        TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
-                        err.getMessage(),
-                        null
-                    )
+                return new AuthorizationResult(
+                    getProviderId(),
+                    TransactionResult.CommunicationResult.LOCAL_ERROR,
+                    err.getClass().getName(),
+                    TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
+                    err.getMessage(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
                 );
             } catch(RemoteException err) {
                 err.printStackTrace();
-                return new SaleResult(
-                    new AuthorizationResult(
-                        getProviderId(),
-                        TransactionResult.CommunicationResult.IO_ERROR,
-                        err.getClass().getName(),
-                        TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
-                        err.getMessage(),
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                    ),
-                    new CaptureResult(
-                        getProviderId(),
-                        TransactionResult.CommunicationResult.LOCAL_ERROR,
-                        err.getClass().getName(),
-                        TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
-                        err.getMessage(),
-                        null
-                    )
+                return new AuthorizationResult(
+                    getProviderId(),
+                    TransactionResult.CommunicationResult.IO_ERROR,
+                    err.getClass().getName(),
+                    TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
+                    err.getMessage(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
                 );
             }
         }
-    }
-
-    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        throw new RuntimeException("TODO: Implement method");
     }
 
     public CaptureResult capture(AuthorizationResult authorizationResult, Locale userLocale) {
