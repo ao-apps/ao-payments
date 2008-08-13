@@ -161,8 +161,6 @@ public class PayflowPro implements MerchantServicesProvider {
     /**
      * Adds a parameter to the request after checking its length.
      * If longer, throws an ErrorCodeException with the provided <code>TransactionResult.ErrorCode</code>, otherwise appends the value.
-     *
-     * @see  TransactionResult.ErrorCode
      */
     protected static void addMaxLengthParameter(Locale userLocale, Map<String,String> request, String name, String value, int maxLength, TransactionResult.ErrorCode errorCode) throws ErrorCodeException {
         if(value.length()>maxLength) {
