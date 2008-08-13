@@ -369,9 +369,11 @@ public class SagePayments implements MerchantServicesProvider {
                 }
 
                 // Correct output for CVV2 failure not setting cvvIndicator and setting error instead
+                boolean didCvvFix = false;
                 if("P".equals(cvvIndicator) && "0000N7".equals(code) && "CVV2 MISMATCH".equals(message)) {
                     code = null;
                     cvvIndicator = "N";
+                    didCvvFix = true;
                 } else if("P".equals(cvvIndicator) && (creditCard.getCardCode()==null || creditCard.getCardCode().length()==0)) {
                     // Correct when no CardCode is provided and it returns "P"
                     cvvIndicator = "S";
@@ -441,13 +443,24 @@ public class SagePayments implements MerchantServicesProvider {
                     approvalResult = AuthorizationResult.ApprovalResult.APPROVED;
                     approvalCode = code;
                 } else if("E".equals(approvalIndicator) || "X".equals(approvalIndicator)) {
-                    // Gateway Error
-                    communicationResult = declineReason==null ? TransactionResult.CommunicationResult.GATEWAY_ERROR : TransactionResult.CommunicationResult.SUCCESS;
-                    providerErrorCode = code;
-                    errorCode = declineReason==null ? convertErrorCode(code) : null;
-                    providerErrorMessage = message;
-                    approvalResult = declineReason==null ? null : AuthorizationResult.ApprovalResult.DECLINED;
-                    approvalCode = null;
+                    if("E".equals(approvalIndicator) && didCvvFix) {
+                        // Gateway Error
+                        communicationResult = TransactionResult.CommunicationResult.SUCCESS;
+                        providerErrorCode = code;
+                        errorCode = null;
+                        providerErrorMessage = message;
+                        approvalResult = AuthorizationResult.ApprovalResult.DECLINED;
+                        approvalCode = null;
+                        if(declineReason==null) declineReason = AuthorizationResult.DeclineReason.CVV2_MISMATCH;
+                    } else {
+                        // Gateway Error
+                        communicationResult = declineReason==null ? TransactionResult.CommunicationResult.GATEWAY_ERROR : TransactionResult.CommunicationResult.SUCCESS;
+                        providerErrorCode = code;
+                        errorCode = declineReason==null ? convertErrorCode(code) : null;
+                        providerErrorMessage = message;
+                        approvalResult = declineReason==null ? null : AuthorizationResult.ApprovalResult.DECLINED;
+                        approvalCode = null;
+                    }
                 } else {
                     // Unknown response
                     communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
