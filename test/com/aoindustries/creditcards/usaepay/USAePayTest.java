@@ -1,6 +1,6 @@
-package com.aoindustries.creditcards.payflowPro;
+package com.aoindustries.creditcards.usaepay;
 /*
- * Copyright 2007 by AO Industries, Inc.,
+ * Copyright 2008 by AO Industries, Inc.,
  * 816 Azalea Rd, Mobile, Alabama, 36693, U.S.A.
  * All rights reserved.
  */
@@ -19,7 +19,6 @@ import java.security.Principal;
 import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -29,17 +28,17 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * Tests PayflowPro.
+ * Tests USAePay.
  *
  * @author  AO Industries, Inc.
  */
-public class PayflowProTest extends TestCase {
+public class USAePayTest extends TestCase {
     
     private static Properties config;
     synchronized private static String getConfig(String name) throws IOException {
         if(config==null) {
-            InputStream in = PayflowProTest.class.getResourceAsStream("PayflowProTest.properties");
-            if(in==null) throw new IOException("Unable to find resource: PayflowProTest.properties");
+            InputStream in = USAePayTest.class.getResourceAsStream("USAePayTest.properties");
+            if(in==null) throw new IOException("Unable to find resource: USAePayTest.properties");
             try {
                 Properties props = new Properties();
                 props.load(in);
@@ -57,7 +56,7 @@ public class PayflowProTest extends TestCase {
     private Group group;
     private List<CreditCard> testGoodCreditCards;
 
-    public PayflowProTest(String testName) {
+    public USAePayTest(String testName) {
         super(testName);
     }
 
@@ -66,7 +65,12 @@ public class PayflowProTest extends TestCase {
         userLocale = Locale.getDefault();
 
         processor = new CreditCardProcessor(
-            new PayflowPro("PayflowProTest", getConfig("user"), getConfig("vendor"), getConfig("partner"), getConfig("password"), getConfig("certPath")),
+            new USAePay(
+                "USAePayTest",
+                getConfig("postUrl"),
+                getConfig("key"),
+                getConfig("pin")
+            ),
             PropertiesPersistenceMechanism.getInstance(getConfig("persistencePath"))
         );
 
@@ -74,9 +78,15 @@ public class PayflowProTest extends TestCase {
             public String getName() {
                 return "TestPrincipal";
             }
+            @Override
             public int hashCode() {
                 return getName().hashCode();
             }
+            @Override
+            public boolean equals(Object O) {
+                return super.equals(O);
+            }
+            @Override
             public String toString() {
                 return getName();
             }
@@ -108,24 +118,24 @@ public class PayflowProTest extends TestCase {
                 group.getName(),
                 null,
                 null,
-                "378282246310005",
+                "371122223332225",
                 null,
-                (byte)11,
-                (short)(Calendar.getInstance().get(Calendar.YEAR)+1),
+                (byte)9,
+                (short)2009,
                 "123",
                 "First",
                 "Last",
-                "Company = Inc.",     // Contains = to test special characters in Payflow Pro protocol
+                "Company = Inc.",     // Contains = to test special characters in protocol
                 "signup@aoindustries.com",
                 "(251)661-6195",
                 "(251)661-6957",
                 "AOINDUSTRIES",
                 "123-45-6789",
-                "816 Azalea & Rd",  // Contains & to test special characters in Payflow Pro protocol
+                "7262 Bull Pen & Cir",  // Contains & to test special characters in protocol
                 null,
                 "Mobile",
                 "AL",
-                "36693",
+                "36695",
                 "US",
                 "Test AmEx card"
             )
@@ -138,10 +148,10 @@ public class PayflowProTest extends TestCase {
                 group.getName(),
                 null,
                 null,
-                "6011111111111117",
+                "6011222233332224",
                 null,
-                (byte)7,
-                (short)(Calendar.getInstance().get(Calendar.YEAR)+1),
+                (byte)9,
+                (short)2009,
                 null,
                 "D First",
                 "D Last",
@@ -168,10 +178,10 @@ public class PayflowProTest extends TestCase {
                 null,
                 null,
                 null,
-                "5555555555554444",
+                "5555444433332226",
                 null,
-                (byte)4,
-                (short)(Calendar.getInstance().get(Calendar.YEAR)+3),
+                (byte)9,
+                (short)2009,
                 "123",
                 "First",
                 "Last",
@@ -198,12 +208,10 @@ public class PayflowProTest extends TestCase {
                 null,
                 null,
                 null,
-                "4111111111111111",
+                "4000100011112224",
                 null,
-                (byte)3,
-                (short)(Calendar.getInstance().get(Calendar.YEAR)+7),
-                null,
-                null,
+                (byte)9,
+                (short)2009,
                 null,
                 null,
                 null,
@@ -217,11 +225,14 @@ public class PayflowProTest extends TestCase {
                 null,
                 null,
                 null,
-                null
+                null,
+                null,
+                "Test Visa card"
             )
         );
     }
 
+    @Override
     protected void tearDown() throws Exception {
         userLocale = null;
         processor = null;
@@ -231,7 +242,7 @@ public class PayflowProTest extends TestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(PayflowProTest.class);
+        TestSuite suite = new TestSuite(USAePayTest.class);
         return suite;
     }
 
@@ -257,7 +268,7 @@ public class PayflowProTest extends TestCase {
                 group,
                 new TransactionRequest(
                     userLocale,
-                    true,
+                    false,
                     InetAddress.getLocalHost().getHostAddress(),
                     120,
                     "1",
@@ -275,67 +286,6 @@ public class PayflowProTest extends TestCase {
                     "Mobile",
                     "AL",
                     "36693",
-                    "US",
-                    false,
-                    "accounting@aoidustries.com",
-                    null,
-                    null,
-                    "Test transaction"
-                ),
-                testGoodCreditCard,
-                userLocale
-            );
-            assertEquals(
-                "Transaction authorization communication result should be SUCCESS",
-                TransactionResult.CommunicationResult.SUCCESS,
-                transaction.getAuthorizationResult().getCommunicationResult()
-            );
-            assertEquals(
-                "Transaction capture communication result should be SUCCESS",
-                TransactionResult.CommunicationResult.SUCCESS,
-                transaction.getCaptureResult().getCommunicationResult()
-            );
-            assertEquals(
-                "Transaction should be approved",
-                AuthorizationResult.ApprovalResult.APPROVED,
-                transaction.getAuthorizationResult().getApprovalResult()
-            );
-            assertEquals(
-                "transaction.status should be CAPTURED",
-                Transaction.Status.CAPTURED,
-                transaction.getStatus()
-            );
-        }
-    }
-
-    /**
-     * Test a sale for Japnese Yen
-     */
-    public void testNewCardSaleJapaneseYen() throws IOException, SQLException {
-        for(CreditCard testGoodCreditCard : testGoodCreditCards) {
-            Transaction transaction = processor.sale(
-                principal,
-                group,
-                new TransactionRequest(
-                    userLocale,
-                    true,
-                    InetAddress.getLocalHost().getHostAddress(),
-                    120,
-                    "1",
-                    TransactionRequest.CurrencyCode.JPY,
-                    new BigDecimal("1000"),
-                    null,
-                    false,
-                    null,
-                    null,
-                    "Daniel",
-                    "Armstrong",
-                    "AO Industries, Inc.",
-                    "816 Azalea Rd",
-                    null,
-                    "Mobile",
-                    "AL",
-                    "56693",
                     "US",
                     false,
                     "accounting@aoidustries.com",

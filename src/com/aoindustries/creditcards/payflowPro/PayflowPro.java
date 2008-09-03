@@ -5,9 +5,9 @@ package com.aoindustries.creditcards.payflowPro;
  * 816 Azalea Rd, Mobile, Alabama, 36693, U.S.A.
  * All rights reserved.
  */
+import com.aoindustries.creditcards.ErrorCodeException;
 import com.Verisign.payment.PFProAPI;
 import com.Verisign.payment.ParameterList;
-import com.aoindustries.creditcards.ApplicationResourcesAccessor;
 import com.aoindustries.creditcards.AuthorizationResult;
 import com.aoindustries.creditcards.CaptureResult;
 import com.aoindustries.creditcards.CreditCard;
@@ -332,7 +332,7 @@ public class PayflowPro implements MerchantServicesProvider {
             String companyName = creditCard.getCompanyName();
             if(companyName!=null && companyName.length()>0) request.put("COMPANYNAME", companyName);
         } catch(ErrorCodeException err) {
-            new AuthorizationResult(
+            return new AuthorizationResult(
                 getProviderId(),
                 TransactionResult.CommunicationResult.LOCAL_ERROR,
                 err.getErrorCode().name(),

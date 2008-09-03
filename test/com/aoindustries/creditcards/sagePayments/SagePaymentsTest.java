@@ -62,7 +62,7 @@ public class SagePaymentsTest extends TestCase {
         userLocale = Locale.getDefault();
 
         processor = new CreditCardProcessor(
-            new SagePayments("JUnit", getConfig("MERCHANT_ID"), getConfig("MERCHANT_KEY")),
+            new SagePayments("SagePaymentsTest", getConfig("MERCHANT_ID"), getConfig("MERCHANT_KEY")),
             PropertiesPersistenceMechanism.getInstance(getConfig("PERSISTENCE_PATH"))
         );
 

@@ -1,12 +1,10 @@
-package com.aoindustries.creditcards.payflowPro;
+package com.aoindustries.creditcards;
 
 /*
  * Copyright 2007 by AO Industries, Inc.,
  * 816 Azalea Rd, Mobile, Alabama, 36693, U.S.A.
  * All rights reserved.
  */
-import com.aoindustries.creditcards.LocalizedIOException;
-import com.aoindustries.creditcards.TransactionResult;
 import java.util.Locale;
 
 /**
