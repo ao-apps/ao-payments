@@ -1,7 +1,7 @@
 package com.aoindustries.creditcards.sagePayments;
 /*
- * Copyright 2007 by AO Industries, Inc.,
- * 816 Azalea Rd, Mobile, Alabama, 36693, U.S.A.
+ * Copyright 2007-2008 by AO Industries, Inc.,
+ * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
 import com.aoindustries.creditcards.CreditCard;
@@ -111,15 +111,15 @@ public class SagePaymentsTest extends TestCase {
             "Armstrong",
             "AO Industries, Inc.",
             "dan@aoindustries.com",
-            "(251)661-6195",
-            "(251)661-6957",
+            "(251)607-9556",
+            "(251)607-9557",
             "AOINDUSTRIES",
             "88-0441445",
-            "816 Azalea Rd",
+            "7262 Bull Pen Cir",
             null,
             "Mobile",
             "AL",
-            "36693",
+            "36695",
             "US",
             "Test card"
         );
@@ -168,11 +168,11 @@ public class SagePaymentsTest extends TestCase {
                 "Daniel",
                 "Armstrong",
                 "AO Industries, Inc.",
-                "816 Azalea Rd",
+                "7262 Bull Pen Cir",
                 null,
                 "Mobile",
                 "AL",
-                "36693",
+                "36695",
                 "US",
                 false,
                 "accounting@aoidustries.com",
@@ -249,11 +249,11 @@ public class SagePaymentsTest extends TestCase {
                     "Daniel",
                     "Armstrong",
                     "AO Industries, Inc.",
-                    "816 Azalea Rd",
+                    "7262 Bull Pen Cir",
                     null,
                     "Mobile",
                     "AL",
-                    "36693",
+                    "36695",
                     "US",
                     false,
                     "accounting@aoidustries.com",

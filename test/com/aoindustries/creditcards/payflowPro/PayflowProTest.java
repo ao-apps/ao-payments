@@ -1,7 +1,7 @@
 package com.aoindustries.creditcards.payflowPro;
 /*
- * Copyright 2007 by AO Industries, Inc.,
- * 816 Azalea Rd, Mobile, Alabama, 36693, U.S.A.
+ * Copyright 2007-2008 by AO Industries, Inc.,
+ * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
 import com.aoindustries.creditcards.AuthorizationResult;
@@ -117,8 +117,8 @@ public class PayflowProTest extends TestCase {
                 "Last",
                 "Company = Inc.",     // Contains = to test special characters in Payflow Pro protocol
                 "signup@aoindustries.com",
-                "(251)661-6195",
-                "(251)661-6957",
+                "(251)607-9556",
+                "(251)607-9557",
                 "AOINDUSTRIES",
                 "123-45-6789",
                 "816 Azalea & Rd",  // Contains & to test special characters in Payflow Pro protocol
@@ -177,15 +177,15 @@ public class PayflowProTest extends TestCase {
                 "Last",
                 "AO Inc",
                 "accounting@aoindustries.com",
-                "(251)661-6195",
-                "(251)661-6957",
+                "(251)607-9556",
+                "(251)607-9557",
                 null,
                 null,
-                "816 Azalea Rd",
+                "7262 Bull Pen Cir",
                 null,
                 "Mobile",
                 "AL",
-                "36693",
+                "36695",
                 "US",
                 "Test MasterCard card"
             )
@@ -270,11 +270,11 @@ public class PayflowProTest extends TestCase {
                     "Daniel",
                     "Armstrong",
                     "AO Industries, Inc.",
-                    "816 Azalea Rd",
+                    "7262 Bull Pen Cir",
                     null,
                     "Mobile",
                     "AL",
-                    "36693",
+                    "36695",
                     "US",
                     false,
                     "accounting@aoidustries.com",
@@ -331,11 +331,11 @@ public class PayflowProTest extends TestCase {
                     "Daniel",
                     "Armstrong",
                     "AO Industries, Inc.",
-                    "816 Azalea Rd",
+                    "7262 Bull Pen Cir",
                     null,
                     "Mobile",
                     "AL",
-                    "56693",
+                    "56695",
                     "US",
                     false,
                     "accounting@aoidustries.com",

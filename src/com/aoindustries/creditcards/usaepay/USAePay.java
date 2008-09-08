@@ -2,7 +2,7 @@ package com.aoindustries.creditcards.usaepay;
 
 /*
  * Copyright 2008 by AO Industries, Inc.,
- * 816 Azalea Rd, Mobile, Alabama, 36693, U.S.A.
+ * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
 import com.aoindustries.creditcards.AuthorizationResult;
