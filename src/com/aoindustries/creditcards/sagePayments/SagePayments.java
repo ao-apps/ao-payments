@@ -23,6 +23,8 @@ import com.aoindustries.creditcards.sagePayments.wsVaultBankcard.WsVaultBankcard
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.rpc.ServiceException;
 import org.apache.axis.message.MessageElement;
 import org.w3c.dom.Node;
@@ -51,6 +53,8 @@ import org.w3c.dom.Node;
  * @author  AO Industries, Inc.
  */
 public class SagePayments implements MerchantServicesProvider {
+
+    private static final Logger logger = Logger.getLogger(SagePayments.class.getName());
 
     /**
      * Combines the first and last names into a single name String.
@@ -490,7 +494,7 @@ public class SagePayments implements MerchantServicesProvider {
                     approvalCode
                 );
             } catch(ServiceException err) {
-                err.printStackTrace();
+                logger.log(Level.SEVERE, null, err);
                 return new AuthorizationResult(
                     getProviderId(),
                     TransactionResult.CommunicationResult.LOCAL_ERROR,
@@ -511,7 +515,7 @@ public class SagePayments implements MerchantServicesProvider {
                     null
                 );
             } catch(RemoteException err) {
-                err.printStackTrace();
+                logger.log(Level.SEVERE, null, err);
                 return new AuthorizationResult(
                     getProviderId(),
                     TransactionResult.CommunicationResult.IO_ERROR,

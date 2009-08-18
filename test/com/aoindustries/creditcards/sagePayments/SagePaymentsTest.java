@@ -194,7 +194,7 @@ public class SagePaymentsTest extends TestCase {
             try {
                 Thread.sleep(10000);
             } catch(InterruptedException err) {
-                err.printStackTrace();
+                logger.log(Level.WARNING, null, err);
             }*/
             // Void the transaction
             switch(transaction.getStatus()) {
@@ -275,7 +275,7 @@ public class SagePaymentsTest extends TestCase {
                 try {
                     Thread.sleep(10000);
                 } catch(InterruptedException err) {
-                    err.printStackTrace();
+                    logger.log(Level.WARNING, null, err);
                 }*/
                 // Void the transaction
                 switch(transaction.getStatus()) {

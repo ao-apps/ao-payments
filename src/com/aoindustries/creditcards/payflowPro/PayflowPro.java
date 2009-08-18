@@ -24,6 +24,8 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provider for the PayflowPro_XMLPay system<br>
@@ -56,6 +58,8 @@ import java.util.Map;
  * @author  AO Industries, Inc.
  */
 public class PayflowPro implements MerchantServicesProvider {
+
+    private static final Logger logger = Logger.getLogger(PayflowPro.class.getName());
 
     private final String providerId;
     private final String user;
@@ -267,9 +271,9 @@ public class PayflowPro implements MerchantServicesProvider {
             try {
                 addTrimmedParameter(request, "CUSTHOSTNAME", InetAddress.getLocalHost().getHostName(), 60);
             } catch(IOException err) {
-                err.printStackTrace();
+                logger.log(Level.WARNING, null, err);
             }
- 
+
             String customerIp = transactionRequest.getCustomerIp();
             if(customerIp!=null && customerIp.length()>0) addTrimmedParameter(request, "CUSTIP", customerIp, 15);
 

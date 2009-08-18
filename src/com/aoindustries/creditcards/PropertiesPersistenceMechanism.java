@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Stores everything in a simple on-disk properties file.  This is not a scalable solution
@@ -32,6 +34,8 @@ import java.util.Properties;
  * @author  AO Industries, Inc.
  */
 public class PropertiesPersistenceMechanism implements PersistenceMechanism {
+
+    private static final Logger logger = Logger.getLogger(PropertiesPersistenceMechanism.class.getName());
 
     private static final Map<String,PropertiesPersistenceMechanism> ppms = new HashMap<String,PropertiesPersistenceMechanism>();
 
@@ -445,7 +449,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
                 if(id>highest) highest = id;
             } catch(NumberFormatException err) {
                 // This should not happen, but is not critical
-                err.printStackTrace();
+                logger.log(Level.WARNING, null, err);
             }
         }
         String uniqueId = Long.toString(highest+1);
@@ -511,7 +515,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
                 if(id>highest) highest = id;
             } catch(NumberFormatException err) {
                 // This should not happen, but is not critical
-                err.printStackTrace();
+                logger.log(Level.WARNING, null, err);
             }
         }
         String uniqueId = Long.toString(highest+1);
