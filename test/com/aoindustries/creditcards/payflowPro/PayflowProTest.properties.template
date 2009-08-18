@@ -2,5 +2,4 @@ user=
 partner=
 vendor=
 password=
-certPath=/path/to/certs
 persistencePath=/path/to/PropertiesPersistenceMechanism.properties

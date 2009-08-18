@@ -52,12 +52,13 @@ public class SagePaymentsTest extends TestCase {
     private CreditCardProcessor processor;
     private Principal principal;
     private Group group;
-    private CreditCard aoCreditCard;
+    private CreditCard testCard;
 
     public SagePaymentsTest(String testName) {
         super(testName);
     }
 
+    @Override
     protected void setUp() throws Exception {
         userLocale = Locale.getDefault();
 
@@ -70,11 +71,19 @@ public class SagePaymentsTest extends TestCase {
             public String getName() {
                 return "TestPrincipal";
             }
+            @Override
             public int hashCode() {
                 return getName().hashCode();
             }
+            @Override
             public String toString() {
                 return getName();
+            }
+            @Override
+            public boolean equals(Object obj) {
+                if(obj==null) return false;
+                if(getClass()!=obj.getClass()) return false;
+                return this==obj;
             }
         };
         group = new Group() {
@@ -95,42 +104,43 @@ public class SagePaymentsTest extends TestCase {
             }
         };
 
-        aoCreditCard = new CreditCard(
+        testCard = new CreditCard(
             userLocale,
             null,
             principal.getName(),
             group.getName(),
             null,
             null,
-            "4828800975234027",
+            getConfig("testCard.cardNumber"),
             null,
-            (byte)11,
-            (short)2008,
-            "682",
-            "Daniel",
-            "Armstrong",
-            "AO Industries, Inc.",
-            "dan@aoindustries.com",
-            "(251)607-9556",
-            "(251)607-9557",
-            "AOINDUSTRIES",
-            "88-0441445",
-            "7262 Bull Pen Cir",
-            null,
-            "Mobile",
-            "AL",
-            "36695",
-            "US",
-            "Test card"
+            Byte.parseByte(getConfig("testCard.expirationMonth")),
+            Short.parseShort(getConfig("testCard.expirationYear")),
+            getConfig("testCard.cvv2"),
+            getConfig("testCard.firstName"),
+            getConfig("testCard.lastName"),
+            getConfig("testCard.companyName"),
+            getConfig("testCard.email"),
+            getConfig("testCard.phone"),
+            getConfig("testCard.fax"),
+            getConfig("testCard.customerId"),
+            getConfig("testCard.customerTaxId"),
+            getConfig("testCard.streetAddress1"),
+            getConfig("testCard.streetAddress2"),
+            getConfig("testCard.city"),
+            getConfig("testCard.state"),
+            getConfig("testCard.postalCode"),
+            getConfig("testCard.countryCode"),
+            getConfig("testCard.comments")
         );
     }
 
+    @Override
     protected void tearDown() throws Exception {
         userLocale = null;
         processor = null;
         principal = null;
         group = null;
-        aoCreditCard = null;
+        testCard = null;
     }
 
     public static Test suite() {
@@ -175,12 +185,12 @@ public class SagePaymentsTest extends TestCase {
                 "36695",
                 "US",
                 false,
-                "accounting@aoidustries.com",
+                "accounting@aoindustries.com",
                 null,
                 null,
                 "Test transaction"
             ),
-            aoCreditCard,
+            testCard,
             userLocale
         );
         try {
@@ -214,7 +224,7 @@ public class SagePaymentsTest extends TestCase {
      * Test a sale with a stored card.
      */
     public void testStoredCardSale() throws SQLException, IOException {
-        CreditCard creditCard = aoCreditCard.clone();
+        CreditCard creditCard = testCard.clone();
 
         // Test storeCreditCard
         assertNotNull("Before storing creditCard, cardNumber should not be null", creditCard.getCardNumber());
@@ -256,7 +266,7 @@ public class SagePaymentsTest extends TestCase {
                     "36695",
                     "US",
                     false,
-                    "accounting@aoidustries.com",
+                    "accounting@aoindustries.com",
                     null,
                     null,
                     "Test transaction"

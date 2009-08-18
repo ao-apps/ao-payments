@@ -1,5 +1,4 @@
 postUrl=
 key=
 pin=
-certPath=/path/to/certs
 persistencePath=/path/to/PropertiesPersistenceMechanism.properties

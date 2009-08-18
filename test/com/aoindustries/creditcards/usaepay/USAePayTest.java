@@ -288,7 +288,7 @@ public class USAePayTest extends TestCase {
                     "36695",
                     "US",
                     false,
-                    "accounting@aoidustries.com",
+                    "accounting@aoindustries.com",
                     null,
                     null,
                     "Test transaction"

@@ -5,9 +5,6 @@ package com.aoindustries.creditcards.payflowPro;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
-import com.aoindustries.creditcards.ErrorCodeException;
-import com.Verisign.payment.PFProAPI;
-import com.Verisign.payment.ParameterList;
 import com.aoindustries.creditcards.AuthorizationResult;
 import com.aoindustries.creditcards.CaptureResult;
 import com.aoindustries.creditcards.CreditCard;
@@ -20,12 +17,24 @@ import com.aoindustries.creditcards.TransactionResult;
 import com.aoindustries.creditcards.VoidResult;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.InetAddress;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import paypal.payflow.AuthorizationTransaction;
+import paypal.payflow.BaseTransaction;
+import paypal.payflow.BillTo;
+import paypal.payflow.CardTender;
+import paypal.payflow.Currency;
+import paypal.payflow.CustomerInfo;
+import paypal.payflow.Invoice;
+import paypal.payflow.PayflowConnectionData;
+import paypal.payflow.PayflowUtility;
+import paypal.payflow.Response;
+import paypal.payflow.SDKProperties;
+import paypal.payflow.SaleTransaction;
+import paypal.payflow.ShipTo;
+import paypal.payflow.TransactionResponse;
+import paypal.payflow.UserInfo;
 
 /**
  * Provider for the PayflowPro_XMLPay system<br>
@@ -41,7 +50,6 @@ import java.util.logging.Logger;
  *     The ID provided to you by the authorized PayPal Reseller who registered you for the Payflow Pro service.
  *     If you purchased your account directly from PayPal, use PayPal.  This values is case-sensitive.</li>
  *   <li>password - User's password (string).</li>
- *   <li>certPath - The path to the directory containing the <code>f73e89fd.0</code> file.
  * </ol>
  *
  * TODO: Should we support the GetStatus call???
@@ -61,20 +69,35 @@ public class PayflowPro implements MerchantServicesProvider {
 
     private static final Logger logger = Logger.getLogger(PayflowPro.class.getName());
 
+    private static final String TEST_HOST_ADDRESS = "pilot-payflowpro.paypal.com";
+    private static final String LIVE_HOST_ADDRESS = "payflowpro.paypal.com";
+    private static final int HOST_PORT = 443;
+    private static final int TIMEOUT = 60;
+
     private final String providerId;
     private final String user;
     private final String vendor;
     private final String partner;
     private final String password;
-    private final String certPath;
 
+    public PayflowPro(String providerId, String user, String vendor, String partner, String password) {
+        this.providerId = providerId;
+        this.user = user;
+        this.vendor = vendor;
+        this.partner = partner;
+        this.password = password;
+    }
+
+    /**
+     * @deprecated  certPath is no longer used
+     */
+    @Deprecated
     public PayflowPro(String providerId, String user, String vendor, String partner, String password, String certPath) {
         this.providerId = providerId;
         this.user = user;
         this.vendor = vendor;
         this.partner = partner;
         this.password = password;
-        this.certPath = certPath;
     }
 
     public String getProviderId() {
@@ -95,96 +118,6 @@ public class PayflowPro implements MerchantServicesProvider {
 
     public String getPassword() {
         return password;
-    }
-
-    public String getCertPath() {
-        return certPath;
-    }
-
-    /**
-     * Submits a transaction (a Map of name/value pairs), and returns the result as a Map of name/value pairs.
-     */
-    protected Map<String,String> submitTransaction(Locale userLocale, Map<String,String> request, boolean testMode) throws ErrorCodeException {
-        // Build the request string before allocating the connection to payflow
-        StringBuilder parameterSB = new StringBuilder();
-        for(Map.Entry<String,String> entry : request.entrySet()) {
-            String name = entry.getKey();
-            String value = entry.getValue();
-            if(value==null) value="";
-            else value = value.replace('"', '\'');
-
-            if(parameterSB.length()>0) parameterSB.append('&');
-            parameterSB.append(name);
-            if(value.indexOf('&')!=-1 || value.indexOf('=')!=-1) {
-                // Provide length due to special character
-                parameterSB.append('[').append(value.length()).append("]=");
-            } else {
-                // No length required
-                parameterSB.append('=');
-            }
-            parameterSB.append(value);
-        }
-
-        // Perform the transaction
-        String response;
-        PFProAPI pfPro = new PFProAPI();
-        pfPro.SetCertPath(certPath);
-        pfPro.CreateContext(
-            testMode ? "test-payflow.verisign.com" : "payflow.verisign.com",
-            443,
-            60,
-            "",
-            0,
-            "",
-            ""
-        );
-        try {
-            response = pfPro.SubmitTransaction(parameterSB.toString());
-        } finally {
-            pfPro.DestroyContext();
-        }
-
-        // Parse the response after releasing the resources
-        ParameterList plist = new ParameterList(response);
-        Map<String,String> results = new HashMap<String,String>();
-        while(plist.parseNextNameValuePair()) {
-            String name = plist.getCurrentName();
-            String value = plist.getCurrentValue();
-            if(results.put(name, value)!=null) {
-                throw new ErrorCodeException(
-                    TransactionResult.ErrorCode.UNKNOWN,
-                    userLocale,
-                    "TransactionResult.duplicateResponseName",
-                    name
-                );
-            }
-        }
-        return results;
-    }
-
-    /**
-     * Adds a parameter to the request after checking its length.
-     * If longer, throws an ErrorCodeException with the provided <code>TransactionResult.ErrorCode</code>, otherwise appends the value.
-     */
-    protected static void addMaxLengthParameter(Locale userLocale, Map<String,String> request, String name, String value, int maxLength, TransactionResult.ErrorCode errorCode) throws ErrorCodeException {
-        if(value.length()>maxLength) {
-            throw new ErrorCodeException(
-                errorCode,
-                userLocale,
-                "TransactionRequest.field.tooLong",
-                name,
-                maxLength
-            );
-        }
-        request.put(name, value);
-    }
-    
-    /**
-     * Adds a parameter to the request.  If the value is too long, the first <code>maxLength</code> characters are used and the rest are discarded.
-     */
-    protected static void addTrimmedParameter(Map<String,String> request, String name, String value, int maxLength) {
-        if(value!=null && value.length()>maxLength) value=value.substring(0, maxLength);
-        request.put(name, value);
     }
 
     /**
@@ -218,14 +151,41 @@ public class PayflowPro implements MerchantServicesProvider {
     }
 
     private AuthorizationResult authorizeOrSale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale, String trxType) {
-        // Build the list of request parameters, catching ErrorCodeException after this step
+        // Build the transaction request objects, catching ErrorCodeException after this step
         // because any of these errors will all be considered as TransactionResult.CommunicationResult.LOCAL_ERROR
-        Map<String,String> request = new HashMap<String,String>();
+        BaseTransaction transaction;
         try {
-            // Build the request parameters
-            addMaxLengthParameter(userLocale, request, "ACCT", creditCard.getCardNumber(), 19, TransactionResult.ErrorCode.INVALID_CARD_NUMBER);
+            // These SDKProperties may not be necessary because PayflowConnectionData is used below, but they can't hurt.
+            SDKProperties.setHostAddress(transactionRequest.getTestMode() ? TEST_HOST_ADDRESS : LIVE_HOST_ADDRESS);
+            SDKProperties.setHostPort(HOST_PORT);
+            SDKProperties.setTimeOut(TIMEOUT);
 
-            // Add tax, ship, and duty amounts
+            UserInfo userInfo = new UserInfo(
+                user,
+                vendor==null ? "" : vendor,
+                partner,
+                password
+            );
+            PayflowConnectionData connectionData = new PayflowConnectionData(
+                transactionRequest.getTestMode() ? TEST_HOST_ADDRESS : LIVE_HOST_ADDRESS,
+                HOST_PORT,
+                TIMEOUT
+            );
+
+            // Invoice
+            Invoice invoice = new Invoice();
+            String ponum = transactionRequest.getPurchaseOrderNumber();
+            if(ponum!=null && ponum.length()>0) invoice.setPoNum(ponum);
+            String invnum = transactionRequest.getInvoiceNumber();
+            if(invnum!=null && invnum.length()>0) invoice.setInvNum(invnum);
+            String comment1 = transactionRequest.getDescription();
+            if(comment1 != null && comment1.length()>0) invoice.setComment1("Transaction Description: "+comment1);
+            String comment2 = creditCard.getComments();
+            if(comment2 != null && comment2.length()>0) invoice.setComment2("Credit Card Comments: "+comment2);
+            String orderNumber = transactionRequest.getOrderNumber();
+            if(orderNumber!=null && orderNumber.length()>0) invoice.setCustRef(orderNumber);
+
+            // Add tax, ship, and duty amounts to invoice
             BigDecimal amount = transactionRequest.getAmount();
             BigDecimal taxAmount = transactionRequest.getTaxAmount();
             if(taxAmount!=null) amount = amount.add(taxAmount);
@@ -233,114 +193,108 @@ public class PayflowPro implements MerchantServicesProvider {
             if(shippingAmount!=null) amount = amount.add(shippingAmount);
             BigDecimal dutyAmount = transactionRequest.getDutyAmount();
             if(dutyAmount!=null) amount = amount.add(dutyAmount);
-            
-            addMaxLengthParameter(userLocale, request, "AMT", amount.toString(), 10, TransactionResult.ErrorCode.INVALID_AMOUNT);
+            invoice.setAmt(new Currency(amount.doubleValue(), transactionRequest.getCurrencyCode().name()));
+            if(taxAmount!=null) invoice.setTaxAmt(new Currency(taxAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
+            invoice.setTaxExempt(transactionRequest.getTaxExempt() ? "Y" : "N");
+            if(shippingAmount!=null) invoice.setShippingAmt(new Currency(shippingAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
+            if(dutyAmount!=null) invoice.setDutyAmt(new Currency(dutyAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
 
-            String comment1 = transactionRequest.getDescription();
-            if(comment1 != null && comment1.length()>0) addTrimmedParameter(request, "COMMENT1", "Transaction Description: "+comment1, 128);
-            String comment2 = creditCard.getComments();
-            if(comment2 != null && comment2.length()>0) addTrimmedParameter(request, "COMMENT2", "Credit Card Comments: "+comment2, 128);
-
-            addMaxLengthParameter(userLocale, request, "CURRENCY", transactionRequest.getCurrencyCode().name(), 3, TransactionResult.ErrorCode.INVALID_CURRENCY_CODE);
-            
-            String orderNumber = transactionRequest.getOrderNumber();
-            if(orderNumber!=null && orderNumber.length()>0) addMaxLengthParameter(userLocale, request, "CUSTREF", orderNumber, 12, TransactionResult.ErrorCode.INVALID_ORDER_NUMBER);
-            
-            String cvv2 = creditCard.getCardCode();
-            if(cvv2!=null && cvv2.length()>0) addMaxLengthParameter(userLocale, request, "CVV2", cvv2, 4, TransactionResult.ErrorCode.INVALID_CARD_CODE);
-            
-            addMaxLengthParameter(userLocale, request, "EXPDATE", creditCard.getExpirationDateMMYY(userLocale), 4, TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE);
-            addTrimmedParameter(request, "FIRSTNAME", creditCard.getFirstName(), 30);
-            addMaxLengthParameter(userLocale, request, "PARTNER", partner, 12, TransactionResult.ErrorCode.INVALID_PARTNER);
-            addMaxLengthParameter(userLocale, request, "PWD", password, 32, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET);
-            String street = getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2());
-            if(street.length()>0) addTrimmedParameter(request, "STREET", street, 30);
-            request.put("TENDER", "C");
-            request.put("TRXTYPE", trxType);
-            addMaxLengthParameter(userLocale, request, "USER", user, 64, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET);
-            addMaxLengthParameter(userLocale, request, "VENDOR", vendor==null ? "" : vendor, 64, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET);
-            String zip = creditCard.getPostalCode();
-            if(zip!=null && zip.length()>0) addTrimmedParameter(request, "ZIP", CreditCard.numbersOnly(zip), 9);
-
+            // BillTo
+            BillTo billTo = new BillTo();
+            billTo.setFirstName(creditCard.getFirstName());
+            billTo.setLastName(creditCard.getLastName());
             String email = creditCard.getEmail();
-            if(email!=null && email.length()>0) addMaxLengthParameter(userLocale, request, "EMAIL", email, 64, TransactionResult.ErrorCode.INVALID_CARD_EMAIL);
-            
+            if(email!=null && email.length()>0) billTo.setEmail(email);
             String phone = creditCard.getPhone();
-            if(phone!=null && phone.length()>0) addMaxLengthParameter(userLocale, request, "PHONENUM", phone, 20, TransactionResult.ErrorCode.INVALID_CARD_PHONE);
+            if(phone!=null && phone.length()>0) billTo.setPhoneNum(phone);
+            String street = getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2());
+            if(street.length()>0) billTo.setStreet(street);
+            String city = creditCard.getCity();
+            if(city!=null && city.length()>0) billTo.setCity(city);
+            String state = creditCard.getState();
+            if(state!=null && state.length()>0) {
+                if(state.length()==2) billTo.setState(state);
+                else logger.log(Level.WARNING, "PayflowPro: state is not two-digits, and no automatic conversion has been implemented, not sending STATE", state);
+            }
+            String zip = creditCard.getPostalCode();
+            if(zip!=null && zip.length()>0) billTo.setZip(CreditCard.numbersOnly(zip));
+            String cardCountryCode = creditCard.getCountryCode();
+            if(cardCountryCode!=null && cardCountryCode.length()>0) billTo.setBillToCountry(cardCountryCode);
+            String companyName = creditCard.getCompanyName();
+            if(companyName!=null && companyName.length()>0) billTo.setCompanyName(companyName);
+            invoice.setBillTo(billTo);
 
+            // ShipTo
+            ShipTo shipTo = new ShipTo();
+            String shippingFirstName = transactionRequest.getShippingFirstName();
+            if(shippingFirstName!=null && shippingFirstName.length()>0) shipTo.setShipToFirstName(shippingFirstName);
+            String shippingLastName = transactionRequest.getShippingLastName();
+            if(shippingLastName!=null && shippingLastName.length()>0) shipTo.setShipToLastName(shippingLastName);
+            String shippingStreetAddress1 = transactionRequest.getShippingStreetAddress1();
+            if(shippingStreetAddress1!=null && shippingStreetAddress1.length()>0) shipTo.setShipToStreet(shippingStreetAddress1);
+            String shippingStreetAddress2 = transactionRequest.getShippingStreetAddress2();
+            if(shippingStreetAddress2!=null && shippingStreetAddress2.length()>0) {
+                if(shippingStreetAddress1!=null && shippingStreetAddress1.length()>0) shipTo.setShipToStreet2(shippingStreetAddress2);
+                else shipTo.setShipToStreet(shippingStreetAddress2);
+            }
+            String shippingCity = transactionRequest.getShippingCity();
+            if(shippingCity!=null && shippingCity.length()>0) shipTo.setShipToCity(shippingCity);
+            String shippingState = transactionRequest.getShippingState();
+            if(shippingState!=null && shippingState.length()>0) shipTo.setShipToState(shippingState);
+            String shippingPostalCode = transactionRequest.getShippingPostalCode();
+            if(shippingPostalCode!=null && shippingPostalCode.length()>0) shipTo.setShipToZip(CreditCard.numbersOnly(shippingPostalCode));
+            String shippingCountry = transactionRequest.getShippingCountryCode();
+            if(shippingCountry!=null && shippingCountry.length()>0) {
+                if("US".equals(shippingCountry)) shipTo.setShipToCountry("840");
+                else System.err.println("WARNING: PayflowPro: shippingCountry unknown, not sending SHIPTOCOUNTRY: "+shippingCountry);
+            }
+            invoice.setShipTo(shipTo);
+
+            // CustomerInfo
+            CustomerInfo customerInfo = new CustomerInfo();
+            String customerIp = transactionRequest.getCustomerIp();
+            if(customerIp!=null && customerIp.length()>0) customerInfo.setCustIP(customerIp);
+            String customerId = creditCard.getCustomerId();
+            if(customerId!=null && customerId.length()>0) customerInfo.setCustCode(customerId);
+            invoice.setCustomerInfo(customerInfo);
+
+            // CreditCard
+            paypal.payflow.CreditCard ppCreditCard = new paypal.payflow.CreditCard(creditCard.getCardNumber(), creditCard.getExpirationDateMMYY(userLocale));
+            String cvv2 = creditCard.getCardCode();
+            if(cvv2!=null && cvv2.length()>0) ppCreditCard.setCvv2(cvv2);
+            ppCreditCard.setName(getFullName(creditCard.getFirstName(), creditCard.getLastName()));
+            CardTender cardTender = new CardTender(ppCreditCard);
+
+            // ClientInfo
+            //ClientInfo clientInfo = new ClientInfo();
+
+            // RequestID: Use orderNumber if available, fall-back to PayflowUtility
+            String requestId;
+            if(orderNumber!=null && orderNumber.length()>0) requestId = orderNumber;
+            else requestId = PayflowUtility.getRequestId();
+
+            if("A".equals(trxType)) {
+                transaction = new AuthorizationTransaction(userInfo, connectionData, invoice, cardTender, requestId);
+            } else if("S".equals(trxType)) {
+                transaction = new SaleTransaction(userInfo, connectionData, invoice, cardTender, requestId);
+            } else throw new AssertionError("Unexpected value for trxType: "+trxType);
+            //transaction.setClientInfo(clientInfo);
+
+            /* TODO: Don't know what to do with these:
             try {
                 addTrimmedParameter(request, "CUSTHOSTNAME", InetAddress.getLocalHost().getHostName(), 60);
             } catch(IOException err) {
                 logger.log(Level.WARNING, null, err);
             }
-
-            String customerIp = transactionRequest.getCustomerIp();
-            if(customerIp!=null && customerIp.length()>0) addTrimmedParameter(request, "CUSTIP", customerIp, 15);
-
-            String shippingCountry = transactionRequest.getShippingCountryCode();
-            if(shippingCountry!=null && shippingCountry.length()>0) {
-                if("US".equals(shippingCountry)) request.put("SHIPTOCOUNTRY", "840");
-                else System.err.println("WARNING: PayflowPro: shippingCountry unknown, not sending SHIPTOCOUNTRY: "+shippingCountry);
-            }
-
-            String shippingFirstName = transactionRequest.getShippingFirstName();
-            if(shippingFirstName!=null && shippingFirstName.length()>0) addTrimmedParameter(request, "SHIPTOFIRSTNAME", shippingFirstName, 30);
-
-            String shippingLastName = transactionRequest.getShippingLastName();
-            if(shippingLastName!=null && shippingLastName.length()>0) addTrimmedParameter(request, "SHIPTOLASTNAME", shippingLastName, 30);
-
-            String shippingStreet = getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2());
-            if(shippingStreet.length()>0) addTrimmedParameter(request, "SHIPTOSTREET", shippingStreet, 30);
-
-            String shippingPostalCode = transactionRequest.getShippingPostalCode();
-            if(shippingPostalCode!=null && shippingPostalCode.length()>0) addTrimmedParameter(request, "SHIPTOZIP", CreditCard.numbersOnly(shippingPostalCode), 9);
-
-            String invnum = transactionRequest.getInvoiceNumber();
-            if(invnum!=null && invnum.length()>0) addMaxLengthParameter(userLocale, request, "INVNUM", invnum, 9, TransactionResult.ErrorCode.INVALID_INVOICE_NUMBER);
-            
-            String city = creditCard.getCity();
-            if(city!=null && city.length()>0) addTrimmedParameter(request, "CITY", city, 20);
-
-            String state = creditCard.getState();
-            if(state!=null && state.length()>0) {
-                if(state.length()==2) request.put("STATE", state);
-                else System.err.println("WARNING: PayflowPro: state is not two-digits, and no automatic conversion has been implemented, not sending STATE: "+state);
-            }
-
-            addTrimmedParameter(request, "NAME", getFullName(creditCard.getFirstName(), creditCard.getLastName()), 30);
-
             String ss = creditCard.getCustomerTaxId();
             if(ss!=null && ss.length()>0) addTrimmedParameter(request, "SS", ss, 35);
-
-            String ponum = transactionRequest.getPurchaseOrderNumber();
-            if(ponum!=null && ponum.length()>0) addTrimmedParameter(request, "PONUM", ponum, 15);
-
-            if(taxAmount!=null) addMaxLengthParameter(userLocale, request, "TAXAMT", taxAmount.toString(), 10, TransactionResult.ErrorCode.INVALID_TAX_AMOUNT);
-            request.put("TAXEXEMPT", transactionRequest.getTaxExempt() ? "Y" : "N");
-            if(dutyAmount!=null) addMaxLengthParameter(userLocale, request, "DUTYAMT", dutyAmount.toString(), 10, TransactionResult.ErrorCode.INVALID_DUTY_AMOUNT);
-            if(shippingAmount!=null) addMaxLengthParameter(userLocale, request, "FREIGHTAMT", shippingAmount.toString(), 10, TransactionResult.ErrorCode.INVALID_SHIPPING_AMOUNT);
-
-            String cardCountryCode = creditCard.getCountryCode();
-            if(cardCountryCode!=null && cardCountryCode.length()>0) addTrimmedParameter(request, "BILLTOCOUNTRY", cardCountryCode, 30);
-
-            String customerId = creditCard.getCustomerId();
-            if(customerId!=null && customerId.length()>0) request.put("CUSTCODE", customerId); //addTrimmedParameter(request, "CUSTCODE", customerId, 4);
-
-            String shippingCity = transactionRequest.getShippingCity();
-            if(shippingCity!=null && shippingCity.length()>0) addTrimmedParameter(request, "SHIPTOCITY", shippingCity, 30);
-
-            String shippingState = transactionRequest.getShippingState();
-            if(shippingState!=null && shippingState.length()>0) addTrimmedParameter(request, "SHIPTOSTATE", shippingState, 10);
-
-            // No length constraint specified in documentation
-            String companyName = creditCard.getCompanyName();
-            if(companyName!=null && companyName.length()>0) request.put("COMPANYNAME", companyName);
-        } catch(ErrorCodeException err) {
+             */
+        } catch(Exception err) {
             return new AuthorizationResult(
                 getProviderId(),
                 TransactionResult.CommunicationResult.LOCAL_ERROR,
-                err.getErrorCode().name(),
-                err.getErrorCode(),
+                TransactionResult.ErrorCode.UNKNOWN.name(),
+                TransactionResult.ErrorCode.UNKNOWN,
                 err.getMessage(),
                 null,
                 null,
@@ -358,16 +312,17 @@ public class PayflowPro implements MerchantServicesProvider {
         }
 
         // Now try to process, considering as a GATEWAY_ERROR for any ErrorCodeExceptions.
-        Map<String,String> results;
+        Response response;
         try {
             // Now that the local request has been created successfully, contact the PayflowPro API.
-            results = submitTransaction(userLocale, request, transactionRequest.getTestMode());
-        } catch(ErrorCodeException err) {
+            response = transaction.submitTransaction();
+            // TODO: Check for duplicates?
+        } catch(Exception err) {
             return new AuthorizationResult(
                 getProviderId(),
                 TransactionResult.CommunicationResult.GATEWAY_ERROR,
-                err.getErrorCode().name(),
-                err.getErrorCode(),
+                TransactionResult.ErrorCode.ERROR_TRY_AGAIN.name(),
+                TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
                 err.getMessage(),
                 null,
                 null,
@@ -383,19 +338,21 @@ public class PayflowPro implements MerchantServicesProvider {
                 null
             );
         }
+        TransactionResponse transactionResponse = response.getTransactionResponse();
+        // FraudResponse fraudResponse = response.getFraudResponse();
         
-        String pnref = results.get("PNREF");
-        String result = results.get("RESULT");
-        String cvv2Match = results.get("CVV2MATCH");  // Y, N, X, or null
-        String respMsg = results.get("RESPMSG");
-        String authCode = results.get("AUTHCODE");
-        String avsAddr = results.get("AVSADDR"); // Y, N, X, or null
+        String pnref = transactionResponse.getPnref();
+        int result = transactionResponse.getResult();
+        String cvv2Match = transactionResponse.getCvv2Match();  // Y, N, X, or null
+        String respMsg = transactionResponse.getRespMsg();
+        String authCode = transactionResponse.getAuthCode();
+        String avsAddr = transactionResponse.getAvsAddr(); // Y, N, X, or null
         if(avsAddr==null || avsAddr.length()==0) avsAddr="?";
-        String avsZip = results.get("AVSZIP"); // Y, N, X, or null
+        String avsZip = transactionResponse.getAvsZip(); // Y, N, X, or null
         if(avsZip==null || avsZip.length()==0) avsZip="?";
-        String iavs = results.get("IAVS"); // International AVS.  Y, N, X, or null
+        String iavs = transactionResponse.getIavs(); // International AVS.  Y, N, X, or null
         if(iavs==null || iavs.length()==0) iavs="?";
-        String cardSecure = results.get("CARDSECURE"); // ???
+        // String cardSecure = transactionResponse.getCardSecure(); // ???
 
         // Convert to CvvResult
         AuthorizationResult.CvvResult cvvResult;
@@ -426,7 +383,7 @@ public class PayflowPro implements MerchantServicesProvider {
             avsResult=AuthorizationResult.AvsResult.UNAVAILABLE;
         }
 
-        if("0".equals(result)) {
+        if(result==0) {
             // Approved
             return new AuthorizationResult(
                 getProviderId(),
@@ -435,7 +392,7 @@ public class PayflowPro implements MerchantServicesProvider {
                 null,
                 null,
                 pnref,
-                result,
+                Integer.toString(result),
                 AuthorizationResult.ApprovalResult.APPROVED,
                 null,
                 null,
@@ -448,27 +405,27 @@ public class PayflowPro implements MerchantServicesProvider {
                 authCode
             );
         } else if(
-            "12".equals(result) // Not specific
-            || "50".equals(result) // Insufficient funds
-            || "51".equals(result) // Exceeds per transaction limit
-            || "112".equals(result) // Failed AVS check
-            || "114".equals(result) // Card security code mismatch
-            || "117".equals(result) // Failed merchant rule check (parse RESPMSG)
-            || "125".equals(result) // Declined by Fraud Protection Services Filter
-            || "128".equals(result) // Declined by merchant after flagged for review by Fraud Protection Services Filter
+            result==12 // Not specific
+            || result==50 // Insufficient funds
+            || result==51 // Exceeds per transaction limit
+            || result==112 // Failed AVS check
+            || result==114 // Card security code mismatch
+            || result==117 // Failed merchant rule check (parse RESPMSG)
+            || result==125 // Declined by Fraud Protection Services Filter
+            || result==128 // Declined by merchant after flagged for review by Fraud Protection Services Filter
         ) {
             // Declined
             AuthorizationResult.DeclineReason declineReason;
-            if("12".equals(result)) declineReason = AuthorizationResult.DeclineReason.NO_SPECIFIC;
-            else if("50".equals(result)) declineReason = AuthorizationResult.DeclineReason.INSUFFICIENT_FUNDS;
-            else if("51".equals(result)) declineReason = AuthorizationResult.DeclineReason.MAX_SALE_EXCEEDED;
-            else if("112".equals(result)) declineReason = AuthorizationResult.DeclineReason.AVS_MISMATCH;
-            else if("114".equals(result)) declineReason = AuthorizationResult.DeclineReason.CVV2_MISMATCH;
-            else if("117".equals(result)) {
+            if(result==12) declineReason = AuthorizationResult.DeclineReason.NO_SPECIFIC;
+            else if(result==50) declineReason = AuthorizationResult.DeclineReason.INSUFFICIENT_FUNDS;
+            else if(result==51) declineReason = AuthorizationResult.DeclineReason.MAX_SALE_EXCEEDED;
+            else if(result==112) declineReason = AuthorizationResult.DeclineReason.AVS_MISMATCH;
+            else if(result==114) declineReason = AuthorizationResult.DeclineReason.CVV2_MISMATCH;
+            else if(result==117) {
                 // TODO: Parse respMsg for more details
                 declineReason = AuthorizationResult.DeclineReason.UNKNOWN;
-            } else if("125".equals(result)) declineReason = AuthorizationResult.DeclineReason.FRAUD_DETECTED;
-            else if("128".equals(result)) declineReason = AuthorizationResult.DeclineReason.MANUAL_REVIEW;
+            } else if(result==125) declineReason = AuthorizationResult.DeclineReason.FRAUD_DETECTED;
+            else if(result==128) declineReason = AuthorizationResult.DeclineReason.MANUAL_REVIEW;
             else declineReason = AuthorizationResult.DeclineReason.UNKNOWN;
 
             return new AuthorizationResult(
@@ -478,7 +435,7 @@ public class PayflowPro implements MerchantServicesProvider {
                 null,
                 null,
                 pnref,
-                result,
+                Integer.toString(result),
                 AuthorizationResult.ApprovalResult.DECLINED,
                 respMsg,
                 declineReason,
@@ -490,7 +447,7 @@ public class PayflowPro implements MerchantServicesProvider {
                 avsResult,
                 authCode
             );
-        } else if("126".equals(result)) {
+        } else if(result==126) {
             // Hold
             return new AuthorizationResult(
                 getProviderId(),
@@ -499,7 +456,7 @@ public class PayflowPro implements MerchantServicesProvider {
                 null,
                 null,
                 pnref,
-                result,
+                Integer.toString(result),
                 AuthorizationResult.ApprovalResult.HOLD,
                 null,
                 null,
@@ -515,127 +472,127 @@ public class PayflowPro implements MerchantServicesProvider {
             // Other results
             TransactionResult.CommunicationResult communicationResult;
             TransactionResult.ErrorCode errorCode;
-            if("1".equals(result)) {
+            if(result==1) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET;
             } else if(
-                "2".equals(result)
-                || "25".equals(result)
-                || "1021".equals(result)
+                result==2
+                || result==25
+                || result==1021
             ) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
-            } else if("3".equals(result)) {
+            } else if(result==3) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE;
             } else if(
-                "4".equals(result)
-                || "1045".equals(result)
-                || "-113".equals(result)
+                result==4
+                || result==1045
+                || result==-113
             ) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.INVALID_AMOUNT;
             } else if(
-                "5".equals(result)
-                || "1047".equals(result)
+                result==5
+                || result==1047
             ) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.INVALID_MERCHANT_ID;
-            } else if("6".equals(result)) {
+            } else if(result==6) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 // We choose currency_not_supported instead of invalid_currency because going through the enum ensures
                 // the currency is one of the acceptable values.
                 errorCode = TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED;
-            } else if("7".equals(result)) {
+            } else if(result==7) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 // TODO: Parse RESPMSG for more info
                 errorCode = TransactionResult.ErrorCode.UNKNOWN;
             } else if(
-                "11".equals(result)
-                || "36".equals(result)
-                || "102".equals(result)
-                || "107".equals(result)
-                || "116".equals(result)
-                || "119".equals(result)
-                || "132".equals(result)
+                result==11
+                || result==36
+                || result==102
+                || result==107
+                || result==116
+                || result==119
+                || result==132
             ) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-            } else if("13".equals(result)) {
+            } else if(result==13) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.VOICE_AUTHORIZATION_REQUIRED;
             } else if(
-                "14".equals(result)
-                || "26".equals(result)
+                result==14
+                || result==26
             ) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR;
             } else if(
-                "19".equals(result)
-                || "20".equals(result)
+                result==19
+                || result==20
             ) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.TRANSACTION_NOT_FOUND;
             } else if(
-                "23".equals(result)
-                || "1048".equals(result)
+                result==23
+                || result==1048
             ) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
-            } else if("24".equals(result)) {
+            } else if(result==24) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE;
             } else if(
-                "27".equals(result)
-                || "28".equals(result)
+                result==27
+                || result==28
             ) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.INSUFFICIENT_PERMISSIONS;
-            } else if("30".equals(result)) {
+            } else if(result==30) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.DUPLICATE;
             } else if(
-                "103".equals(result)
-                || "104".equals(result)
-                || "106".equals(result)
-                || "109".equals(result)
-                || "133".equals(result)
-                || "150".equals(result)
+                result==103
+                || result==104
+                || result==106
+                || result==109
+                || result==133
+                || result==150
             ) {
                 communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
                 errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-            } else if("115".equals(result)) {
+            } else if(result==115) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES;
             } else if(
-                "151".equals(result)
-                || "-14".equals(result)
+                result==151
+                || result==-14
             ) {
                 communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
                 errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES;
             } else if(
-                "1022".equals(result)
-                || "1049".equals(result)
+                result==1022
+                || result==1049
             ) {
                 communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
                 errorCode = TransactionResult.ErrorCode.INVALID_CURRENCY_CODE;
-            } else if("3".equals(result)) {
+            } else if(result==3) {
                 communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
                 errorCode = TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE;
             } else if(
-                "101".equals(result)
-                || "-23".equals(result)
-                || "-30".equals(result)
-                || "-31".equals(result)
-                || "-32".equals(result)
-                || "-108".equals(result)
+                result==101
+                || result==-23
+                || result==-30
+                || result==-31
+                || result==-32
+                || result==-108
             ) {
                 communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
                 errorCode = TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR;
-            } else if("-99".equals(result)) {
+            } else if(result==-99) {
                 communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
                 errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES;
-            } else if(result.startsWith("-")) {
+            } else if(result<0) {
                 // Negative indicates communication error
                 communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
                 errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
@@ -647,7 +604,7 @@ public class PayflowPro implements MerchantServicesProvider {
             return new AuthorizationResult(
                 getProviderId(),
                 communicationResult,
-                result,
+                Integer.toString(result),
                 errorCode,
                 respMsg,
                 pnref,

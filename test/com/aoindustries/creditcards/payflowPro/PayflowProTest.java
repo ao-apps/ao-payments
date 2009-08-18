@@ -66,7 +66,7 @@ public class PayflowProTest extends TestCase {
         userLocale = Locale.getDefault();
 
         processor = new CreditCardProcessor(
-            new PayflowPro("PayflowProTest", getConfig("user"), getConfig("vendor"), getConfig("partner"), getConfig("password"), getConfig("certPath")),
+            new PayflowPro("PayflowProTest", getConfig("user"), getConfig("vendor"), getConfig("partner"), getConfig("password")),
             PropertiesPersistenceMechanism.getInstance(getConfig("persistencePath"))
         );
 
@@ -74,11 +74,19 @@ public class PayflowProTest extends TestCase {
             public String getName() {
                 return "TestPrincipal";
             }
+            @Override
             public int hashCode() {
                 return getName().hashCode();
             }
+            @Override
             public String toString() {
                 return getName();
+            }
+            @Override
+            public boolean equals(Object obj) {
+                if(obj==null) return false;
+                if(getClass()!=obj.getClass()) return false;
+                return this==obj;
             }
         };
         group = new Group() {
@@ -222,6 +230,7 @@ public class PayflowProTest extends TestCase {
         );
     }
 
+    @Override
     protected void tearDown() throws Exception {
         userLocale = null;
         processor = null;
@@ -277,7 +286,7 @@ public class PayflowProTest extends TestCase {
                     "36695",
                     "US",
                     false,
-                    "accounting@aoidustries.com",
+                    "accounting@aoindustries.com",
                     null,
                     null,
                     "Test transaction"
@@ -335,10 +344,10 @@ public class PayflowProTest extends TestCase {
                     null,
                     "Mobile",
                     "AL",
-                    "56695",
+                    "36695",
                     "US",
                     false,
-                    "accounting@aoidustries.com",
+                    "accounting@aoindustries.com",
                     null,
                     null,
                     "Test transaction"
