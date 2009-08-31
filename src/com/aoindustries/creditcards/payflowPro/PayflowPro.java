@@ -196,7 +196,7 @@ public class PayflowPro implements MerchantServicesProvider {
             invoice.setAmt(new Currency(amount.doubleValue(), transactionRequest.getCurrencyCode().name()));
             if(taxAmount!=null) invoice.setTaxAmt(new Currency(taxAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
             invoice.setTaxExempt(transactionRequest.getTaxExempt() ? "Y" : "N");
-            if(shippingAmount!=null) invoice.setShippingAmt(new Currency(shippingAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
+            if(shippingAmount!=null) invoice.setFreightAmt(new Currency(shippingAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
             if(dutyAmount!=null) invoice.setDutyAmt(new Currency(dutyAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
 
             // BillTo
