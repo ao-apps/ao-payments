@@ -52,15 +52,15 @@ import paypal.payflow.UserInfo;
  *   <li>password - User's password (string).</li>
  * </ol>
  *
- * TODO: Should we support the GetStatus call???
- * TODO: Should we support Buyer Authentication Service?
+ * TODO: Should we support the GetStatus call???<br />
+ * TODO: Should we support Buyer Authentication Service?<br />
  * TODO: Should we support separate Freight and Handling amounts instead of just
  *       the one shipping?  We would need to automatically combine them on
- *       processors that don't support the distinction.
- * TODO: Is Prenote used for storing cards?
- * TODO: Use AMEXID?
- * TODO: Support SettleDate?
- * TODO: Support SHIPTOPHONENUM?
+ *       processors that don't support the distinction.<br />
+ * TODO: Is Prenote used for storing cards?<br />
+ * TODO: Use AMEXID?<br />
+ * TODO: Support SettleDate?<br />
+ * TODO: Support SHIPTOPHONENUM?<br />
  * TODO: Possible better rates if we provide the merchant details and ship from details.
  *
  * @author  AO Industries, Inc.
