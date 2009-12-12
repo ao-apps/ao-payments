@@ -5,6 +5,7 @@ package com.aoindustries.creditcards;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+import com.aoindustries.util.StringUtility;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -19,10 +20,7 @@ import java.util.Map;
  */
 public class MerchantServicesProviderFactory {
 
-    private static class ProcessorKey {
-        private static boolean equals(Object O1, Object O2) {
-            return O1==null?O2==null:O1.equals(O2); 
-        }
+    private static class ProviderKey {
 
         final private String providerId;
         final private String className;
@@ -31,7 +29,7 @@ public class MerchantServicesProviderFactory {
         final private String param3;
         final private String param4;
         
-        private ProcessorKey(
+        private ProviderKey(
             String providerId,
             String className,
             String param1,
@@ -62,27 +60,25 @@ public class MerchantServicesProviderFactory {
         @Override
         public boolean equals(Object O) {
             if(O==null) return false;
-            if(!(O instanceof ProcessorKey)) return false;
-            ProcessorKey other = (ProcessorKey)O;
+            if(!(O instanceof ProviderKey)) return false;
+            ProviderKey other = (ProviderKey)O;
             return
                 providerId.equals(other.providerId)
                 && className.equals(other.className)
-                && equals(param1, other.param1)
-                && equals(param2, other.param2)
-                && equals(param3, other.param3)
-                && equals(param4, other.param4)
+                && StringUtility.equals(param1, other.param1)
+                && StringUtility.equals(param2, other.param2)
+                && StringUtility.equals(param3, other.param3)
+                && StringUtility.equals(param4, other.param4)
             ;
         }
     }
 
-    final private static Map<ProcessorKey,MerchantServicesProvider> providers = new HashMap<ProcessorKey,MerchantServicesProvider>();
+    final private static Map<ProviderKey,MerchantServicesProvider> providers = new HashMap<ProviderKey,MerchantServicesProvider>();
 
     /**
      * Gets the provider for the given parameters.<br>
      * <br>
      * Only one instance of each unique providerId, classname and all parameters will be created.<br>
-     * <br>
-     * Every processor will use the <code>AOServPersistenceMechanism</code> for its persistence.
      */
     public static MerchantServicesProvider getMerchantServicesProvider(
         String providerId,
@@ -93,7 +89,7 @@ public class MerchantServicesProviderFactory {
         String param4
     ) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         // The key in the map
-        ProcessorKey processorKey = new ProcessorKey(
+        ProviderKey processorKey = new ProviderKey(
             providerId,
             className,
             param1,
