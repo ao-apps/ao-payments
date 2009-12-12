@@ -5,6 +5,7 @@ package com.aoindustries.creditcards;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+import com.aoindustries.io.LocalizedIOException;
 import java.util.Locale;
 
 /**
@@ -14,35 +15,27 @@ import java.util.Locale;
  */
 public class ErrorCodeException extends LocalizedIOException {
 
+    private static final long serialVersionUID = 1L;
+
     final private TransactionResult.ErrorCode errorCode;
 
     public ErrorCodeException(TransactionResult.ErrorCode errorCode, Locale userLocale, String key) {
-        super(userLocale, key);
+        super(ApplicationResources.accessor, userLocale, key);
         this.errorCode = errorCode;
     }
 
-    public ErrorCodeException(TransactionResult.ErrorCode errorCode, Locale userLocale, String key, Object arg0) {
-        super(userLocale, key, arg0);
-        this.errorCode = errorCode;
-    }
-
-    public ErrorCodeException(TransactionResult.ErrorCode errorCode, Locale userLocale, String key, Object arg0, Object arg1) {
-        super(userLocale, key, arg0, arg1);
+    public ErrorCodeException(TransactionResult.ErrorCode errorCode, Locale userLocale, String key, Object... args) {
+        super(ApplicationResources.accessor, userLocale, key, args);
         this.errorCode = errorCode;
     }
 
     public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, Locale userLocale, String key) {
-        super(cause, userLocale, key);
+        super(cause, ApplicationResources.accessor, userLocale, key);
         this.errorCode = errorCode;
     }
 
-    public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, Locale userLocale, String key, Object arg0) {
-        super(cause, userLocale, key, arg0);
-        this.errorCode = errorCode;
-    }
-
-    public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, Locale userLocale, String key, Object arg0, Object arg1) {
-        super(cause, userLocale, key, arg0, arg1);
+    public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, Locale userLocale, String key, Object... args) {
+        super(cause, ApplicationResources.accessor, userLocale, key, args);
         this.errorCode = errorCode;
     }
 

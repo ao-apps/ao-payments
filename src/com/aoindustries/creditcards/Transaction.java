@@ -5,6 +5,7 @@ package com.aoindustries.creditcards;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+import com.aoindustries.util.LocalizedToString;
 import java.util.Locale;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Locale;
  */
 public class Transaction {
 
-    public enum Status {
+    public enum Status implements LocalizedToString {
         PROCESSING,
         LOCAL_ERROR,
         IO_ERROR,
@@ -30,6 +31,7 @@ public class Transaction {
         /**
          * Gets the display value in the default locale.
          */
+        @Override
         public String toString() {
             return toString(Locale.getDefault());
         }
@@ -38,7 +40,7 @@ public class Transaction {
          * Gets the display value in the provided locale.
          */
         public String toString(Locale userLocale) {
-            return ApplicationResourcesAccessor.getMessage(userLocale, "Transaction.Status."+name());
+            return ApplicationResources.getMessage(userLocale, "Transaction.Status."+name());
         }
     }
 
@@ -101,6 +103,7 @@ public class Transaction {
         setStatus(status);
     }
 
+    @Override
     public Transaction clone() {
         return new Transaction(
             providerId,

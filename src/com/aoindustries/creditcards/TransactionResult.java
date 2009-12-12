@@ -5,6 +5,7 @@ package com.aoindustries.creditcards;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+import com.aoindustries.util.LocalizedToString;
 import java.util.Locale;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Locale;
  */
 abstract public class TransactionResult {
 
-    public enum CommunicationResult {
+    public enum CommunicationResult implements LocalizedToString {
         LOCAL_ERROR,
         IO_ERROR,
         GATEWAY_ERROR,
@@ -23,6 +24,7 @@ abstract public class TransactionResult {
         /**
          * Gets the display value in the default locale.
          */
+        @Override
         public String toString() {
             return toString(Locale.getDefault());
         }
@@ -31,11 +33,11 @@ abstract public class TransactionResult {
          * Gets the display value in the provided locale.
          */
         public String toString(Locale userLocale) {
-            return ApplicationResourcesAccessor.getMessage(userLocale, "TransactionResult.CommunicationResult."+name());
+            return ApplicationResources.getMessage(userLocale, "TransactionResult.CommunicationResult."+name());
         }
     }
 
-    public enum ErrorCode {
+    public enum ErrorCode implements LocalizedToString {
         // ALL
         UNKNOWN,
         // LOCAL_ERROR
@@ -101,6 +103,7 @@ abstract public class TransactionResult {
         /**
          * Gets the display value in the default locale.
          */
+        @Override
         public String toString() {
             return toString(Locale.getDefault());
         }
@@ -109,7 +112,7 @@ abstract public class TransactionResult {
          * Gets the display value in the provided locale.
          */
         public String toString(Locale userLocale) {
-            return ApplicationResourcesAccessor.getMessage(userLocale, "TransactionResult.ErrorCode."+name());
+            return ApplicationResources.getMessage(userLocale, "TransactionResult.ErrorCode."+name());
         }
     }
 

@@ -5,6 +5,7 @@ package com.aoindustries.creditcards;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+import com.aoindustries.lang.LocalizedIllegalArgumentException;
 import java.util.Calendar;
 import java.util.Locale;
 import org.apache.commons.validator.GenericValidator;
@@ -63,8 +64,8 @@ public class CreditCard implements Cloneable {
      * @throws  IllegalArgumentException  if invalid date
      */
     public static String getExpirationDateMMYY(byte month, short year, Locale userLocale) {
-        if(month==-1) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setExpirationMonth.expirationMonth.invalid");
-        if(year==-1) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setExpirationYear.expirationYear.invalid");
+        if(month==-1) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCard.setExpirationMonth.expirationMonth.invalid");
+        if(year==-1) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCard.setExpirationYear.expirationYear.invalid");
         StringBuilder SB = new StringBuilder(4);
         if(month<10) SB.append('0');
         SB.append(month);
@@ -166,6 +167,7 @@ public class CreditCard implements Cloneable {
         setComments(comments);
     }
 
+    @Override
     public CreditCard clone() {
         try {
             return (CreditCard)super.clone();
@@ -259,7 +261,7 @@ public class CreditCard implements Cloneable {
     public void setCardNumber(String cardNumber, Locale userLocale) {
         if(cardNumber!=null && cardNumber.length()>0) {
             cardNumber = numbersOnly(cardNumber);
-            if(!GenericValidator.isCreditCard(numbersOnly(cardNumber))) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setCardNumber.cardNumber.invalid");
+            if(!GenericValidator.isCreditCard(numbersOnly(cardNumber))) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCard.setCardNumber.cardNumber.invalid");
             String trimmed = cardNumber.trim();
             this.cardNumber = trimmed;
             this.maskedCardNumber = maskCreditCardNumber(trimmed);
@@ -298,7 +300,7 @@ public class CreditCard implements Cloneable {
      * @throws  IllegalArgumentException  if out of range.
      */
     public void setExpirationMonth(byte expirationMonth, Locale userLocale) {
-        if(expirationMonth!=-1 && (expirationMonth<1 || expirationMonth>12)) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setExpirationMonth.expirationMonth.invalid");
+        if(expirationMonth!=-1 && (expirationMonth<1 || expirationMonth>12)) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCard.setExpirationMonth.expirationMonth.invalid");
         this.expirationMonth = expirationMonth;
     }
 
@@ -321,7 +323,7 @@ public class CreditCard implements Cloneable {
         if(expirationYear>=0 && expirationYear<=99) {
             expirationYear = (short)((currentYear/100)*100 + expirationYear);
         }
-        if(expirationYear!=-1 && (expirationYear<1977 || expirationYear>(currentYear+12))) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setExpirationYear.expirationYear.invalid");
+        if(expirationYear!=-1 && (expirationYear<1977 || expirationYear>(currentYear+12))) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCard.setExpirationYear.expirationYear.invalid");
         this.expirationYear = expirationYear;
     }
 
@@ -352,11 +354,11 @@ public class CreditCard implements Cloneable {
             this.cardCode=null;
         } else {
             cardCode = cardCode.trim();
-            if(cardCode.length()!=3 && cardCode.length()!=4) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setCardCode.cardCode.mustBe3Or4Digits");
+            if(cardCode.length()!=3 && cardCode.length()!=4) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCard.setCardCode.cardCode.mustBe3Or4Digits");
             // Each digit must be a number
             for(int c=0;c<cardCode.length();c++) {
                 char ch = cardCode.charAt(c);
-                if(ch<'0' || ch>'9') throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setCardCode.cardCode.mustBeDigits");
+                if(ch<'0' || ch>'9') throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCard.setCardCode.cardCode.mustBeDigits");
             }
             this.cardCode = cardCode;
         }
@@ -421,7 +423,7 @@ public class CreditCard implements Cloneable {
             this.email = null;
         } else {
             email = email.trim();
-            if(!GenericValidator.isEmail(email)) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setEmail.email.invalid");
+            if(!GenericValidator.isEmail(email)) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCard.setEmail.email.invalid");
             this.email = email;
         }
     }
@@ -580,7 +582,7 @@ public class CreditCard implements Cloneable {
             this.countryCode = null;
         } else {
             countryCode = countryCode.trim().toUpperCase(Locale.ENGLISH);
-            if(countryCode.length()!=2) throw new LocalizedIllegalArgumentException(userLocale, "CreditCard.setCountryCode.countryCode.mustBe2Digits");
+            if(countryCode.length()!=2) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCard.setCountryCode.countryCode.mustBe2Digits");
             this.countryCode = countryCode;
         }
     }

@@ -47,6 +47,7 @@ public class MerchantServicesProviderFactory {
             this.param4 = param4;
         }
         
+        @Override
         public int hashCode() {
             return
                 providerId.hashCode()
@@ -58,6 +59,7 @@ public class MerchantServicesProviderFactory {
             ;
         }
         
+        @Override
         public boolean equals(Object O) {
             if(O==null) return false;
             if(!(O instanceof ProcessorKey)) return false;

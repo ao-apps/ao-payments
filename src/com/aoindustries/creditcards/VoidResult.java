@@ -33,6 +33,7 @@ public class VoidResult extends TransactionResult implements Cloneable {
         );
     }
 
+    @Override
     public VoidResult clone() {
         try {
             return (VoidResult)super.clone();

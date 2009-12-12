@@ -126,7 +126,7 @@ public class PayflowProTest extends TestCase {
                 "Company = Inc.",     // Contains = to test special characters in Payflow Pro protocol
                 "signup@aoindustries.com",
                 "(251)607-9556",
-                "(251)607-9557",
+                "(251)382-1197",
                 "AOINDUSTRIES",
                 "123-45-6789",
                 "816 Azalea & Rd",  // Contains & to test special characters in Payflow Pro protocol
@@ -186,7 +186,7 @@ public class PayflowProTest extends TestCase {
                 "AO Inc",
                 "accounting@aoindustries.com",
                 "(251)607-9556",
-                "(251)607-9557",
+                "(251)382-1197",
                 null,
                 null,
                 "7262 Bull Pen Cir",

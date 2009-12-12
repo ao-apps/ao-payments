@@ -33,6 +33,7 @@ public class CaptureResult extends TransactionResult implements Cloneable {
         );
     }
 
+    @Override
     public CaptureResult clone() {
         try {
             return (CaptureResult)super.clone();

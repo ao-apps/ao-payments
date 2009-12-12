@@ -5,6 +5,8 @@ package com.aoindustries.creditcards;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+import com.aoindustries.lang.LocalizedIllegalArgumentException;
+import com.aoindustries.util.LocalizedToString;
 import java.math.BigDecimal;
 import java.util.Locale;
 import org.apache.commons.validator.GenericValidator;
@@ -25,7 +27,7 @@ public class TransactionRequest implements Cloneable {
      *
      * Note: Add more as needed
      */
-    public enum CurrencyCode {
+    public enum CurrencyCode implements LocalizedToString {
         AUD(2),
         CAD(2),
         CLP(0),
@@ -44,6 +46,7 @@ public class TransactionRequest implements Cloneable {
         /**
          * Gets the display value in the default locale.
          */
+        @Override
         public String toString() {
             return toString(Locale.getDefault());
         }
@@ -52,7 +55,7 @@ public class TransactionRequest implements Cloneable {
          * Gets the display value in the provided locale.
          */
         public String toString(Locale userLocale) {
-            return ApplicationResourcesAccessor.getMessage(userLocale, "TransactionRequest.CurrencyCode."+name());
+            return ApplicationResources.getMessage(userLocale, "TransactionRequest.CurrencyCode."+name());
         }
 
         /**
@@ -97,7 +100,7 @@ public class TransactionRequest implements Cloneable {
      * Creates an empty TransactionRequest.  The values should be set using the appropriate setter methods.
      */
     public TransactionRequest(Locale userLocale) {
-        setCurrencyCode(CurrencyCode.valueOf(ApplicationResourcesAccessor.getMessage(userLocale, "TransactionRequest.currencyCode.default")));
+        setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.getMessage(userLocale, "TransactionRequest.currencyCode.default")));
     }
 
     /**
@@ -136,7 +139,7 @@ public class TransactionRequest implements Cloneable {
         setCustomerIp(customerIp);
         setDuplicateWindow(duplicateWindow);
         setOrderNumber(orderNumber);
-        if(currencyCode==null) setCurrencyCode(CurrencyCode.valueOf(ApplicationResourcesAccessor.getMessage(userLocale, "TransactionRequest.currencyCode.default")));
+        if(currencyCode==null) setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.getMessage(userLocale, "TransactionRequest.currencyCode.default")));
         else setCurrencyCode(currencyCode);
         setAmount(amount, userLocale);
         setTaxAmount(taxAmount, userLocale);
@@ -159,6 +162,7 @@ public class TransactionRequest implements Cloneable {
         setDescription(description);
     }
 
+    @Override
     public TransactionRequest clone() {
         try {
             return (TransactionRequest)super.clone();
@@ -260,11 +264,11 @@ public class TransactionRequest implements Cloneable {
         if(amount==null) {
             this.amount = null;
         } else {
-            if(amount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setAmount.amount.lessThanEqualZero");
+            if(amount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setAmount.amount.lessThanEqualZero");
             try {
                 this.amount = currencyCode.normalizeCurrency(amount);
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, userLocale, "TransactionRequest.setAmount.amount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, userLocale, "TransactionRequest.setAmount.amount.cannotNormalize");
             }
         }
     }
@@ -287,11 +291,11 @@ public class TransactionRequest implements Cloneable {
         if(taxAmount==null) {
             this.taxAmount = null;
         } else {
-            if(taxAmount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setTaxAmount.taxAmount.lessThanEqualZero");
+            if(taxAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setTaxAmount.taxAmount.lessThanZero");
             try {
                 this.taxAmount = currencyCode.normalizeCurrency(taxAmount);
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, userLocale, "TransactionRequest.setTaxAmount.taxAmount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, userLocale, "TransactionRequest.setTaxAmount.taxAmount.cannotNormalize");
             }
         }
     }
@@ -328,11 +332,11 @@ public class TransactionRequest implements Cloneable {
         if(shippingAmount==null) {
             this.shippingAmount = null;
         } else {
-            if(shippingAmount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setShippingAmount.shippingAmount.lessThanEqualZero");
+            if(shippingAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setShippingAmount.shippingAmount.lessThanZero");
             try {
                 this.shippingAmount = currencyCode.normalizeCurrency(shippingAmount);
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, userLocale, "TransactionRequest.setShippingAmount.shippingAmount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, userLocale, "TransactionRequest.setShippingAmount.shippingAmount.cannotNormalize");
             }
         }
     }
@@ -355,11 +359,11 @@ public class TransactionRequest implements Cloneable {
         if(dutyAmount==null) {
             this.dutyAmount = null;
         } else {
-            if(dutyAmount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setDutyAmount.dutyAmount.lessThanEqualZero");
+            if(dutyAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setDutyAmount.dutyAmount.lessThanZero");
             try {
                 this.dutyAmount = currencyCode.normalizeCurrency(dutyAmount);
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, userLocale, "TransactionRequest.setDutyAmount.dutyAmount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, userLocale, "TransactionRequest.setDutyAmount.dutyAmount.cannotNormalize");
             }
         }
     }
@@ -497,7 +501,7 @@ public class TransactionRequest implements Cloneable {
             this.shippingCountryCode = null;
         } else {
             shippingCountryCode = shippingCountryCode.trim().toUpperCase(Locale.ENGLISH);
-            if(shippingCountryCode.length()!=2) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setShippingCountryCode.shippingCountryCode.mustBe2Digits");
+            if(shippingCountryCode.length()!=2) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setShippingCountryCode.shippingCountryCode.mustBe2Digits");
             this.shippingCountryCode = shippingCountryCode;
         }
    }
@@ -535,7 +539,7 @@ public class TransactionRequest implements Cloneable {
             this.merchantEmail = null;
         } else {
             merchantEmail = merchantEmail.trim();
-            if(!GenericValidator.isEmail(merchantEmail)) throw new LocalizedIllegalArgumentException(userLocale, "TransactionRequest.setMerchantEmail.merchantEmail.invalid");
+            if(!GenericValidator.isEmail(merchantEmail)) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setMerchantEmail.merchantEmail.invalid");
             this.merchantEmail = merchantEmail;
         }
     }

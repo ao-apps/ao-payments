@@ -5,6 +5,7 @@ package com.aoindustries.creditcards;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+import com.aoindustries.util.LocalizedToString;
 import java.util.Locale;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Locale;
  */
 public class AuthorizationResult extends TransactionResult implements Cloneable {
 
-    public enum ApprovalResult {
+    public enum ApprovalResult implements LocalizedToString {
         APPROVED,
         DECLINED,
         HOLD;
@@ -33,11 +34,11 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          * Gets the display value in the provided locale.
          */
         public String toString(Locale userLocale) {
-            return ApplicationResourcesAccessor.getMessage(userLocale, "AuthorizationResult.ApprovalResult."+name());
+            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.ApprovalResult."+name());
         }
     }
 
-    public enum DeclineReason {
+    public enum DeclineReason implements LocalizedToString {
         NO_SPECIFIC,
         EXPIRED_CARD,
         PICK_UP_CARD,
@@ -74,11 +75,11 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          * Gets the display value in the provided locale.
          */
         public String toString(Locale userLocale) {
-            return ApplicationResourcesAccessor.getMessage(userLocale, "AuthorizationResult.DeclineReason."+name());
+            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.DeclineReason."+name());
         }
     }
 
-    public enum ReviewReason {
+    public enum ReviewReason implements LocalizedToString {
         RISK_MANAGEMENT,
         ACCEPTED_MERCHANT_REVIEW,
         ACCEPTED_AUTHORIZED_MERCHANT_REVIEW;
@@ -95,11 +96,11 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          * Gets the display value in the provided locale.
          */
         public String toString(Locale userLocale) {
-            return ApplicationResourcesAccessor.getMessage(userLocale, "AuthorizationResult.ReviewReason."+name());
+            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.ReviewReason."+name());
         }
     }
 
-    public enum CvvResult {
+    public enum CvvResult implements LocalizedToString {
         MATCH,
         NO_MATCH,
         NOT_PROCESSED,
@@ -119,11 +120,11 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          * Gets the display value in the provided locale.
          */
         public String toString(Locale userLocale) {
-            return ApplicationResourcesAccessor.getMessage(userLocale, "AuthorizationResult.CvvResult."+name());
+            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.CvvResult."+name());
         }
     }
 
-    public enum AvsResult {
+    public enum AvsResult implements LocalizedToString {
         ADDRESS_NOT_PROVIDED,
         ADDRESS_Y_ZIP_9,
         ADDRESS_Y_ZIP_5,
@@ -151,7 +152,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          * Gets the display value in the provided locale.
          */
         public String toString(Locale userLocale) {
-            return ApplicationResourcesAccessor.getMessage(userLocale, "AuthorizationResult.AvsResult."+name());
+            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.AvsResult."+name());
         }
     }
 
