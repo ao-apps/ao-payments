@@ -5,9 +5,9 @@ package com.aoindustries.creditcards;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
-import com.aoindustries.util.ApplicationResourcesAccessor;
-import com.aoindustries.util.EditableResourceBundle;
-import com.aoindustries.util.EditableResourceBundleSet;
+import com.aoindustries.util.i18n.ApplicationResourcesAccessor;
+import com.aoindustries.util.i18n.EditableResourceBundle;
+import com.aoindustries.util.i18n.EditableResourceBundleSet;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Locale;

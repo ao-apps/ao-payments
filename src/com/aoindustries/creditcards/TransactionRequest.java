@@ -6,7 +6,7 @@ package com.aoindustries.creditcards;
  * All rights reserved.
  */
 import com.aoindustries.lang.LocalizedIllegalArgumentException;
-import com.aoindustries.util.LocalizedToString;
+import com.aoindustries.util.i18n.LocalizedToString;
 import java.math.BigDecimal;
 import java.util.Locale;
 import org.apache.commons.validator.GenericValidator;

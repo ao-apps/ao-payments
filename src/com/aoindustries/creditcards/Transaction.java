@@ -5,7 +5,7 @@ package com.aoindustries.creditcards;
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
-import com.aoindustries.util.LocalizedToString;
+import com.aoindustries.util.i18n.LocalizedToString;
 import java.util.Locale;
 
 /**
