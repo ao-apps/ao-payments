@@ -1,12 +1,9 @@
-package com.aoindustries.creditcards;
-
 /*
  * Copyright 2007-2009 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
-import com.aoindustries.util.i18n.LocalizedToString;
-import java.util.Locale;
+package com.aoindustries.creditcards;
 
 /**
  * Encapsulates all the details of one transaction, including request, credit card details, and response.
@@ -15,7 +12,7 @@ import java.util.Locale;
  */
 public class Transaction {
 
-    public enum Status implements LocalizedToString {
+    public enum Status {
         PROCESSING,
         LOCAL_ERROR,
         IO_ERROR,
@@ -28,19 +25,9 @@ public class Transaction {
         CHARGEBACK
         ;
 
-        /**
-         * Gets the display value in the default locale.
-         */
         @Override
         public String toString() {
-            return toString(Locale.getDefault());
-        }
-
-        /**
-         * Gets the display value in the provided locale.
-         */
-        public String toString(Locale userLocale) {
-            return ApplicationResources.getMessage(userLocale, "Transaction.Status."+name());
+            return ApplicationResources.getMessage("Transaction.Status."+name());
         }
     }
 

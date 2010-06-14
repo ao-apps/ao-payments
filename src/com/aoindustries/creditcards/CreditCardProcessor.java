@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.sql.SQLException;
-import java.util.Locale;
 
 /**
  * Processes credit card payments with pluggable merchant services providers and persistence mechanisms.
@@ -55,7 +54,7 @@ public class CreditCardProcessor {
      * @see  #authorize
      * @see  #capture
      */
-    public Transaction sale(Principal principal, Group group, TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) throws SQLException {
+    public Transaction sale(Principal principal, Group group, TransactionRequest transactionRequest, CreditCard creditCard) throws SQLException {
         // Insert into persistence layer
         long currentTimeMillis = System.currentTimeMillis();
         Transaction transaction = new Transaction(
@@ -75,11 +74,11 @@ public class CreditCardProcessor {
             null, // voidResult
             Transaction.Status.PROCESSING
         );
-        String persistenceUniqueId = persistenceMechanism.insertTransaction(principal, group, transaction, userLocale);
+        String persistenceUniqueId = persistenceMechanism.insertTransaction(principal, group, transaction);
         transaction.setPersistenceUniqueId(persistenceUniqueId);
 
         // Perform sale
-        SaleResult saleResult = provider.sale(transactionRequest, creditCard, userLocale);
+        SaleResult saleResult = provider.sale(transactionRequest, creditCard);
         long completedTimeMillis = System.currentTimeMillis();
         transaction.setAuthorizationResult(saleResult.getAuthorizationResult());
         transaction.setCaptureTime(completedTimeMillis);
@@ -108,19 +107,18 @@ public class CreditCardProcessor {
                         status = Transaction.Status.HOLD;
                         break;
                     default:
-                        throw new LocalizedSQLException(ApplicationResources.accessor, userLocale, "CreditCardProcessor.sale.unexpectedApprovalResult", saleResult.getAuthorizationResult().getApprovalResult());
+                        throw new LocalizedSQLException(ApplicationResources.accessor, "CreditCardProcessor.sale.unexpectedApprovalResult", saleResult.getAuthorizationResult().getApprovalResult());
                 }
                 break;
             default:
-                throw new LocalizedSQLException(ApplicationResources.accessor, userLocale, "CreditCardProcessor.sale.unexpectedCommunicationResult", saleResult.getAuthorizationResult().getCommunicationResult());
+                throw new LocalizedSQLException(ApplicationResources.accessor, "CreditCardProcessor.sale.unexpectedCommunicationResult", saleResult.getAuthorizationResult().getCommunicationResult());
         }
         transaction.setStatus(status);
 
         // Update persistence layer
         persistenceMechanism.saleCompleted(
             principal,
-            transaction,
-            userLocale
+            transaction
         );
 
         return transaction;
@@ -139,7 +137,7 @@ public class CreditCardProcessor {
      * @see  #capture
      * @see  #voidTransaction
      */
-    public Transaction authorize(Principal principal, Group group, TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) throws SQLException {
+    public Transaction authorize(Principal principal, Group group, TransactionRequest transactionRequest, CreditCard creditCard) throws SQLException {
         // Insert into persistence layer
         long currentTimeMillis = System.currentTimeMillis();
         Transaction transaction = new Transaction(
@@ -159,11 +157,11 @@ public class CreditCardProcessor {
             null, // voidResult
             Transaction.Status.PROCESSING
         );
-        String persistenceUniqueId = persistenceMechanism.insertTransaction(principal, group, transaction, userLocale);
+        String persistenceUniqueId = persistenceMechanism.insertTransaction(principal, group, transaction);
         transaction.setPersistenceUniqueId(persistenceUniqueId);
 
         // Perform authorization
-        AuthorizationResult authorizationResult = provider.authorize(transactionRequest, creditCard, userLocale);
+        AuthorizationResult authorizationResult = provider.authorize(transactionRequest, creditCard);
         transaction.setAuthorizationResult(authorizationResult);
         Transaction.Status status;
         switch(authorizationResult.getCommunicationResult()) {
@@ -188,19 +186,18 @@ public class CreditCardProcessor {
                         status = Transaction.Status.HOLD;
                         break;
                     default:
-                        throw new LocalizedSQLException(ApplicationResources.accessor, userLocale, "CreditCardProcessor.sale.unexpectedApprovalResult", authorizationResult.getApprovalResult());
+                        throw new LocalizedSQLException(ApplicationResources.accessor, "CreditCardProcessor.sale.unexpectedApprovalResult", authorizationResult.getApprovalResult());
                 }
                 break;
             default:
-                throw new LocalizedSQLException(ApplicationResources.accessor, userLocale, "CreditCardProcessor.sale.unexpectedCommunicationResult", authorizationResult.getCommunicationResult());
+                throw new LocalizedSQLException(ApplicationResources.accessor, "CreditCardProcessor.sale.unexpectedCommunicationResult", authorizationResult.getCommunicationResult());
         }
         transaction.setStatus(status);
 
         // Update persistence layer
         persistenceMechanism.authorizeCompleted(
             principal,
-            transaction,
-            userLocale
+            transaction
         );
 
         return transaction;
@@ -211,9 +208,9 @@ public class CreditCardProcessor {
      *
      * @see  #authorize
      */
-    public CaptureResult capture(AuthorizationResult authorizationResult, Locale userLocale) {
+    public CaptureResult capture(AuthorizationResult authorizationResult) {
         throw new RuntimeException("TODO: Implement method");
-        // TODO: return provider.capture(authorizationResult, userLocale);
+        // TODO: return provider.capture(authorizationResult);
     }
 
     /**
@@ -230,7 +227,7 @@ public class CreditCardProcessor {
      * @see  #authorize
      * @see  #capture
      */
-    public VoidResult voidTransaction(Principal principal, Transaction transaction, Locale userLocale) throws SQLException {
+    public VoidResult voidTransaction(Principal principal, Transaction transaction) throws SQLException {
         Transaction.Status status = transaction.getStatus();
         if(
             status==Transaction.Status.AUTHORIZED
@@ -243,27 +240,27 @@ public class CreditCardProcessor {
                 && transaction.getAuthorizationResult().getProviderUniqueId()!=null
                 && transaction.getAuthorizationResult().getProviderUniqueId().length()>0
             ) {
-                VoidResult voidResult = provider.voidTransaction(transaction, userLocale);
+                VoidResult voidResult = provider.voidTransaction(transaction);
                 // Update the status
                 transaction.setVoidResult(voidResult);
                 if(voidResult.getCommunicationResult()==TransactionResult.CommunicationResult.SUCCESS) transaction.setStatus(Transaction.Status.VOID);
-                persistenceMechanism.voidCompleted(principal, transaction, userLocale);
+                persistenceMechanism.voidCompleted(principal, transaction);
 
                 return voidResult;
             } else {
-                throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCardProcessor.voidTransaction.providerUniqueId.required");
+                throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "CreditCardProcessor.voidTransaction.providerUniqueId.required");
             }
         } else {
-            throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "CreditCardProcessor.voidTransaction.invalidStatus", status==null ? null : status.toString(userLocale));
+            throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "CreditCardProcessor.voidTransaction.invalidStatus", status==null ? null : status.toString());
         }
     }
 
     /**
      * Requests a credit.
      */
-    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
+    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
         throw new RuntimeException("TODO: Implement method");
-        // TODO: return provider.credit(transactionRequest, creditCard, userLocale);
+        // TODO: return provider.credit(transactionRequest, creditCard);
     }
 
     /**
@@ -271,8 +268,8 @@ public class CreditCardProcessor {
      *
      * @throws  IOException   when unable to contact the bank
      */
-    public boolean canStoreCreditCards(Locale userLocale) throws IOException {
-        return provider.canStoreCreditCards(userLocale);
+    public boolean canStoreCreditCards() throws IOException {
+        return provider.canStoreCreditCards();
     }
 
     /**
@@ -282,22 +279,22 @@ public class CreditCardProcessor {
      * @throws  IOException   when unable to contact the bank
      * @throws  SQLException  when unable to store in the persistence layer
      */
-    public void storeCreditCard(Principal principal, Group group, CreditCard creditCard, Locale userLocale) throws IOException, SQLException {
+    public void storeCreditCard(Principal principal, Group group, CreditCard creditCard) throws IOException, SQLException {
         // First, store in the merchant system
-        String providerUniqueId = provider.storeCreditCard(creditCard, userLocale);
+        String providerUniqueId = provider.storeCreditCard(creditCard);
         creditCard.setProviderId(provider.getProviderId());
         creditCard.setProviderUniqueId(providerUniqueId);
 
         // Second, store to the persistence layer (this may also choose to store the card numbers)
         creditCard.setPrincipalName(principal.getName());
         creditCard.setGroupName(group.getName());
-        String persistenceUniqueId = persistenceMechanism.storeCreditCard(principal, creditCard, userLocale);
+        String persistenceUniqueId = persistenceMechanism.storeCreditCard(principal, creditCard);
         creditCard.setPersistenceUniqueId(persistenceUniqueId);
 
         // Third, clear card numbers (since now stored)
-        creditCard.setCardNumber(null, userLocale);
-        creditCard.setExpirationMonth((byte)-1, userLocale);
-        creditCard.setExpirationYear((short)-1, userLocale);
+        creditCard.setCardNumber(null);
+        creditCard.setExpirationMonth((byte)-1);
+        creditCard.setExpirationYear((short)-1);
     }
 
     /**
@@ -307,21 +304,21 @@ public class CreditCardProcessor {
      * @throws  IOException   when unable to contact the bank
      * @throws  SQLException  when unable to store in the persistence layer
      */
-    public void updateCreditCardNumberAndExpiration(Principal principal, CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException, SQLException {
+    public void updateCreditCardNumberAndExpiration(Principal principal, CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException, SQLException {
         cardNumber = CreditCard.numbersOnly(cardNumber);
         if(creditCard.getProviderUniqueId()!=null) {
             // Update in persistence (this also enforces security)
             String maskedCardNumber = CreditCard.maskCreditCardNumber(cardNumber);
-            persistenceMechanism.updateCardNumber(principal, creditCard, maskedCardNumber, cardNumber, expirationMonth, expirationYear, userLocale);
+            persistenceMechanism.updateCardNumber(principal, creditCard, maskedCardNumber, cardNumber, expirationMonth, expirationYear);
             // Update in secure storage
-            provider.updateCreditCardNumberAndExpiration(creditCard, cardNumber, expirationMonth, expirationYear, userLocale);
+            provider.updateCreditCardNumberAndExpiration(creditCard, cardNumber, expirationMonth, expirationYear);
             // Update the masked number
             creditCard.setMaskedCardNumber(maskedCardNumber);
         } else {
             // Update directly
-            creditCard.setCardNumber(cardNumber, userLocale); // This also sets the masked value
-            creditCard.setExpirationMonth(expirationMonth, userLocale);
-            creditCard.setExpirationYear(expirationYear, userLocale);
+            creditCard.setCardNumber(cardNumber); // This also sets the masked value
+            creditCard.setExpirationMonth(expirationMonth);
+            creditCard.setExpirationYear(expirationYear);
         }
     }
 
@@ -331,16 +328,16 @@ public class CreditCardProcessor {
      *
      * @throws  IOException   when unable to contact the bank
      */
-    public void updateCreditCardExpiration(Principal principal, CreditCard creditCard, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException, SQLException  {
+    public void updateCreditCardExpiration(Principal principal, CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException, SQLException  {
         if(creditCard.getProviderUniqueId()!=null) {
             // Update in persistence (this also enforces security)
-            persistenceMechanism.updateExpiration(principal, creditCard, expirationMonth, expirationYear, userLocale);
+            persistenceMechanism.updateExpiration(principal, creditCard, expirationMonth, expirationYear);
             // Update in secure storage
-            provider.updateCreditCardExpiration(creditCard, expirationMonth, expirationYear, userLocale);
+            provider.updateCreditCardExpiration(creditCard, expirationMonth, expirationYear);
         } else {
             // Update directly
-            creditCard.setExpirationMonth(expirationMonth, userLocale);
-            creditCard.setExpirationYear(expirationYear, userLocale);
+            creditCard.setExpirationMonth(expirationMonth);
+            creditCard.setExpirationYear(expirationYear);
         }
     }
 
@@ -350,15 +347,15 @@ public class CreditCardProcessor {
      * @throws  IOException   when unable to contact the bank
      * @throws  SQLException  when unable to update the persistence layer
      */
-    public void deleteCreditCard(Principal principal, CreditCard creditCard, Locale userLocale) throws IOException, SQLException {
+    public void deleteCreditCard(Principal principal, CreditCard creditCard) throws IOException, SQLException {
         // Delete from persistence (this also implements security)
         if(creditCard.getPersistenceUniqueId()!=null) {
-            persistenceMechanism.deleteCreditCard(principal, creditCard, userLocale);
+            persistenceMechanism.deleteCreditCard(principal, creditCard);
             creditCard.setPersistenceUniqueId(null);
         }
         // Delete from provider database
         if(creditCard.getProviderUniqueId()!=null) {
-            provider.deleteCreditCard(creditCard, userLocale);
+            provider.deleteCreditCard(creditCard);
             creditCard.setProviderUniqueId(null);
         }
     }

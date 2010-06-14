@@ -1,10 +1,10 @@
-package com.aoindustries.creditcards;
-
 /*
  * Copyright 2009 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+package com.aoindustries.creditcards;
+
 import com.aoindustries.util.i18n.EditableResourceBundle;
 import java.io.File;
 import java.util.Locale;

@@ -1,12 +1,9 @@
-package com.aoindustries.creditcards;
-
 /*
- * Copyright 2007-2009 by AO Industries, Inc.,
+ * Copyright 2007-2010 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
-import com.aoindustries.util.i18n.LocalizedToString;
-import java.util.Locale;
+package com.aoindustries.creditcards;
 
 /**
  * Encapsulates the results of an authorization.
@@ -17,28 +14,21 @@ import java.util.Locale;
  */
 public class AuthorizationResult extends TransactionResult implements Cloneable {
 
-    public enum ApprovalResult implements LocalizedToString {
+    public enum ApprovalResult {
         APPROVED,
         DECLINED,
         HOLD;
 
         /**
-         * Gets the display value in the default locale.
+         * Gets the display value.
          */
         @Override
         public String toString() {
-            return toString(Locale.getDefault());
-        }
-
-        /**
-         * Gets the display value in the provided locale.
-         */
-        public String toString(Locale userLocale) {
-            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.ApprovalResult."+name());
+            return ApplicationResources.getMessage("AuthorizationResult.ApprovalResult."+name());
         }
     }
 
-    public enum DeclineReason implements LocalizedToString {
+    public enum DeclineReason {
         NO_SPECIFIC,
         EXPIRED_CARD,
         PICK_UP_CARD,
@@ -64,43 +54,29 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
         UNKNOWN;
 
         /**
-         * Gets the display value in the default locale.
+         * Gets the display value.
          */
         @Override
         public String toString() {
-            return toString(Locale.getDefault());
-        }
-
-        /**
-         * Gets the display value in the provided locale.
-         */
-        public String toString(Locale userLocale) {
-            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.DeclineReason."+name());
+            return ApplicationResources.getMessage("AuthorizationResult.DeclineReason."+name());
         }
     }
 
-    public enum ReviewReason implements LocalizedToString {
+    public enum ReviewReason {
         RISK_MANAGEMENT,
         ACCEPTED_MERCHANT_REVIEW,
         ACCEPTED_AUTHORIZED_MERCHANT_REVIEW;
 
         /**
-         * Gets the display value in the default locale.
+         * Gets the display value.
          */
         @Override
         public String toString() {
-            return toString(Locale.getDefault());
-        }
-
-        /**
-         * Gets the display value in the provided locale.
-         */
-        public String toString(Locale userLocale) {
-            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.ReviewReason."+name());
+            return ApplicationResources.getMessage("AuthorizationResult.ReviewReason."+name());
         }
     }
 
-    public enum CvvResult implements LocalizedToString {
+    public enum CvvResult {
         MATCH,
         NO_MATCH,
         NOT_PROCESSED,
@@ -109,22 +85,15 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
         UNKNOWN;
 
         /**
-         * Gets the display value in the default locale.
+         * Gets the display value.
          */
         @Override
         public String toString() {
-            return toString(Locale.getDefault());
-        }
-
-        /**
-         * Gets the display value in the provided locale.
-         */
-        public String toString(Locale userLocale) {
-            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.CvvResult."+name());
+            return ApplicationResources.getMessage("AuthorizationResult.CvvResult."+name());
         }
     }
 
-    public enum AvsResult implements LocalizedToString {
+    public enum AvsResult {
         ADDRESS_NOT_PROVIDED,
         ADDRESS_Y_ZIP_9,
         ADDRESS_Y_ZIP_5,
@@ -141,18 +110,11 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
         UNKNOWN;
 
         /**
-         * Gets the display value in the default locale.
+         * Gets the display value.
          */
         @Override
         public String toString() {
-            return toString(Locale.getDefault());
-        }
-
-        /**
-         * Gets the display value in the provided locale.
-         */
-        public String toString(Locale userLocale) {
-            return ApplicationResources.getMessage(userLocale, "AuthorizationResult.AvsResult."+name());
+            return ApplicationResources.getMessage("AuthorizationResult.AvsResult."+name());
         }
     }
 

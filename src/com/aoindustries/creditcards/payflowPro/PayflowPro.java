@@ -1,10 +1,10 @@
-package com.aoindustries.creditcards.payflowPro;
-
 /*
  * Copyright 2007-2009 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+package com.aoindustries.creditcards.payflowPro;
+
 import com.aoindustries.creditcards.AuthorizationResult;
 import com.aoindustries.creditcards.CaptureResult;
 import com.aoindustries.creditcards.CreditCard;
@@ -17,7 +17,6 @@ import com.aoindustries.creditcards.TransactionResult;
 import com.aoindustries.creditcards.VoidResult;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import paypal.payflow.AuthorizationTransaction;
@@ -100,6 +99,7 @@ public class PayflowPro implements MerchantServicesProvider {
         this.password = password;
     }
 
+    @Override
     public String getProviderId() {
         return providerId;
     }
@@ -150,7 +150,7 @@ public class PayflowPro implements MerchantServicesProvider {
         }
     }
 
-    private AuthorizationResult authorizeOrSale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale, String trxType) {
+    private AuthorizationResult authorizeOrSale(TransactionRequest transactionRequest, CreditCard creditCard, String trxType) {
         // Build the transaction request objects, catching ErrorCodeException after this step
         // because any of these errors will all be considered as TransactionResult.CommunicationResult.LOCAL_ERROR
         BaseTransaction transaction;
@@ -259,7 +259,7 @@ public class PayflowPro implements MerchantServicesProvider {
             invoice.setCustomerInfo(customerInfo);
 
             // CreditCard
-            paypal.payflow.CreditCard ppCreditCard = new paypal.payflow.CreditCard(creditCard.getCardNumber(), creditCard.getExpirationDateMMYY(userLocale));
+            paypal.payflow.CreditCard ppCreditCard = new paypal.payflow.CreditCard(creditCard.getCardNumber(), creditCard.getExpirationDateMMYY());
             String cvv2 = creditCard.getCardCode();
             if(cvv2!=null && cvv2.length()>0) ppCreditCard.setCvv2(cvv2);
             ppCreditCard.setName(getFullName(creditCard.getFirstName(), creditCard.getLastName()));
@@ -623,8 +623,9 @@ public class PayflowPro implements MerchantServicesProvider {
         }
     }
 
-    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        AuthorizationResult authorizationResult = authorizeOrSale(transactionRequest, creditCard, userLocale, "S");
+    @Override
+    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
+        AuthorizationResult authorizationResult = authorizeOrSale(transactionRequest, creditCard, "S");
         return new SaleResult(
             authorizationResult,
             new CaptureResult(
@@ -638,39 +639,48 @@ public class PayflowPro implements MerchantServicesProvider {
         );
     }
 
-    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        return authorizeOrSale(transactionRequest, creditCard, userLocale, "A");
+    @Override
+    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
+        return authorizeOrSale(transactionRequest, creditCard, "A");
     }
 
-    public CaptureResult capture(AuthorizationResult authorizationResult, Locale userLocale) {
+    @Override
+    public CaptureResult capture(AuthorizationResult authorizationResult) {
         throw new RuntimeException("TODO: Implement method");
     }
 
-    public VoidResult voidTransaction(Transaction transaction, Locale userLocale) {
+    @Override
+    public VoidResult voidTransaction(Transaction transaction) {
         throw new RuntimeException("TODO: Implement method");
     }
 
-    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
+    @Override
+    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
         throw new RuntimeException("TODO: Implement method");
     }
 
-    public boolean canStoreCreditCards(Locale userLocale) {
+    @Override
+    public boolean canStoreCreditCards() {
         return false;
     }
 
-    public String storeCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
+    @Override
+    public String storeCreditCard(CreditCard creditCard) throws IOException {
         throw new RuntimeException("TODO: Credit card storage not yet implemented");
     }
 
-    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
+    @Override
+    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
         throw new RuntimeException("TODO: Credit card storage not yet implemented");
     }
 
-    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
+    @Override
+    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
         throw new RuntimeException("TODO: Credit card storage not yet implemented");
     }
 
-    public void deleteCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
+    @Override
+    public void deleteCreditCard(CreditCard creditCard) throws IOException {
         throw new RuntimeException("TODO: Credit card storage not yet implemented");
     }
 }

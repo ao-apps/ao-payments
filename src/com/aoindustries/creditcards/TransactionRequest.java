@@ -6,7 +6,6 @@ package com.aoindustries.creditcards;
  * All rights reserved.
  */
 import com.aoindustries.lang.LocalizedIllegalArgumentException;
-import com.aoindustries.util.i18n.LocalizedToString;
 import java.math.BigDecimal;
 import java.util.Locale;
 import org.apache.commons.validator.GenericValidator;
@@ -27,7 +26,7 @@ public class TransactionRequest implements Cloneable {
      *
      * Note: Add more as needed
      */
-    public enum CurrencyCode implements LocalizedToString {
+    public enum CurrencyCode {
         AUD(2),
         CAD(2),
         CLP(0),
@@ -43,19 +42,9 @@ public class TransactionRequest implements Cloneable {
             this.digits = digits;
         }
 
-        /**
-         * Gets the display value in the default locale.
-         */
         @Override
         public String toString() {
-            return toString(Locale.getDefault());
-        }
-
-        /**
-         * Gets the display value in the provided locale.
-         */
-        public String toString(Locale userLocale) {
-            return ApplicationResources.getMessage(userLocale, "TransactionRequest.CurrencyCode."+name());
+            return ApplicationResources.getMessage("TransactionRequest.CurrencyCode."+name());
         }
 
         /**
@@ -99,8 +88,8 @@ public class TransactionRequest implements Cloneable {
     /**
      * Creates an empty TransactionRequest.  The values should be set using the appropriate setter methods.
      */
-    public TransactionRequest(Locale userLocale) {
-        setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.getMessage(userLocale, "TransactionRequest.currencyCode.default")));
+    public TransactionRequest() {
+        setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.getMessage("TransactionRequest.currencyCode.default")));
     }
 
     /**
@@ -109,7 +98,6 @@ public class TransactionRequest implements Cloneable {
      * @throws  IllegalArgumentException  if anything not valid
      */
     public TransactionRequest(
-        Locale userLocale,
         boolean testMode,
         String customerIp,
         int duplicateWindow,
@@ -139,13 +127,13 @@ public class TransactionRequest implements Cloneable {
         setCustomerIp(customerIp);
         setDuplicateWindow(duplicateWindow);
         setOrderNumber(orderNumber);
-        if(currencyCode==null) setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.getMessage(userLocale, "TransactionRequest.currencyCode.default")));
+        if(currencyCode==null) setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.getMessage("TransactionRequest.currencyCode.default")));
         else setCurrencyCode(currencyCode);
-        setAmount(amount, userLocale);
-        setTaxAmount(taxAmount, userLocale);
+        setAmount(amount);
+        setTaxAmount(taxAmount);
         setTaxExempt(taxExempt);
-        setShippingAmount(shippingAmount, userLocale);
-        setDutyAmount(dutyAmount, userLocale);
+        setShippingAmount(shippingAmount);
+        setDutyAmount(dutyAmount);
         setShippingFirstName(shippingFirstName);
         setShippingLastName(shippingLastName);
         setShippingCompanyName(shippingCompanyName);
@@ -154,9 +142,9 @@ public class TransactionRequest implements Cloneable {
         setShippingCity(shippingCity);
         setShippingState(shippingState);
         setShippingPostalCode(shippingPostalCode);
-        setShippingCountryCode(shippingCountryCode, userLocale);
+        setShippingCountryCode(shippingCountryCode);
         setEmailCustomer(emailCustomer);
-        setMerchantEmail(merchantEmail, userLocale);
+        setMerchantEmail(merchantEmail);
         setInvoiceNumber(invoiceNumber);
         setPurchaseOrderNumber(purchaseOrderNumber);
         setDescription(description);
@@ -260,15 +248,15 @@ public class TransactionRequest implements Cloneable {
      *
      * @throws  IllegalArgumentException  if amount <= 0 or is incorrectly formatted for the currency.
      */
-    public void setAmount(BigDecimal amount, Locale userLocale) throws IllegalArgumentException {
+    public void setAmount(BigDecimal amount) throws IllegalArgumentException {
         if(amount==null) {
             this.amount = null;
         } else {
-            if(amount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setAmount.amount.lessThanEqualZero");
+            if(amount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setAmount.amount.lessThanEqualZero");
             try {
                 this.amount = currencyCode.normalizeCurrency(amount);
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, userLocale, "TransactionRequest.setAmount.amount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, "TransactionRequest.setAmount.amount.cannotNormalize");
             }
         }
     }
@@ -287,15 +275,15 @@ public class TransactionRequest implements Cloneable {
      *
      * @throws  IllegalArgumentException  if taxAmount < 0 or is incorrectly formatted for the currency.
      */
-    public void setTaxAmount(BigDecimal taxAmount, Locale userLocale) {
+    public void setTaxAmount(BigDecimal taxAmount) {
         if(taxAmount==null) {
             this.taxAmount = null;
         } else {
-            if(taxAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setTaxAmount.taxAmount.lessThanZero");
+            if(taxAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setTaxAmount.taxAmount.lessThanZero");
             try {
                 this.taxAmount = currencyCode.normalizeCurrency(taxAmount);
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, userLocale, "TransactionRequest.setTaxAmount.taxAmount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, "TransactionRequest.setTaxAmount.taxAmount.cannotNormalize");
             }
         }
     }
@@ -328,15 +316,15 @@ public class TransactionRequest implements Cloneable {
      *
      * @throws  IllegalArgumentException  if shippingAmount < 0 or is incorrectly formatted for the currency.
      */
-    public void setShippingAmount(BigDecimal shippingAmount, Locale userLocale) {
+    public void setShippingAmount(BigDecimal shippingAmount) {
         if(shippingAmount==null) {
             this.shippingAmount = null;
         } else {
-            if(shippingAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setShippingAmount.shippingAmount.lessThanZero");
+            if(shippingAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setShippingAmount.shippingAmount.lessThanZero");
             try {
                 this.shippingAmount = currencyCode.normalizeCurrency(shippingAmount);
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, userLocale, "TransactionRequest.setShippingAmount.shippingAmount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, "TransactionRequest.setShippingAmount.shippingAmount.cannotNormalize");
             }
         }
     }
@@ -355,15 +343,15 @@ public class TransactionRequest implements Cloneable {
      *
      * @throws  IllegalArgumentException  if dutyAmount < 0 or is incorrectly formatted for the currency.
      */
-    public void setDutyAmount(BigDecimal dutyAmount, Locale userLocale) {
+    public void setDutyAmount(BigDecimal dutyAmount) {
         if(dutyAmount==null) {
             this.dutyAmount = null;
         } else {
-            if(dutyAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setDutyAmount.dutyAmount.lessThanZero");
+            if(dutyAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setDutyAmount.dutyAmount.lessThanZero");
             try {
                 this.dutyAmount = currencyCode.normalizeCurrency(dutyAmount);
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, userLocale, "TransactionRequest.setDutyAmount.dutyAmount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, "TransactionRequest.setDutyAmount.dutyAmount.cannotNormalize");
             }
         }
     }
@@ -496,12 +484,12 @@ public class TransactionRequest implements Cloneable {
      *
      * @throws  IllegalArgumentException  if not a two-character code (after trimming).
      */
-    public void setShippingCountryCode(String shippingCountryCode, Locale userLocale) {
+    public void setShippingCountryCode(String shippingCountryCode) {
          if(shippingCountryCode==null) {
             this.shippingCountryCode = null;
         } else {
             shippingCountryCode = shippingCountryCode.trim().toUpperCase(Locale.ENGLISH);
-            if(shippingCountryCode.length()!=2) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setShippingCountryCode.shippingCountryCode.mustBe2Digits");
+            if(shippingCountryCode.length()!=2) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setShippingCountryCode.shippingCountryCode.mustBe2Digits");
             this.shippingCountryCode = shippingCountryCode;
         }
    }
@@ -534,12 +522,12 @@ public class TransactionRequest implements Cloneable {
      *
      * @throws  IllegalArgumentException  if the address does is not in the proper format
      */
-    public void setMerchantEmail(String merchantEmail, Locale userLocale) {
+    public void setMerchantEmail(String merchantEmail) {
         if(merchantEmail==null) {
             this.merchantEmail = null;
         } else {
             merchantEmail = merchantEmail.trim();
-            if(!GenericValidator.isEmail(merchantEmail)) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, userLocale, "TransactionRequest.setMerchantEmail.merchantEmail.invalid");
+            if(!GenericValidator.isEmail(merchantEmail)) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setMerchantEmail.merchantEmail.invalid");
             this.merchantEmail = merchantEmail;
         }
     }

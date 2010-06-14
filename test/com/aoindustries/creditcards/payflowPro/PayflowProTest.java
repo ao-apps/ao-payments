@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -51,7 +50,6 @@ public class PayflowProTest extends TestCase {
         return config.getProperty(name);
     }
 
-    private Locale userLocale;
     private CreditCardProcessor processor;
     private Principal principal;
     private Group group;
@@ -63,14 +61,13 @@ public class PayflowProTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        userLocale = Locale.getDefault();
-
         processor = new CreditCardProcessor(
             new PayflowPro("PayflowProTest", getConfig("user"), getConfig("vendor"), getConfig("partner"), getConfig("password")),
             PropertiesPersistenceMechanism.getInstance(getConfig("persistencePath"))
         );
 
         principal = new Principal() {
+            @Override
             public String getName() {
                 return "TestPrincipal";
             }
@@ -90,18 +87,23 @@ public class PayflowProTest extends TestCase {
             }
         };
         group = new Group() {
+            @Override
             public boolean addMember(Principal user) {
                 throw new RuntimeException("Unimplemented");
             }
+            @Override
             public String getName() {
                 return "TestGroup";
             }
+            @Override
             public boolean isMember(Principal member) {
                 return member.getName().equals("TestPrincipal");
             }
+            @Override
             public Enumeration<? extends Principal> members() {
                 throw new RuntimeException("Unimplemented");
             }
+            @Override
             public boolean removeMember(Principal user) {
                 throw new RuntimeException("Unimplemented");
             }
@@ -110,7 +112,6 @@ public class PayflowProTest extends TestCase {
         testGoodCreditCards = new ArrayList<CreditCard>();
         testGoodCreditCards.add(
             new CreditCard(
-                userLocale,
                 null,
                 principal.getName(),
                 group.getName(),
@@ -140,7 +141,6 @@ public class PayflowProTest extends TestCase {
         );
         testGoodCreditCards.add(
             new CreditCard(
-                userLocale,
                 null,
                 principal.getName(),
                 group.getName(),
@@ -170,7 +170,6 @@ public class PayflowProTest extends TestCase {
         );
         testGoodCreditCards.add(
             new CreditCard(
-                userLocale,
                 null,
                 null,
                 null,
@@ -200,7 +199,6 @@ public class PayflowProTest extends TestCase {
         );
         testGoodCreditCards.add(
             new CreditCard(
-                userLocale,
                 null,
                 null,
                 null,
@@ -232,7 +230,6 @@ public class PayflowProTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        userLocale = null;
         processor = null;
         principal = null;
         group = null;
@@ -252,7 +249,7 @@ public class PayflowProTest extends TestCase {
         assertEquals(
             "Expecting to not be allowed to store credit cards",
             false,
-            processor.canStoreCreditCards(userLocale)
+            processor.canStoreCreditCards()
         );
     }
 
@@ -265,7 +262,6 @@ public class PayflowProTest extends TestCase {
                 principal,
                 group,
                 new TransactionRequest(
-                    userLocale,
                     true,
                     InetAddress.getLocalHost().getHostAddress(),
                     120,
@@ -291,8 +287,7 @@ public class PayflowProTest extends TestCase {
                     null,
                     "Test transaction"
                 ),
-                testGoodCreditCard,
-                userLocale
+                testGoodCreditCard
             );
             assertEquals(
                 "Transaction authorization communication result should be SUCCESS",
@@ -326,7 +321,6 @@ public class PayflowProTest extends TestCase {
                 principal,
                 group,
                 new TransactionRequest(
-                    userLocale,
                     true,
                     InetAddress.getLocalHost().getHostAddress(),
                     120,
@@ -352,8 +346,7 @@ public class PayflowProTest extends TestCase {
                     null,
                     "Test transaction"
                 ),
-                testGoodCreditCard,
-                userLocale
+                testGoodCreditCard
             );
             assertEquals(
                 "Transaction authorization communication result should be SUCCESS",

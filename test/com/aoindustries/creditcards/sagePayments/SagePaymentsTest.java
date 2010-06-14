@@ -19,7 +19,6 @@ import java.security.Principal;
 import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.Enumeration;
-import java.util.Locale;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -48,7 +47,6 @@ public class SagePaymentsTest extends TestCase {
         return config.getProperty(name);
     }
 
-    private Locale userLocale;
     private CreditCardProcessor processor;
     private Principal principal;
     private Group group;
@@ -60,8 +58,6 @@ public class SagePaymentsTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        userLocale = Locale.getDefault();
-
         processor = new CreditCardProcessor(
             new SagePayments("SagePaymentsTest", getConfig("MERCHANT_ID"), getConfig("MERCHANT_KEY")),
             PropertiesPersistenceMechanism.getInstance(getConfig("PERSISTENCE_PATH"))
@@ -105,7 +101,6 @@ public class SagePaymentsTest extends TestCase {
         };
 
         testCard = new CreditCard(
-            userLocale,
             null,
             principal.getName(),
             group.getName(),
@@ -136,7 +131,6 @@ public class SagePaymentsTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        userLocale = null;
         processor = null;
         principal = null;
         group = null;
@@ -153,7 +147,7 @@ public class SagePaymentsTest extends TestCase {
      */
     public void testCanStoreCreditCards() throws IOException {
         // Test canStoreCreditCards
-        System.out.println("canStoreCreditCards: "+processor.canStoreCreditCards(userLocale));
+        System.out.println("canStoreCreditCards: "+processor.canStoreCreditCards());
     }
     
     /**
@@ -164,7 +158,6 @@ public class SagePaymentsTest extends TestCase {
             principal,
             group,
             new TransactionRequest(
-                userLocale,
                 true,
                 InetAddress.getLocalHost().getHostAddress(),
                 120,
@@ -190,11 +183,10 @@ public class SagePaymentsTest extends TestCase {
                 null,
                 "Test transaction"
             ),
-            testCard,
-            userLocale
+            testCard
         );
         try {
-            System.out.println("transaction.status="+transaction.getStatus().toString(userLocale));
+            System.out.println("transaction.status="+transaction.getStatus().toString());
             System.out.println("transaction.persistenceUniqueId="+transaction.getPersistenceUniqueId());
             System.out.println("transaction.authorizationResult.providerUniqueId="+transaction.getAuthorizationResult().getProviderUniqueId());
             assertEquals("transaction.status is not CAPTURED", Transaction.Status.CAPTURED, transaction.getStatus());
@@ -211,7 +203,7 @@ public class SagePaymentsTest extends TestCase {
                 case AUTHORIZED:
                 case CAPTURED:
                 case HOLD:
-                    VoidResult voidResult = processor.voidTransaction(principal, transaction, userLocale);
+                    VoidResult voidResult = processor.voidTransaction(principal, transaction);
                     // Check success of void
                     assertEquals("voidResult.communicationResult is not SUCCESS", TransactionResult.CommunicationResult.SUCCESS, voidResult.getCommunicationResult());
                     // Check results of void
@@ -232,8 +224,7 @@ public class SagePaymentsTest extends TestCase {
         processor.storeCreditCard(
             principal,
             group,
-            creditCard,
-            userLocale
+            creditCard
         );
         try {
             System.out.println("storeCreditCard: guid="+creditCard.getProviderUniqueId());
@@ -245,7 +236,6 @@ public class SagePaymentsTest extends TestCase {
                 principal,
                 group,
                 new TransactionRequest(
-                    userLocale,
                     true,
                     InetAddress.getLocalHost().getHostAddress(),
                     120,
@@ -271,11 +261,10 @@ public class SagePaymentsTest extends TestCase {
                     null,
                     "Test transaction"
                 ),
-                creditCard,
-                userLocale
+                creditCard
             );
             try {
-                System.out.println("transaction.status="+transaction.getStatus().toString(userLocale));
+                System.out.println("transaction.status="+transaction.getStatus().toString());
                 System.out.println("transaction.persistenceUniqueId="+transaction.getPersistenceUniqueId());
                 System.out.println("transaction.authorizationResult.providerUniqueId="+transaction.getAuthorizationResult().getProviderUniqueId());
                 assertEquals("transaction.status is not CAPTURED", Transaction.Status.CAPTURED, transaction.getStatus());
@@ -292,7 +281,7 @@ public class SagePaymentsTest extends TestCase {
                     case AUTHORIZED:
                     case CAPTURED:
                     case HOLD:
-                        VoidResult voidResult = processor.voidTransaction(principal, transaction, userLocale);
+                        VoidResult voidResult = processor.voidTransaction(principal, transaction);
                         // Check success of void
                         assertEquals("voidResult.communicationResult is not SUCCESS", TransactionResult.CommunicationResult.SUCCESS, voidResult.getCommunicationResult());
                         // Check results of void
@@ -301,7 +290,7 @@ public class SagePaymentsTest extends TestCase {
             }
         } finally {
             if(creditCard.getProviderUniqueId()!=null || creditCard.getPersistenceUniqueId()!=null) {
-                processor.deleteCreditCard(principal, creditCard, userLocale);
+                processor.deleteCreditCard(principal, creditCard);
                 assertNull("After deleting creditCard, providerUniqueId should be null", creditCard.getProviderUniqueId());
                 assertNull("After deleting creditCard, persistenceUniqueId should be null", creditCard.getPersistenceUniqueId());
             }

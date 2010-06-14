@@ -16,7 +16,6 @@ import com.aoindustries.creditcards.TransactionRequest;
 import com.aoindustries.creditcards.TransactionResult;
 import com.aoindustries.creditcards.VoidResult;
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -59,6 +58,7 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
         );
     }
 
+    @Override
     public String getProviderId() {
         return providerId;
     }
@@ -71,7 +71,8 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
         return declineChance;
     }
 
-    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
+    @Override
+    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) {
             // Random error class
@@ -214,7 +215,8 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
         );
     }
 
-    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
+    @Override
+    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) {
             // Random error class
@@ -327,7 +329,8 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
         );
     }
 
-    public CaptureResult capture(AuthorizationResult authorizationResult, Locale userLocale) {
+    @Override
+    public CaptureResult capture(AuthorizationResult authorizationResult) {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) {
             // Random error class
@@ -374,7 +377,8 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
         );
     }
 
-    public VoidResult voidTransaction(Transaction transaction, Locale userLocale) {
+    @Override
+    public VoidResult voidTransaction(Transaction transaction) {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) {
             // Random error class
@@ -421,32 +425,38 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
         );
     }
 
-    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
+    @Override
+    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
         throw new RuntimeException("TODO: Implement method");
     }
 
-    public boolean canStoreCreditCards(Locale userLocale) throws IOException {
+    @Override
+    public boolean canStoreCreditCards() throws IOException {
         return true;
     }
 
-    public String storeCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
+    @Override
+    public String storeCreditCard(CreditCard creditCard) throws IOException {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated storeCreditCard error");
         
         return Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
     }
 
-    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
+    @Override
+    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardNumberAndExpiration error");
     }
 
-    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
+    @Override
+    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardExpiration error");
     }
 
-    public void deleteCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
+    @Override
+    public void deleteCreditCard(CreditCard creditCard) throws IOException {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated deleteCreditCard error");
     }

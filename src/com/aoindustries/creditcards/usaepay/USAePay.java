@@ -31,7 +31,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -78,6 +77,7 @@ public class USAePay implements MerchantServicesProvider {
         this.pin = pin;
     }
 
+    @Override
     public String getProviderId() {
         return providerId;
     }
@@ -117,7 +117,7 @@ public class USAePay implements MerchantServicesProvider {
     /**
      * Submits a transaction (a Map of name/value pairs), and returns the result as a Map of name/value pairs.
      */
-    protected Map<String,String> submitTransaction(Locale userLocale, Map<String,String> request, boolean testMode) throws ErrorCodeException {
+    protected Map<String,String> submitTransaction(Map<String,String> request, boolean testMode) throws ErrorCodeException {
         try {
             // Build the request string before allocating the connection to the server
             if(DEBUG_REQUEST) System.out.println("Request:");
@@ -182,7 +182,6 @@ public class USAePay implements MerchantServicesProvider {
             throw new ErrorCodeException(
                 err,
                 TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
-                userLocale,
                 "TransactionResult.CommunicationResult.IO_ERROR"
             );
         }
@@ -192,11 +191,10 @@ public class USAePay implements MerchantServicesProvider {
      * Adds a parameter to the request after checking its length.
      * If longer, throws an ErrorCodeException with the provided <code>TransactionResult.ErrorCode</code>, otherwise appends the value.
      */
-    protected static void addMaxLengthParameter(Locale userLocale, Map<String,String> request, String name, String value, int maxLength, TransactionResult.ErrorCode errorCode) throws ErrorCodeException {
+    protected static void addMaxLengthParameter(Map<String,String> request, String name, String value, int maxLength, TransactionResult.ErrorCode errorCode) throws ErrorCodeException {
         if(value.length()>maxLength) {
             throw new ErrorCodeException(
                 errorCode,
-                userLocale,
                 "TransactionRequest.field.tooLong",
                 name,
                 maxLength
@@ -545,7 +543,7 @@ public class USAePay implements MerchantServicesProvider {
         convertedErrors.put("10132", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
     }
 
-    private AuthorizationResult authorizeOrSale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale, String command) {
+    private AuthorizationResult authorizeOrSale(TransactionRequest transactionRequest, CreditCard creditCard, String command) {
         // Build the map of request parameters, catching ErrorCodeException after this step
         // because any of these errors will all be considered as TransactionResult.CommunicationResult.LOCAL_ERROR
         Map<String,String> request = new HashMap<String,String>();
@@ -555,7 +553,7 @@ public class USAePay implements MerchantServicesProvider {
             request.put("UMkey", key);
             // Note: UMhash is added at the bottom of this block to benefit from the values that are fomatted below
             request.put("UMcard", creditCard.getCardNumber());
-            request.put("UMexpir", creditCard.getExpirationDateMMYY(userLocale));
+            request.put("UMexpir", creditCard.getExpirationDateMMYY());
             
             // Add tax, ship, and duty amounts
             BigDecimal amount = transactionRequest.getAmount();
@@ -576,7 +574,7 @@ public class USAePay implements MerchantServicesProvider {
                     break;
                 default :
                     // Additional currency codes are documented here: http://wiki.usaepay.com/developer/currencycode
-                    throw new ErrorCodeException(TransactionResult.ErrorCode.INVALID_CURRENCY_CODE, userLocale, "TransactionResult.ErrorCode.INVALID_CURRENCY_CODE");
+                    throw new ErrorCodeException(TransactionResult.ErrorCode.INVALID_CURRENCY_CODE, "TransactionResult.ErrorCode.INVALID_CURRENCY_CODE");
             }
             request.put("UMcurrency", currencyCode);
             
@@ -618,7 +616,7 @@ public class USAePay implements MerchantServicesProvider {
             if(invoiceNumber!=null && invoiceNumber.length()>0) {
                 if(invoiceNumber.length()<=10) request.put("UMinvoice", invoiceNumber);
                 else {
-                    addMaxLengthParameter(userLocale, request, "UMorderid", invoiceNumber, 64, TransactionResult.ErrorCode.INVALID_INVOICE_NUMBER);
+                    addMaxLengthParameter(request, "UMorderid", invoiceNumber, 64, TransactionResult.ErrorCode.INVALID_INVOICE_NUMBER);
                 }
             }
             
@@ -729,8 +727,8 @@ public class USAePay implements MerchantServicesProvider {
                     }
                     // Generate the MD5 hash
                     StringBuilder hashData = new StringBuilder();
-                    if(command.indexOf(':')!=-1) throw new ErrorCodeException(new IllegalArgumentException("command may not contain a colon (:): "+command), TransactionResult.ErrorCode.HASH_CHECK_FAILED, userLocale, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
-                    if(pin.indexOf(':')!=-1) throw new ErrorCodeException(new IllegalArgumentException("pin may not contain a colon (:): "+pin), TransactionResult.ErrorCode.HASH_CHECK_FAILED, userLocale, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
+                    if(command.indexOf(':')!=-1) throw new ErrorCodeException(new IllegalArgumentException("command may not contain a colon (:): "+command), TransactionResult.ErrorCode.HASH_CHECK_FAILED, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
+                    if(pin.indexOf(':')!=-1) throw new ErrorCodeException(new IllegalArgumentException("pin may not contain a colon (:): "+pin), TransactionResult.ErrorCode.HASH_CHECK_FAILED, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
                     hashData.append(command).append(':').append(pin).append(':').append(amount.toString()).append(':');
                     if(invoiceNumber!=null && invoiceNumber.length()>0) hashData.append(invoiceNumber);
                     hashData.append(':').append(seed);
@@ -739,7 +737,7 @@ public class USAePay implements MerchantServicesProvider {
                     String hash = "m/"+seed+"/"+md5+"/y";
                     request.put("UMhash", hash);
                 } catch(NoSuchAlgorithmException err) {
-                    throw new ErrorCodeException(err, TransactionResult.ErrorCode.HASH_CHECK_FAILED, userLocale, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
+                    throw new ErrorCodeException(err, TransactionResult.ErrorCode.HASH_CHECK_FAILED, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
                 }
             }
         } catch(ErrorCodeException err) {
@@ -768,7 +766,7 @@ public class USAePay implements MerchantServicesProvider {
         Map<String,String> results;
         try {
             // Now that the local request has been created successfully, contact the PayflowPro API.
-            results = submitTransaction(userLocale, request, transactionRequest.getTestMode());
+            results = submitTransaction(request, transactionRequest.getTestMode());
         } catch(ErrorCodeException err) {
             return new AuthorizationResult(
                 getProviderId(),
@@ -808,26 +806,26 @@ public class USAePay implements MerchantServicesProvider {
                 // http://wiki.usaepay.com/developer/transactionapi#source_pin_code
                 if(responseHash==null || responseHash.length()==0) {
                     System.err.println("responseHash is null or empty");
-                    throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, userLocale, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
+                    throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
                 }
                 try {
                     // Parse the hash type
                     int slashPos1 = responseHash.indexOf('/');
                     if(slashPos1==-1) {
                         System.err.println("Unable to find first slash: "+responseHash);
-                        throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, userLocale, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
+                        throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
                     }
                     String hashType = responseHash.substring(0, slashPos1);
                     if(!hashType.equals("m")) {
                         System.err.println("Unexpected hashType: "+hashType);
-                        throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, userLocale, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
+                        throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
                     }
 
                     // Parse seed
                     int slashPos2 = responseHash.indexOf('/', slashPos1+1);
                     if(slashPos2==-1) {
                         System.err.println("Unable to find second slash: "+responseHash);
-                        throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, userLocale, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
+                        throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
                     }
                     String seed = responseHash.substring(slashPos1+1, slashPos2);
 
@@ -839,10 +837,10 @@ public class USAePay implements MerchantServicesProvider {
                     String expectedMd5 = createMd5Hash(hashData);
                     if(!expectedMd5.equalsIgnoreCase(responseMd5)) {
                         System.err.println("Response MD5 != Expected MD5: "+responseMd5+" != "+expectedMd5);
-                        throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, userLocale, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
+                        throw new ErrorCodeException(TransactionResult.ErrorCode.HASH_CHECK_FAILED, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
                     }
                 } catch(NoSuchAlgorithmException err) {
-                    throw new ErrorCodeException(err, TransactionResult.ErrorCode.HASH_CHECK_FAILED, userLocale, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
+                    throw new ErrorCodeException(err, TransactionResult.ErrorCode.HASH_CHECK_FAILED, "TransactionResult.ErrorCode.HASH_CHECK_FAILED");
                 }
             } catch(ErrorCodeException err) {
                 return new AuthorizationResult(
@@ -1072,8 +1070,9 @@ public class USAePay implements MerchantServicesProvider {
         }
     }
 
-    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        AuthorizationResult authorizationResult = authorizeOrSale(transactionRequest, creditCard, userLocale, "sale");
+    @Override
+    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
+        AuthorizationResult authorizationResult = authorizeOrSale(transactionRequest, creditCard, "sale");
         return new SaleResult(
             authorizationResult,
             new CaptureResult(
@@ -1087,39 +1086,48 @@ public class USAePay implements MerchantServicesProvider {
         );
     }
 
-    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        return authorizeOrSale(transactionRequest, creditCard, userLocale, "authonly");
+    @Override
+    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
+        return authorizeOrSale(transactionRequest, creditCard, "authonly");
     }
 
-    public CaptureResult capture(AuthorizationResult authorizationResult, Locale userLocale) {
+    @Override
+    public CaptureResult capture(AuthorizationResult authorizationResult) {
         throw new RuntimeException("TODO: Implement method");
     }
 
-    public VoidResult voidTransaction(Transaction transaction, Locale userLocale) {
+    @Override
+    public VoidResult voidTransaction(Transaction transaction) {
         throw new RuntimeException("TODO: Implement method");
     }
 
-    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
+    @Override
+    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
         throw new RuntimeException("TODO: Implement method");
     }
 
-    public boolean canStoreCreditCards(Locale userLocale) {
+    @Override
+    public boolean canStoreCreditCards() {
         return false;
     }
 
-    public String storeCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
+    @Override
+    public String storeCreditCard(CreditCard creditCard) throws IOException {
         throw new RuntimeException("TODO: Credit card storage not yet implemented");
     }
 
-    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
+    @Override
+    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
         throw new RuntimeException("TODO: Credit card storage not yet implemented");
     }
 
-    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
+    @Override
+    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
         throw new RuntimeException("TODO: Credit card storage not yet implemented");
     }
 
-    public void deleteCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
+    @Override
+    public void deleteCreditCard(CreditCard creditCard) throws IOException {
         throw new RuntimeException("TODO: Credit card storage not yet implemented");
     }
 }

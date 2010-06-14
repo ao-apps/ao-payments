@@ -1,12 +1,9 @@
-package com.aoindustries.creditcards;
-
 /*
  * Copyright 2007-2009 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
-import com.aoindustries.util.i18n.LocalizedToString;
-import java.util.Locale;
+package com.aoindustries.creditcards;
 
 /**
  * Encapsulates the results of any type of transaction with the merchant services provider.
@@ -15,29 +12,19 @@ import java.util.Locale;
  */
 abstract public class TransactionResult {
 
-    public enum CommunicationResult implements LocalizedToString {
+    public enum CommunicationResult {
         LOCAL_ERROR,
         IO_ERROR,
         GATEWAY_ERROR,
         SUCCESS;
 
-        /**
-         * Gets the display value in the default locale.
-         */
         @Override
         public String toString() {
-            return toString(Locale.getDefault());
-        }
-
-        /**
-         * Gets the display value in the provided locale.
-         */
-        public String toString(Locale userLocale) {
-            return ApplicationResources.getMessage(userLocale, "TransactionResult.CommunicationResult."+name());
+            return ApplicationResources.getMessage("TransactionResult.CommunicationResult."+name());
         }
     }
 
-    public enum ErrorCode implements LocalizedToString {
+    public enum ErrorCode {
         // ALL
         UNKNOWN,
         // LOCAL_ERROR
@@ -100,19 +87,9 @@ abstract public class TransactionResult {
         INVALID_SHIPPING_COUNTRY_CODE,
         CURRENCY_NOT_SUPPORTED;
 
-        /**
-         * Gets the display value in the default locale.
-         */
         @Override
         public String toString() {
-            return toString(Locale.getDefault());
-        }
-
-        /**
-         * Gets the display value in the provided locale.
-         */
-        public String toString(Locale userLocale) {
-            return ApplicationResources.getMessage(userLocale, "TransactionResult.ErrorCode."+name());
+            return ApplicationResources.getMessage("TransactionResult.ErrorCode."+name());
         }
     }
 

@@ -1,10 +1,10 @@
-package com.aoindustries.creditcards.sagePayments;
-
 /*
  * Copyright 2007-2009 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
+package com.aoindustries.creditcards.sagePayments;
+
 import com.aoindustries.creditcards.ApplicationResources;
 import com.aoindustries.creditcards.AuthorizationResult;
 import com.aoindustries.creditcards.CaptureResult;
@@ -22,7 +22,6 @@ import com.aoindustries.creditcards.sagePayments.wsVault.WsVaultLocator;
 import com.aoindustries.creditcards.sagePayments.wsVaultBankcard.WsVaultBankcardLocator;
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.rpc.ServiceException;
@@ -156,6 +155,7 @@ public class SagePayments implements MerchantServicesProvider {
         this.merchantKey = merchantKey;
     }
 
+    @Override
     public String getProviderId() {
         return providerId;
     }
@@ -168,8 +168,9 @@ public class SagePayments implements MerchantServicesProvider {
         return merchantKey;
     }
 
-    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        AuthorizationResult authorizationResult = saleOrAuthorize(transactionRequest, creditCard, userLocale, true);
+    @Override
+    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
+        AuthorizationResult authorizationResult = saleOrAuthorize(transactionRequest, creditCard, true);
         return new SaleResult(
             authorizationResult,
             new CaptureResult(
@@ -183,16 +184,17 @@ public class SagePayments implements MerchantServicesProvider {
         );
     }
 
-    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
-        return saleOrAuthorize(transactionRequest, creditCard, userLocale, false);
+    @Override
+    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
+        return saleOrAuthorize(transactionRequest, creditCard, false);
     }
 
-    private AuthorizationResult saleOrAuthorize(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale, boolean capture) {
+    private AuthorizationResult saleOrAuthorize(TransactionRequest transactionRequest, CreditCard creditCard, boolean capture) {
         // Only supports USD
         if(transactionRequest.getCurrencyCode()!=TransactionRequest.CurrencyCode.USD) {
             // The default locale is used because that represents the locale of the system admin, and they are the ones who need to
             // use this message (processor-specific, behind-the-scenes value)
-            String message = ApplicationResources.getMessage(Locale.getDefault(), "TransactionRequest.currencyCode.onlyOneSupported", TransactionRequest.CurrencyCode.USD);
+            String message = ApplicationResources.getMessage("TransactionRequest.currencyCode.onlyOneSupported", TransactionRequest.CurrencyCode.USD);
             return new AuthorizationResult(
                 getProviderId(),
                 TransactionResult.CommunicationResult.LOCAL_ERROR,
@@ -298,7 +300,7 @@ public class SagePayments implements MerchantServicesProvider {
                                 emptyStringIfNull(creditCard.getCountryCode()),
                                 emptyStringIfNull(creditCard.getEmail()),
                                 emptyStringIfNull(creditCard.getCardNumber()),
-                                emptyStringIfNull(creditCard.getExpirationDateMMYY(userLocale)),
+                                emptyStringIfNull(creditCard.getExpirationDateMMYY()),
                                 emptyStringIfNull(creditCard.getCardCode()),
                                 emptyStringIfNull(null),
                                 // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
@@ -326,7 +328,7 @@ public class SagePayments implements MerchantServicesProvider {
                                 emptyStringIfNull(creditCard.getCountryCode()),
                                 emptyStringIfNull(creditCard.getEmail()),
                                 emptyStringIfNull(creditCard.getCardNumber()),
-                                emptyStringIfNull(creditCard.getExpirationDateMMYY(userLocale)),
+                                emptyStringIfNull(creditCard.getExpirationDateMMYY()),
                                 emptyStringIfNull(creditCard.getCardCode()),
                                 emptyStringIfNull(null),
                                 // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
@@ -539,11 +541,13 @@ public class SagePayments implements MerchantServicesProvider {
         }
     }
 
-    public CaptureResult capture(AuthorizationResult authorizationResult, Locale userLocale) {
+    @Override
+    public CaptureResult capture(AuthorizationResult authorizationResult) {
         throw new RuntimeException("TODO: Implement method");
     }
 
-    public VoidResult voidTransaction(Transaction transaction, Locale userLocale) {
+    @Override
+    public VoidResult voidTransaction(Transaction transaction) {
         try {
             String approvalIndicator = null;
             String code = null;
@@ -642,24 +646,27 @@ public class SagePayments implements MerchantServicesProvider {
         }
     }
 
-    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard, Locale userLocale) {
+    @Override
+    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
         throw new RuntimeException("TODO: Implement method");
     }
 
-    public boolean canStoreCreditCards(Locale userLocale) throws IOException {
+    @Override
+    public boolean canStoreCreditCards() throws IOException {
         try {
             return new WsVaultLocator().getwsVaultSoap().VERIFY_SERVICE(
                 emptyStringIfNull(merchantId),
                 emptyStringIfNull(merchantKey)
             );
         } catch(ServiceException err) {
-            throw new LocalizedIOException(err, ApplicationResources.accessor, userLocale, "MerchantServicesProvider.canStoreCreditCards.ioException");
+            throw new LocalizedIOException(err, ApplicationResources.accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
         } catch(RemoteException err) {
-            throw new LocalizedIOException(err, ApplicationResources.accessor, userLocale, "MerchantServicesProvider.canStoreCreditCards.ioException");
+            throw new LocalizedIOException(err, ApplicationResources.accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
         }
     }
 
-    public String storeCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
+    @Override
+    public String storeCreditCard(CreditCard creditCard) throws IOException {
         try {
             String success = null;
             String guid = null;
@@ -670,7 +677,7 @@ public class SagePayments implements MerchantServicesProvider {
                     emptyStringIfNull(merchantId),
                     emptyStringIfNull(merchantKey),
                     emptyStringIfNull(creditCard.getCardNumber()),
-                    emptyStringIfNull(creditCard.getExpirationDateMMYY(userLocale))
+                    emptyStringIfNull(creditCard.getExpirationDateMMYY())
                 ).get_any();
 
                 Node table1 = results[results.length-1].getFirstChild().getFirstChild();
@@ -687,10 +694,10 @@ public class SagePayments implements MerchantServicesProvider {
                 //System.out.println("message="+message);
             }
 
-            if(!"true".equals(success)) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.storeCreditCard.notSuccessful");
+            if(!"true".equals(success)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.storeCreditCard.notSuccessful");
             if(guid==null) {
-                if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.storeCreditCard.notSupported");
-                else throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.storeCreditCard.missingProviderUniqueId");
+                if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.storeCreditCard.notSupported");
+                else throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.storeCreditCard.missingProviderUniqueId");
             }
             return guid;
         } catch(ServiceException err) {
@@ -704,7 +711,8 @@ public class SagePayments implements MerchantServicesProvider {
         }
     }
 
-    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
+    @Override
+    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
         try {
             String success = null;
             String guid = null;
@@ -716,7 +724,7 @@ public class SagePayments implements MerchantServicesProvider {
                     emptyStringIfNull(merchantKey),
                     emptyStringIfNull(creditCard.getProviderUniqueId()),
                     emptyStringIfNull(cardNumber),
-                    emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear, userLocale))
+                    emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear))
                 ).get_any();
                 Node table1 = results[results.length-1].getFirstChild().getFirstChild();
                 Node child = table1.getFirstChild();
@@ -732,10 +740,10 @@ public class SagePayments implements MerchantServicesProvider {
                 //System.out.println("message="+message);
             }
 
-            if(!"true".equals(success)) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSuccessful");
-            if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSupported");
-            if("INVALID CARDNUMBER".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.invalidCardNumber");
-            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.unexpectedResponse", message);
+            if(!"true".equals(success)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSuccessful");
+            if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSupported");
+            if("INVALID CARDNUMBER".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.invalidCardNumber");
+            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.unexpectedResponse", message);
         } catch(ServiceException err) {
             IOException ioErr = new IOException();
             ioErr.initCause(err);
@@ -747,7 +755,8 @@ public class SagePayments implements MerchantServicesProvider {
         }
     }
 
-    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear, Locale userLocale) throws IOException {
+    @Override
+    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
         try {
             String success = null;
             String guid = null;
@@ -758,7 +767,7 @@ public class SagePayments implements MerchantServicesProvider {
                     emptyStringIfNull(merchantId),
                     emptyStringIfNull(merchantKey),
                     emptyStringIfNull(creditCard.getProviderUniqueId()),
-                    emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear, userLocale))
+                    emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear))
                 ).get_any();
                 Node table1 = results[results.length-1].getFirstChild().getFirstChild();
                 Node child = table1.getFirstChild();
@@ -774,9 +783,9 @@ public class SagePayments implements MerchantServicesProvider {
                 //System.out.println("message="+message);
             }
 
-            if(!"true".equals(success)) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.updateCreditCardExpiration.notSuccessful");
-            if("UNABLE TO LOCATE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.updateCreditCardExpiration.unableToLocate");
-            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.updateCreditCardExpiration.unexpectedResponse", message);
+            if(!"true".equals(success)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardExpiration.notSuccessful");
+            if("UNABLE TO LOCATE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardExpiration.unableToLocate");
+            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardExpiration.unexpectedResponse", message);
         } catch(ServiceException err) {
             IOException ioErr = new IOException();
             ioErr.initCause(err);
@@ -788,14 +797,15 @@ public class SagePayments implements MerchantServicesProvider {
         }
     }
 
-    public void deleteCreditCard(CreditCard creditCard, Locale userLocale) throws IOException {
+    @Override
+    public void deleteCreditCard(CreditCard creditCard) throws IOException {
         try {
             boolean success = new WsVaultLocator().getwsVaultSoap().DELETE_DATA(
                 emptyStringIfNull(merchantId),
                 emptyStringIfNull(merchantKey),
                 emptyStringIfNull(creditCard.getProviderUniqueId())
             );
-            if(!success) throw new LocalizedIOException(ApplicationResources.accessor, userLocale, "MerchantServicesProvider.deleteCreditCard.notSuccessful");
+            if(!success) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.deleteCreditCard.notSuccessful");
         } catch(ServiceException err) {
             IOException ioErr = new IOException();
             ioErr.initCause(err);
@@ -813,13 +823,13 @@ public class SagePayments implements MerchantServicesProvider {
             // Test expiration date update
             CreditCard creditCard = new CreditCard();
             creditCard.setProviderUniqueId("d7e61c0226014cd3a7eb911ca5545b5d");
-            sagePayments.updateCreditCardExpiration(creditCard, (byte)2, (byte)9, userLocale);
+            sagePayments.updateCreditCardExpiration(creditCard, (byte)2, (byte)9);
 
             // Test number and expiration date update
             CreditCard creditCard = new CreditCard();
             creditCard.setProviderUniqueId("d7e61c0226014cd3a7eb911ca5545b5d");
             creditCard.setPersistenceUniqueId("10");
-            sagePayments.updateCreditCardNumberAndExpiration(principal, creditCard, "5212345678901234", (byte)2, (byte)9, userLocale);
+            sagePayments.updateCreditCardNumberAndExpiration(principal, creditCard, "5212345678901234", (byte)2, (byte)9);
         } catch(Exception err) {
             err.printStackTrace();
         }
