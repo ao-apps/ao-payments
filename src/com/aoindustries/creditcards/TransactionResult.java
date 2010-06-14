@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 by AO Industries, Inc.,
+ * Copyright 2007-2010 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
@@ -20,7 +20,7 @@ abstract public class TransactionResult {
 
         @Override
         public String toString() {
-            return ApplicationResources.getMessage("TransactionResult.CommunicationResult."+name());
+            return ApplicationResources.accessor.getMessage("TransactionResult.CommunicationResult."+name());
         }
     }
 
@@ -89,7 +89,7 @@ abstract public class TransactionResult {
 
         @Override
         public String toString() {
-            return ApplicationResources.getMessage("TransactionResult.ErrorCode."+name());
+            return ApplicationResources.accessor.getMessage("TransactionResult.ErrorCode."+name());
         }
     }
 

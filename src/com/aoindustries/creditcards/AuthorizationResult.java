@@ -24,7 +24,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.getMessage("AuthorizationResult.ApprovalResult."+name());
+            return ApplicationResources.accessor.getMessage("AuthorizationResult.ApprovalResult."+name());
         }
     }
 
@@ -58,7 +58,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.getMessage("AuthorizationResult.DeclineReason."+name());
+            return ApplicationResources.accessor.getMessage("AuthorizationResult.DeclineReason."+name());
         }
     }
 
@@ -72,7 +72,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.getMessage("AuthorizationResult.ReviewReason."+name());
+            return ApplicationResources.accessor.getMessage("AuthorizationResult.ReviewReason."+name());
         }
     }
 
@@ -89,7 +89,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.getMessage("AuthorizationResult.CvvResult."+name());
+            return ApplicationResources.accessor.getMessage("AuthorizationResult.CvvResult."+name());
         }
     }
 
@@ -114,7 +114,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.getMessage("AuthorizationResult.AvsResult."+name());
+            return ApplicationResources.accessor.getMessage("AuthorizationResult.AvsResult."+name());
         }
     }
 

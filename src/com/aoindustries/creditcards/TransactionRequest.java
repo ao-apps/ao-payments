@@ -1,7 +1,7 @@
 package com.aoindustries.creditcards;
 
 /*
- * Copyright 2007-2009 by AO Industries, Inc.,
+ * Copyright 2007-2010 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
@@ -44,7 +44,7 @@ public class TransactionRequest implements Cloneable {
 
         @Override
         public String toString() {
-            return ApplicationResources.getMessage("TransactionRequest.CurrencyCode."+name());
+            return ApplicationResources.accessor.getMessage("TransactionRequest.CurrencyCode."+name());
         }
 
         /**
@@ -89,7 +89,7 @@ public class TransactionRequest implements Cloneable {
      * Creates an empty TransactionRequest.  The values should be set using the appropriate setter methods.
      */
     public TransactionRequest() {
-        setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.getMessage("TransactionRequest.currencyCode.default")));
+        setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.accessor.getMessage("TransactionRequest.currencyCode.default")));
     }
 
     /**
@@ -127,7 +127,7 @@ public class TransactionRequest implements Cloneable {
         setCustomerIp(customerIp);
         setDuplicateWindow(duplicateWindow);
         setOrderNumber(orderNumber);
-        if(currencyCode==null) setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.getMessage("TransactionRequest.currencyCode.default")));
+        if(currencyCode==null) setCurrencyCode(CurrencyCode.valueOf(ApplicationResources.accessor.getMessage("TransactionRequest.currencyCode.default")));
         else setCurrencyCode(currencyCode);
         setAmount(amount);
         setTaxAmount(taxAmount);

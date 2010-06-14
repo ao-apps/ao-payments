@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 by AO Industries, Inc.,
+ * Copyright 2007-2010 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
@@ -194,7 +194,7 @@ public class SagePayments implements MerchantServicesProvider {
         if(transactionRequest.getCurrencyCode()!=TransactionRequest.CurrencyCode.USD) {
             // The default locale is used because that represents the locale of the system admin, and they are the ones who need to
             // use this message (processor-specific, behind-the-scenes value)
-            String message = ApplicationResources.getMessage("TransactionRequest.currencyCode.onlyOneSupported", TransactionRequest.CurrencyCode.USD);
+            String message = ApplicationResources.accessor.getMessage("TransactionRequest.currencyCode.onlyOneSupported", TransactionRequest.CurrencyCode.USD);
             return new AuthorizationResult(
                 getProviderId(),
                 TransactionResult.CommunicationResult.LOCAL_ERROR,

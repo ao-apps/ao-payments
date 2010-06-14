@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 by AO Industries, Inc.,
+ * Copyright 2007-2010 by AO Industries, Inc.,
  * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
  * All rights reserved.
  */
@@ -40,12 +40,4 @@ public final class ApplicationResources extends EditableResourceBundle {
     }
 
     public static final ApplicationResourcesAccessor accessor = ApplicationResourcesAccessor.getInstance(bundleSet.getBaseName());
-
-    public static String getMessage(String key) {
-        return accessor.getMessage(key);
-    }
-
-    public static String getMessage(String key, Object... args) {
-        return accessor.getMessage(key, args);
-    }
 }
