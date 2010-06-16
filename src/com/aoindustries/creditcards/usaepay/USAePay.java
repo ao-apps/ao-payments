@@ -568,16 +568,14 @@ public class USAePay implements MerchantServicesProvider {
             
             // Currency
             String currencyCode;
-            switch(transactionRequest.getCurrencyCode()) {
-                case USD :
-                    currencyCode = "840";
-                    break;
-                default :
-                    // Additional currency codes are documented here: http://wiki.usaepay.com/developer/currencycode
-                    throw new ErrorCodeException(TransactionResult.ErrorCode.INVALID_CURRENCY_CODE, "TransactionResult.ErrorCode.INVALID_CURRENCY_CODE");
+            String isoCode = transactionRequest.getCurrency().getCurrencyCode();
+            if(isoCode.equals("USD")) currencyCode = "840";
+            else {
+                // Additional currency codes are documented here: http://wiki.usaepay.com/developer/currencycode
+                throw new ErrorCodeException(TransactionResult.ErrorCode.INVALID_CURRENCY_CODE, "TransactionResult.ErrorCode.INVALID_CURRENCY_CODE");
             }
             request.put("UMcurrency", currencyCode);
-            
+
             // tax
             if(taxAmount!=null) {
                 BigDecimal scaledTaxAmount = taxAmount.setScale(2, RoundingMode.UNNECESSARY);

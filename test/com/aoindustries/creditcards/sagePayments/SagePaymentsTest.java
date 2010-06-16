@@ -18,6 +18,7 @@ import java.net.InetAddress;
 import java.security.Principal;
 import java.security.acl.Group;
 import java.sql.SQLException;
+import java.util.Currency;
 import java.util.Enumeration;
 import java.util.Properties;
 import junit.framework.Test;
@@ -162,7 +163,7 @@ public class SagePaymentsTest extends TestCase {
                 InetAddress.getLocalHost().getHostAddress(),
                 120,
                 "1",
-                TransactionRequest.CurrencyCode.USD,
+                Currency.getInstance("USD"),
                 new BigDecimal("1.00"),
                 null,
                 false,
@@ -240,7 +241,7 @@ public class SagePaymentsTest extends TestCase {
                     InetAddress.getLocalHost().getHostAddress(),
                     120,
                     "1",
-                    TransactionRequest.CurrencyCode.USD,
+                    Currency.getInstance("USD"),
                     new BigDecimal("1.00"),
                     null,
                     false,

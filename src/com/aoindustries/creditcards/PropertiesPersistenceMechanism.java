@@ -20,6 +20,7 @@ import java.security.Principal;
 import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -133,8 +134,8 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
                     for(long counter=1; counter<Long.MAX_VALUE; counter++) {
                         String persistenceUniqueId = props.getProperty("transactions."+counter+".persistenceUniqueId");
                         if(persistenceUniqueId==null) break;
-                        String currencyCodeName = props.getProperty("transactions."+counter+".transactionRequest.currencyCode");
-                        TransactionRequest.CurrencyCode currencyCode = currencyCodeName==null ? null : TransactionRequest.CurrencyCode.valueOf(currencyCodeName);
+                        String currencyCode = props.getProperty("transactions."+counter+".transactionRequest.currencyCode");
+                        Currency currency = currencyCode==null ? null : Currency.getInstance(currencyCode);
                         String amountString = props.getProperty("transactions."+counter+".transactionRequest.amount");
                         BigDecimal amount = amountString==null ? null : new BigDecimal(amountString);
                         String taxAmountString = props.getProperty("transactions."+counter+".transactionRequest.taxAmount");
@@ -180,7 +181,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
                                 props.getProperty("transactions."+counter+".transactionRequest.customerIp"),
                                 Integer.parseInt(props.getProperty("transactions."+counter+".transactionRequest.duplicateWindow")),
                                 props.getProperty("transactions."+counter+".transactionRequest.orderNumber"),
-                                currencyCode,
+                                currency,
                                 amount,
                                 taxAmount,
                                 "true".equals(props.getProperty("transactions."+counter+".transactionRequest.taxExempt")),
@@ -331,7 +332,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
                     if(transactionRequest.getCustomerIp()!=null) props.setProperty("transactions."+counter+".transactionRequest.customerIp", transactionRequest.getCustomerIp());
                     props.setProperty("transactions."+counter+".transactionRequest.duplicateWindow", Integer.toString(transactionRequest.getDuplicateWindow()));
                     if(transactionRequest.getOrderNumber()!=null) props.setProperty("transactions."+counter+".transactionRequest.orderNumber", transactionRequest.getOrderNumber());
-                    if(transactionRequest.getCurrencyCode()!=null) props.setProperty("transactions."+counter+".transactionRequest.currencyCode", transactionRequest.getCurrencyCode().name());
+                    if(transactionRequest.getCurrency()!=null) props.setProperty("transactions."+counter+".transactionRequest.currencyCode", transactionRequest.getCurrency().getCurrencyCode());
                     if(transactionRequest.getAmount()!=null) props.setProperty("transactions."+counter+".transactionRequest.amount", transactionRequest.getAmount().toString());
                     if(transactionRequest.getTaxAmount()!=null) props.setProperty("transactions."+counter+".transactionRequest.taxAmount", transactionRequest.getTaxAmount().toString());
                     props.setProperty("transactions."+counter+".transactionRequest.taxExempt", transactionRequest.getTaxExempt() ? "true" : "false");

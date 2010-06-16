@@ -191,10 +191,10 @@ public class SagePayments implements MerchantServicesProvider {
 
     private AuthorizationResult saleOrAuthorize(TransactionRequest transactionRequest, CreditCard creditCard, boolean capture) {
         // Only supports USD
-        if(transactionRequest.getCurrencyCode()!=TransactionRequest.CurrencyCode.USD) {
+        if(!transactionRequest.getCurrency().getCurrencyCode().equals("USD")) {
             // The default locale is used because that represents the locale of the system admin, and they are the ones who need to
             // use this message (processor-specific, behind-the-scenes value)
-            String message = ApplicationResources.accessor.getMessage("TransactionRequest.currencyCode.onlyOneSupported", TransactionRequest.CurrencyCode.USD);
+            String message = ApplicationResources.accessor.getMessage("TransactionRequest.currency.onlyOneSupported", "USD");
             return new AuthorizationResult(
                 getProviderId(),
                 TransactionResult.CommunicationResult.LOCAL_ERROR,

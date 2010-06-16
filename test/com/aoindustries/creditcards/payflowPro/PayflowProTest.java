@@ -20,6 +20,7 @@ import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -266,7 +267,7 @@ public class PayflowProTest extends TestCase {
                     InetAddress.getLocalHost().getHostAddress(),
                     120,
                     "1",
-                    TransactionRequest.CurrencyCode.USD,
+                    Currency.getInstance("USD"),
                     new BigDecimal("1.00"),
                     null,
                     false,
@@ -325,7 +326,7 @@ public class PayflowProTest extends TestCase {
                     InetAddress.getLocalHost().getHostAddress(),
                     120,
                     "1",
-                    TransactionRequest.CurrencyCode.JPY,
+                    Currency.getInstance("JPY"),
                     new BigDecimal("1000"),
                     null,
                     false,

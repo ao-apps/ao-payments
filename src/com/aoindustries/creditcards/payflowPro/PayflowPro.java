@@ -193,11 +193,11 @@ public class PayflowPro implements MerchantServicesProvider {
             if(shippingAmount!=null) amount = amount.add(shippingAmount);
             BigDecimal dutyAmount = transactionRequest.getDutyAmount();
             if(dutyAmount!=null) amount = amount.add(dutyAmount);
-            invoice.setAmt(new Currency(amount.doubleValue(), transactionRequest.getCurrencyCode().name()));
-            if(taxAmount!=null) invoice.setTaxAmt(new Currency(taxAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
+            invoice.setAmt(new Currency(amount.doubleValue(), transactionRequest.getCurrency().getCurrencyCode()));
+            if(taxAmount!=null) invoice.setTaxAmt(new Currency(taxAmount.doubleValue(), transactionRequest.getCurrency().getCurrencyCode()));
             invoice.setTaxExempt(transactionRequest.getTaxExempt() ? "Y" : "N");
-            if(shippingAmount!=null) invoice.setFreightAmt(new Currency(shippingAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
-            if(dutyAmount!=null) invoice.setDutyAmt(new Currency(dutyAmount.doubleValue(), transactionRequest.getCurrencyCode().name()));
+            if(shippingAmount!=null) invoice.setFreightAmt(new Currency(shippingAmount.doubleValue(), transactionRequest.getCurrency().getCurrencyCode()));
+            if(dutyAmount!=null) invoice.setDutyAmt(new Currency(dutyAmount.doubleValue(), transactionRequest.getCurrency().getCurrencyCode()));
 
             // BillTo
             BillTo billTo = new BillTo();

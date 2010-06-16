@@ -19,6 +19,7 @@ import java.security.Principal;
 import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
@@ -71,6 +72,7 @@ public class USAePayTest extends TestCase {
         );
 
         principal = new Principal() {
+            @Override
             public String getName() {
                 return "TestPrincipal";
             }
@@ -88,18 +90,23 @@ public class USAePayTest extends TestCase {
             }
         };
         group = new Group() {
+            @Override
             public boolean addMember(Principal user) {
                 throw new RuntimeException("Unimplemented");
             }
+            @Override
             public String getName() {
                 return "TestGroup";
             }
+            @Override
             public boolean isMember(Principal member) {
                 return member.getName().equals("TestPrincipal");
             }
+            @Override
             public Enumeration<? extends Principal> members() {
                 throw new RuntimeException("Unimplemented");
             }
+            @Override
             public boolean removeMember(Principal user) {
                 throw new RuntimeException("Unimplemented");
             }
@@ -262,7 +269,7 @@ public class USAePayTest extends TestCase {
                     InetAddress.getLocalHost().getHostAddress(),
                     120,
                     "1",
-                    TransactionRequest.CurrencyCode.USD,
+                    Currency.getInstance("USD"),
                     new BigDecimal("1.00"),
                     null,
                     false,
