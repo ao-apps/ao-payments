@@ -260,7 +260,11 @@ public class CreditCard implements Cloneable {
     public void setCardNumber(String cardNumber) {
         if(cardNumber!=null && cardNumber.length()>0) {
             cardNumber = numbersOnly(cardNumber);
-            if(!GenericValidator.isCreditCard(numbersOnly(cardNumber))) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "CreditCard.setCardNumber.cardNumber.invalid");
+            String numbersOnly = numbersOnly(cardNumber);
+            if(
+                //!"4222222222222222".equals(cardNumber)
+                !GenericValidator.isCreditCard(numbersOnly)
+            ) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "CreditCard.setCardNumber.cardNumber.invalid");
             String trimmed = cardNumber.trim();
             this.cardNumber = trimmed;
             this.maskedCardNumber = maskCreditCardNumber(trimmed);
