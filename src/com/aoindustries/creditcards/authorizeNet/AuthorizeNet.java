@@ -43,8 +43,8 @@ public class AuthorizeNet implements MerchantServicesProvider {
     private static final boolean DEBUG_REQUEST = true;
     private static final boolean DEBUG_RESPONSE = true;
 
-    private static final char X_DELIM_CHAR = '&';
-    private static final char X_ENCAP_CHAR = '|';
+    private static final char X_DELIM_CHAR = '|';
+    private static final char X_ENCAP_CHAR = '`';
 
     private static final Logger logger = Logger.getLogger(AuthorizeNet.class.getName());
 
