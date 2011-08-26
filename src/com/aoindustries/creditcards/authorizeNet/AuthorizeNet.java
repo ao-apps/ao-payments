@@ -16,6 +16,7 @@ import com.aoindustries.creditcards.Transaction;
 import com.aoindustries.creditcards.TransactionRequest;
 import com.aoindustries.creditcards.TransactionResult;
 import com.aoindustries.creditcards.VoidResult;
+import com.aoindustries.io.IoUtils;
 import com.aoindustries.util.StringUtility;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -259,9 +260,7 @@ public class AuthorizeNet implements MerchantServicesProvider {
                 ByteArrayOutputStream bout = new ByteArrayOutputStream();
                 InputStream in = uc.getInputStream();
                 try {
-                    byte[] buff = new byte[4096];
-                    int ret;
-                    while((ret=in.read(buff, 0, 4096))!=-1) bout.write(buff, 0, ret);
+                    IoUtils.copy(in, bout);
                 } finally {
                     in.close();
                 }
