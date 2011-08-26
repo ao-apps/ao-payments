@@ -281,9 +281,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
                     internalTransactions = new ArrayList<Transaction>();
                 }
             } catch(IOException err) {
-                SQLException sqlErr = new SQLException();
-                sqlErr.initCause(err);
-                throw sqlErr;
+                throw new SQLException(err);
             }
         }
     }
@@ -432,9 +430,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
             if(file.exists()) if(!file.renameTo(backupFile)) throw new LocalizedIOException(ApplicationResources.accessor, "PropertiesPersistenceMechanism.save.unableToRename", file.getPath(), backupFile.getPath());
             if(!newFile.renameTo(file)) throw new LocalizedIOException(ApplicationResources.accessor, "PropertiesPersistenceMechanism.save.unableToRename", newFile.getPath(), file.getPath());
         } catch(IOException err) {
-            SQLException sqlErr = new SQLException();
-            sqlErr.initCause(err);
-            throw sqlErr;
+            throw new SQLException(err);
         }
     }
 
@@ -463,12 +459,12 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
      * Card numbers and expiration dates are not persisted to the properties files - encrypted local storage not supported.
      */
     @Override
-    synchronized public void updateCardNumber(Principal principal, CreditCard creditCard, String maskedCardNumber, String cardNumber, byte expirationMonth, short expirationYear) throws SQLException {
+    synchronized public void updateCardNumber(Principal principal, CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws SQLException {
         loadIfNeeded();
         // Find the card with matching persistence id
         CreditCard internalCreditCard = getCreditCard(creditCard.getPersistenceUniqueId());
         if(internalCreditCard==null) throw new LocalizedSQLException(ApplicationResources.accessor, "PersistenceMechanism.updateCardNumber.unableToFindCard", creditCard.getPersistenceUniqueId());
-        internalCreditCard.setMaskedCardNumber(maskedCardNumber);
+        internalCreditCard.setMaskedCardNumber(CreditCard.maskCreditCardNumber(cardNumber));
         save();
     }
     

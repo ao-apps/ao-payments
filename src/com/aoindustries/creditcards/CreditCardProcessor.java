@@ -309,7 +309,7 @@ public class CreditCardProcessor {
         if(creditCard.getProviderUniqueId()!=null) {
             // Update in persistence (this also enforces security)
             String maskedCardNumber = CreditCard.maskCreditCardNumber(cardNumber);
-            persistenceMechanism.updateCardNumber(principal, creditCard, maskedCardNumber, cardNumber, expirationMonth, expirationYear);
+            persistenceMechanism.updateCardNumber(principal, creditCard, cardNumber, expirationMonth, expirationYear);
             // Update in secure storage
             provider.updateCreditCardNumberAndExpiration(creditCard, cardNumber, expirationMonth, expirationYear);
             // Update the masked number
