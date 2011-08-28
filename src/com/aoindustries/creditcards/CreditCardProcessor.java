@@ -7,6 +7,7 @@ package com.aoindustries.creditcards;
  */
 import com.aoindustries.sql.LocalizedSQLException;
 import com.aoindustries.lang.LocalizedIllegalArgumentException;
+import com.aoindustries.lang.NotImplementedException;
 import java.io.IOException;
 import java.security.Principal;
 import java.security.acl.Group;
@@ -209,8 +210,8 @@ public class CreditCardProcessor {
      * @see  #authorize
      */
     public CaptureResult capture(AuthorizationResult authorizationResult) {
-        throw new RuntimeException("TODO: Implement method");
-        // TODO: return provider.capture(authorizationResult);
+        throw new NotImplementedException();
+        // return provider.capture(authorizationResult);
     }
 
     /**
@@ -259,8 +260,8 @@ public class CreditCardProcessor {
      * Requests a credit.
      */
     public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new RuntimeException("TODO: Implement method");
-        // TODO: return provider.credit(transactionRequest, creditCard);
+        throw new NotImplementedException();
+        // return provider.credit(transactionRequest, creditCard);
     }
 
     /**

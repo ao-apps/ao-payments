@@ -17,6 +17,7 @@ import com.aoindustries.creditcards.TransactionRequest;
 import com.aoindustries.creditcards.TransactionResult;
 import com.aoindustries.creditcards.VoidResult;
 import com.aoindustries.io.IoUtils;
+import com.aoindustries.lang.NotImplementedException;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -47,7 +48,6 @@ import java.util.StringTokenizer;
  *   <li>pin (optional) - the pin used for MD5 hash transaction verification</li>
  * </ol>
  *
- * TODO: Support the other methods as needed.
  * TODO: Get this code listed at http://wiki.usaepay.com/developer/3rdparty
  *
  * @author  AO Industries, Inc.
@@ -1090,17 +1090,17 @@ public class USAePay implements MerchantServicesProvider {
 
     @Override
     public CaptureResult capture(AuthorizationResult authorizationResult) {
-        throw new RuntimeException("TODO: Implement method");
+        throw new NotImplementedException();
     }
 
     @Override
     public VoidResult voidTransaction(Transaction transaction) {
-        throw new RuntimeException("TODO: Implement method");
+        throw new NotImplementedException();
     }
 
     @Override
     public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new RuntimeException("TODO: Implement method");
+        throw new NotImplementedException();
     }
 
     @Override
@@ -1110,21 +1110,21 @@ public class USAePay implements MerchantServicesProvider {
 
     @Override
     public String storeCreditCard(CreditCard creditCard) throws IOException {
-        throw new RuntimeException("TODO: Credit card storage not yet implemented");
+        throw new NotImplementedException();
     }
 
     @Override
     public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
-        throw new RuntimeException("TODO: Credit card storage not yet implemented");
+        throw new NotImplementedException();
     }
 
     @Override
     public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
-        throw new RuntimeException("TODO: Credit card storage not yet implemented");
+        throw new NotImplementedException();
     }
 
     @Override
     public void deleteCreditCard(CreditCard creditCard) throws IOException {
-        throw new RuntimeException("TODO: Credit card storage not yet implemented");
+        throw new NotImplementedException();
     }
 }

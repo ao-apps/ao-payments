@@ -20,6 +20,7 @@ import com.aoindustries.creditcards.VoidResult;
 import com.aoindustries.creditcards.sagePayments.transaction_processing.TRANSACTION_PROCESSINGLocator;
 import com.aoindustries.creditcards.sagePayments.wsVault.WsVaultLocator;
 import com.aoindustries.creditcards.sagePayments.wsVaultBankcard.WsVaultBankcardLocator;
+import com.aoindustries.lang.NotImplementedException;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.logging.Level;
@@ -98,7 +99,7 @@ public class SagePayments implements MerchantServicesProvider {
         return firstChild.getNodeValue();
     }
     
-    private static final TransactionResult.ErrorCode convertErrorCode(String code) {
+    private static TransactionResult.ErrorCode convertErrorCode(String code) {
         if(code==null) return null;
         // Not documented, from testing
         if("000014".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
@@ -543,7 +544,7 @@ public class SagePayments implements MerchantServicesProvider {
 
     @Override
     public CaptureResult capture(AuthorizationResult authorizationResult) {
-        throw new RuntimeException("TODO: Implement method");
+        throw new NotImplementedException();
     }
 
     @Override
@@ -648,7 +649,7 @@ public class SagePayments implements MerchantServicesProvider {
 
     @Override
     public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new RuntimeException("TODO: Implement method");
+        throw new NotImplementedException();
     }
 
     @Override
@@ -701,13 +702,9 @@ public class SagePayments implements MerchantServicesProvider {
             }
             return guid;
         } catch(ServiceException err) {
-            IOException ioErr = new IOException();
-            ioErr.initCause(err);
-            throw ioErr;
+            throw new IOException(err);
         } catch(RemoteException err) {
-            IOException ioErr = new IOException();
-            ioErr.initCause(err);
-            throw ioErr;
+            throw new IOException(err);
         }
     }
 
@@ -745,13 +742,9 @@ public class SagePayments implements MerchantServicesProvider {
             if("INVALID CARDNUMBER".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.invalidCardNumber");
             if(!"SUCCESS".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.unexpectedResponse", message);
         } catch(ServiceException err) {
-            IOException ioErr = new IOException();
-            ioErr.initCause(err);
-            throw ioErr;
+            throw new IOException(err);
         } catch(RemoteException err) {
-            IOException ioErr = new IOException();
-            ioErr.initCause(err);
-            throw ioErr;
+            throw new IOException(err);
         }
     }
 
@@ -787,13 +780,9 @@ public class SagePayments implements MerchantServicesProvider {
             if("UNABLE TO LOCATE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardExpiration.unableToLocate");
             if(!"SUCCESS".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardExpiration.unexpectedResponse", message);
         } catch(ServiceException err) {
-            IOException ioErr = new IOException();
-            ioErr.initCause(err);
-            throw ioErr;
+            throw new IOException(err);
         } catch(RemoteException err) {
-            IOException ioErr = new IOException();
-            ioErr.initCause(err);
-            throw ioErr;
+            throw new IOException(err);
         }
     }
 
@@ -807,13 +796,9 @@ public class SagePayments implements MerchantServicesProvider {
             );
             if(!success) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.deleteCreditCard.notSuccessful");
         } catch(ServiceException err) {
-            IOException ioErr = new IOException();
-            ioErr.initCause(err);
-            throw ioErr;
+            throw new IOException(err);
         } catch(RemoteException err) {
-            IOException ioErr = new IOException();
-            ioErr.initCause(err);
-            throw ioErr;
+            throw new IOException(err);
         }
     }
 

@@ -15,6 +15,7 @@ import com.aoindustries.creditcards.Transaction;
 import com.aoindustries.creditcards.TransactionRequest;
 import com.aoindustries.creditcards.TransactionResult;
 import com.aoindustries.creditcards.VoidResult;
+import com.aoindustries.lang.NotImplementedException;
 import java.io.IOException;
 import java.util.Random;
 
@@ -427,7 +428,7 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
 
     @Override
     public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new RuntimeException("TODO: Implement method");
+        throw new NotImplementedException();
     }
 
     @Override

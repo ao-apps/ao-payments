@@ -15,6 +15,7 @@ import com.aoindustries.creditcards.Transaction;
 import com.aoindustries.creditcards.TransactionRequest;
 import com.aoindustries.creditcards.TransactionResult;
 import com.aoindustries.creditcards.VoidResult;
+import com.aoindustries.lang.NotImplementedException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.logging.Level;
@@ -646,17 +647,17 @@ public class PayflowPro implements MerchantServicesProvider {
 
     @Override
     public CaptureResult capture(AuthorizationResult authorizationResult) {
-        throw new RuntimeException("TODO: Implement method");
+        throw new NotImplementedException();
     }
 
     @Override
     public VoidResult voidTransaction(Transaction transaction) {
-        throw new RuntimeException("TODO: Implement method");
+        throw new NotImplementedException();
     }
 
     @Override
     public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new RuntimeException("TODO: Implement method");
+        throw new NotImplementedException();
     }
 
     @Override
@@ -666,21 +667,21 @@ public class PayflowPro implements MerchantServicesProvider {
 
     @Override
     public String storeCreditCard(CreditCard creditCard) throws IOException {
-        throw new RuntimeException("TODO: Credit card storage not yet implemented");
+        throw new NotImplementedException();
     }
 
     @Override
     public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
-        throw new RuntimeException("TODO: Credit card storage not yet implemented");
+        throw new NotImplementedException();
     }
 
     @Override
     public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
-        throw new RuntimeException("TODO: Credit card storage not yet implemented");
+        throw new NotImplementedException();
     }
 
     @Override
     public void deleteCreditCard(CreditCard creditCard) throws IOException {
-        throw new RuntimeException("TODO: Credit card storage not yet implemented");
+        throw new NotImplementedException();
     }
 }
