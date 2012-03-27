@@ -310,13 +310,13 @@ public class AuthorizeNet implements MerchantServicesProvider {
         // Get the values from the response
         // Note: The docs are 1-based and arrays are 0-based, so these are all off by one
         final String
-            responseCode = response[0],
+            responseCode       = response[0],
             responseReasonCode = response[2],
             responseReasonText = response[3],
-            authorizationCode = response[4],
-            avsResponse = response[5],
-            transactionId = response[6],
-            cardCodeResponse = response[38]
+            authorizationCode  = response[4],
+            avsResponse        = response[5],
+            transactionId      = response[6],
+            cardCodeResponse   = response[38]
         ;
 
         // Convert to CvvResult
