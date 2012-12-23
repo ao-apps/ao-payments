@@ -349,8 +349,15 @@ public class SagePayments implements MerchantServicesProvider {
                         ;
                     }
 
-                    Node table1 = results[results.length-1].getFirstChild().getFirstChild();
-                    Node child = table1.getFirstChild();
+                    Node child = null;
+                    MessageElement me = results[results.length-1];
+                    if(me!=null) {
+                        Node meChild = me.getFirstChild();
+                        if(meChild!=null) {
+                            Node table1 = meChild.getFirstChild();
+                            if(table1!=null) child = table1.getFirstChild();
+                        }
+                    }
                     while(child!=null) {
                         if("APPROVAL_INDICATOR".equals(child.getNodeName())) approvalIndicator = getFirstChildNodeValue(child);
                         if("CODE".equals(child.getNodeName())) code = getFirstChildNodeValue(child);
