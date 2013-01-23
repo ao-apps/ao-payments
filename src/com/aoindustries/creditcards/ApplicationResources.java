@@ -35,7 +35,7 @@ import java.util.Locale;
  */
 public final class ApplicationResources extends EditableResourceBundle {
 
-    static final EditableResourceBundleSet bundleSet = new EditableResourceBundleSet(
+    public static final EditableResourceBundleSet bundleSet = new EditableResourceBundleSet(
         ApplicationResources.class.getName(),
         Arrays.asList(
             Locale.ROOT,
