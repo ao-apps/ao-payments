@@ -22,6 +22,7 @@
  */
 package com.aoindustries.creditcards;
 
+import static com.aoindustries.creditcards.ApplicationResourcesAccessor.accessor;
 import com.aoindustries.io.LocalizedIOException;
 
 /**
@@ -36,22 +37,22 @@ public class ErrorCodeException extends LocalizedIOException {
     final private TransactionResult.ErrorCode errorCode;
 
     public ErrorCodeException(TransactionResult.ErrorCode errorCode, String key) {
-        super(ApplicationResources.accessor, key);
+        super(accessor, key);
         this.errorCode = errorCode;
     }
 
     public ErrorCodeException(TransactionResult.ErrorCode errorCode, String key, Object... args) {
-        super(ApplicationResources.accessor, key, args);
+        super(accessor, key, args);
         this.errorCode = errorCode;
     }
 
     public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, String key) {
-        super(cause, ApplicationResources.accessor, key);
+        super(cause, accessor, key);
         this.errorCode = errorCode;
     }
 
     public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, String key, Object... args) {
-        super(cause, ApplicationResources.accessor, key, args);
+        super(cause, accessor, key, args);
         this.errorCode = errorCode;
     }
 

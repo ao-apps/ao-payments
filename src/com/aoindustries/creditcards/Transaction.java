@@ -22,6 +22,8 @@
  */
 package com.aoindustries.creditcards;
 
+import static com.aoindustries.creditcards.ApplicationResourcesAccessor.accessor;
+
 /**
  * Encapsulates all the details of one transaction, including request, credit card details, and response.
  *
@@ -44,7 +46,7 @@ public class Transaction {
 
         @Override
         public String toString() {
-            return ApplicationResources.accessor.getMessage("Transaction.Status."+name());
+            return accessor.getMessage("Transaction.Status."+name());
         }
     }
 

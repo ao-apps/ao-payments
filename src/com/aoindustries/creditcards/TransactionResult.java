@@ -22,6 +22,8 @@
  */
 package com.aoindustries.creditcards;
 
+import static com.aoindustries.creditcards.ApplicationResourcesAccessor.accessor;
+
 /**
  * Encapsulates the results of any type of transaction with the merchant services provider.
  *
@@ -37,7 +39,7 @@ abstract public class TransactionResult {
 
         @Override
         public String toString() {
-            return ApplicationResources.accessor.getMessage("TransactionResult.CommunicationResult."+name());
+            return accessor.getMessage("TransactionResult.CommunicationResult."+name());
         }
     }
 
@@ -106,7 +108,7 @@ abstract public class TransactionResult {
 
         @Override
         public String toString() {
-            return ApplicationResources.accessor.getMessage("TransactionResult.ErrorCode."+name());
+            return accessor.getMessage("TransactionResult.ErrorCode."+name());
         }
     }
 

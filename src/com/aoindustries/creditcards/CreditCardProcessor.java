@@ -22,6 +22,7 @@
  */
 package com.aoindustries.creditcards;
 
+import static com.aoindustries.creditcards.ApplicationResourcesAccessor.accessor;
 import com.aoindustries.sql.LocalizedSQLException;
 import com.aoindustries.lang.LocalizedIllegalArgumentException;
 import com.aoindustries.lang.NotImplementedException;
@@ -125,11 +126,11 @@ public class CreditCardProcessor {
                         status = Transaction.Status.HOLD;
                         break;
                     default:
-                        throw new LocalizedSQLException(ApplicationResources.accessor, "CreditCardProcessor.sale.unexpectedApprovalResult", saleResult.getAuthorizationResult().getApprovalResult());
+                        throw new LocalizedSQLException(accessor, "CreditCardProcessor.sale.unexpectedApprovalResult", saleResult.getAuthorizationResult().getApprovalResult());
                 }
                 break;
             default:
-                throw new LocalizedSQLException(ApplicationResources.accessor, "CreditCardProcessor.sale.unexpectedCommunicationResult", saleResult.getAuthorizationResult().getCommunicationResult());
+                throw new LocalizedSQLException(accessor, "CreditCardProcessor.sale.unexpectedCommunicationResult", saleResult.getAuthorizationResult().getCommunicationResult());
         }
         transaction.setStatus(status);
 
@@ -204,11 +205,11 @@ public class CreditCardProcessor {
                         status = Transaction.Status.HOLD;
                         break;
                     default:
-                        throw new LocalizedSQLException(ApplicationResources.accessor, "CreditCardProcessor.sale.unexpectedApprovalResult", authorizationResult.getApprovalResult());
+                        throw new LocalizedSQLException(accessor, "CreditCardProcessor.sale.unexpectedApprovalResult", authorizationResult.getApprovalResult());
                 }
                 break;
             default:
-                throw new LocalizedSQLException(ApplicationResources.accessor, "CreditCardProcessor.sale.unexpectedCommunicationResult", authorizationResult.getCommunicationResult());
+                throw new LocalizedSQLException(accessor, "CreditCardProcessor.sale.unexpectedCommunicationResult", authorizationResult.getCommunicationResult());
         }
         transaction.setStatus(status);
 
@@ -266,10 +267,10 @@ public class CreditCardProcessor {
 
                 return voidResult;
             } else {
-                throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "CreditCardProcessor.voidTransaction.providerUniqueId.required");
+                throw new LocalizedIllegalArgumentException(accessor, "CreditCardProcessor.voidTransaction.providerUniqueId.required");
             }
         } else {
-            throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "CreditCardProcessor.voidTransaction.invalidStatus", status==null ? null : status.toString());
+            throw new LocalizedIllegalArgumentException(accessor, "CreditCardProcessor.voidTransaction.invalidStatus", status==null ? null : status.toString());
         }
     }
 

@@ -22,7 +22,7 @@
  */
 package com.aoindustries.creditcards.sagePayments;
 
-import com.aoindustries.creditcards.ApplicationResources;
+import static com.aoindustries.creditcards.ApplicationResourcesAccessor.accessor;
 import com.aoindustries.creditcards.AuthorizationResult;
 import com.aoindustries.creditcards.CaptureResult;
 import com.aoindustries.creditcards.CreditCard;
@@ -212,7 +212,7 @@ public class SagePayments implements MerchantServicesProvider {
         if(!transactionRequest.getCurrency().getCurrencyCode().equals("USD")) {
             // The default locale is used because that represents the locale of the system admin, and they are the ones who need to
             // use this message (processor-specific, behind-the-scenes value)
-            String message = ApplicationResources.accessor.getMessage("TransactionRequest.currency.onlyOneSupported", "USD");
+            String message = accessor.getMessage("TransactionRequest.currency.onlyOneSupported", "USD");
             return new AuthorizationResult(
                 getProviderId(),
                 TransactionResult.CommunicationResult.LOCAL_ERROR,
@@ -684,9 +684,9 @@ public class SagePayments implements MerchantServicesProvider {
                 emptyStringIfNull(merchantKey)
             );
         } catch(ServiceException err) {
-            throw new LocalizedIOException(err, ApplicationResources.accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
+            throw new LocalizedIOException(err, accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
         } catch(RemoteException err) {
-            throw new LocalizedIOException(err, ApplicationResources.accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
+            throw new LocalizedIOException(err, accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
         }
     }
 
@@ -719,10 +719,10 @@ public class SagePayments implements MerchantServicesProvider {
                 //System.out.println("message="+message);
             }
 
-            if(!"true".equals(success)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.storeCreditCard.notSuccessful");
+            if(!"true".equals(success)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.storeCreditCard.notSuccessful");
             if(guid==null) {
-                if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.storeCreditCard.notSupported");
-                else throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.storeCreditCard.missingProviderUniqueId");
+                if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.storeCreditCard.notSupported");
+                else throw new LocalizedIOException(accessor, "MerchantServicesProvider.storeCreditCard.missingProviderUniqueId");
             }
             return guid;
         } catch(ServiceException err) {
@@ -761,10 +761,10 @@ public class SagePayments implements MerchantServicesProvider {
                 //System.out.println("message="+message);
             }
 
-            if(!"true".equals(success)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSuccessful");
-            if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSupported");
-            if("INVALID CARDNUMBER".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.invalidCardNumber");
-            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.unexpectedResponse", message);
+            if(!"true".equals(success)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSuccessful");
+            if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSupported");
+            if("INVALID CARDNUMBER".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.invalidCardNumber");
+            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.unexpectedResponse", message);
         } catch(ServiceException err) {
             throw new IOException(err);
         } catch(RemoteException err) {
@@ -800,9 +800,9 @@ public class SagePayments implements MerchantServicesProvider {
                 //System.out.println("message="+message);
             }
 
-            if(!"true".equals(success)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardExpiration.notSuccessful");
-            if("UNABLE TO LOCATE".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardExpiration.unableToLocate");
-            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.updateCreditCardExpiration.unexpectedResponse", message);
+            if(!"true".equals(success)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardExpiration.notSuccessful");
+            if("UNABLE TO LOCATE".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardExpiration.unableToLocate");
+            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardExpiration.unexpectedResponse", message);
         } catch(ServiceException err) {
             throw new IOException(err);
         } catch(RemoteException err) {
@@ -818,7 +818,7 @@ public class SagePayments implements MerchantServicesProvider {
                 emptyStringIfNull(merchantKey),
                 emptyStringIfNull(creditCard.getProviderUniqueId())
             );
-            if(!success) throw new LocalizedIOException(ApplicationResources.accessor, "MerchantServicesProvider.deleteCreditCard.notSuccessful");
+            if(!success) throw new LocalizedIOException(accessor, "MerchantServicesProvider.deleteCreditCard.notSuccessful");
         } catch(ServiceException err) {
             throw new IOException(err);
         } catch(RemoteException err) {

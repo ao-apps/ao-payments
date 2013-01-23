@@ -22,6 +22,8 @@
  */
 package com.aoindustries.creditcards;
 
+import static com.aoindustries.creditcards.ApplicationResourcesAccessor.accessor;
+
 /**
  * Encapsulates the results of an authorization.
  *
@@ -41,7 +43,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.accessor.getMessage("AuthorizationResult.ApprovalResult."+name());
+            return accessor.getMessage("AuthorizationResult.ApprovalResult."+name());
         }
     }
 
@@ -75,7 +77,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.accessor.getMessage("AuthorizationResult.DeclineReason."+name());
+            return accessor.getMessage("AuthorizationResult.DeclineReason."+name());
         }
     }
 
@@ -89,7 +91,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.accessor.getMessage("AuthorizationResult.ReviewReason."+name());
+            return accessor.getMessage("AuthorizationResult.ReviewReason."+name());
         }
     }
 
@@ -106,7 +108,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.accessor.getMessage("AuthorizationResult.CvvResult."+name());
+            return accessor.getMessage("AuthorizationResult.CvvResult."+name());
         }
     }
 
@@ -131,7 +133,7 @@ public class AuthorizationResult extends TransactionResult implements Cloneable 
          */
         @Override
         public String toString() {
-            return ApplicationResources.accessor.getMessage("AuthorizationResult.AvsResult."+name());
+            return accessor.getMessage("AuthorizationResult.AvsResult."+name());
         }
     }
 

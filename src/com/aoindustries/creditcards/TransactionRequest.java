@@ -22,6 +22,7 @@
  */
 package com.aoindustries.creditcards;
 
+import static com.aoindustries.creditcards.ApplicationResourcesAccessor.accessor;
 import com.aoindustries.lang.LocalizedIllegalArgumentException;
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -73,7 +74,7 @@ public class TransactionRequest implements Cloneable {
      * Creates an empty TransactionRequest.  The values should be set using the appropriate setter methods.
      */
     public TransactionRequest() {
-        setCurrency(Currency.getInstance(ApplicationResources.accessor.getMessage("TransactionRequest.currency.default")));
+        setCurrency(Currency.getInstance(accessor.getMessage("TransactionRequest.currency.default")));
     }
 
     /**
@@ -111,7 +112,7 @@ public class TransactionRequest implements Cloneable {
         setCustomerIp(customerIp);
         setDuplicateWindow(duplicateWindow);
         setOrderNumber(orderNumber);
-        if(currency==null) setCurrency(Currency.getInstance(ApplicationResources.accessor.getMessage("TransactionRequest.currency.default")));
+        if(currency==null) setCurrency(Currency.getInstance(accessor.getMessage("TransactionRequest.currency.default")));
         else setCurrency(currency);
         setAmount(amount);
         setTaxAmount(taxAmount);
@@ -244,11 +245,11 @@ public class TransactionRequest implements Cloneable {
         if(amount==null) {
             this.amount = null;
         } else {
-            if(amount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setAmount.amount.lessThanEqualZero");
+            if(amount.compareTo(BigDecimal.ZERO)<=0) throw new LocalizedIllegalArgumentException(accessor, "TransactionRequest.setAmount.amount.lessThanEqualZero");
             try {
                 this.amount = amount.setScale(currency.getDefaultFractionDigits());
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, "TransactionRequest.setAmount.amount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, accessor, "TransactionRequest.setAmount.amount.cannotNormalize");
             }
         }
     }
@@ -271,11 +272,11 @@ public class TransactionRequest implements Cloneable {
         if(taxAmount==null) {
             this.taxAmount = null;
         } else {
-            if(taxAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setTaxAmount.taxAmount.lessThanZero");
+            if(taxAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(accessor, "TransactionRequest.setTaxAmount.taxAmount.lessThanZero");
             try {
                 this.taxAmount = taxAmount.setScale(currency.getDefaultFractionDigits());
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, "TransactionRequest.setTaxAmount.taxAmount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, accessor, "TransactionRequest.setTaxAmount.taxAmount.cannotNormalize");
             }
         }
     }
@@ -312,11 +313,11 @@ public class TransactionRequest implements Cloneable {
         if(shippingAmount==null) {
             this.shippingAmount = null;
         } else {
-            if(shippingAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setShippingAmount.shippingAmount.lessThanZero");
+            if(shippingAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(accessor, "TransactionRequest.setShippingAmount.shippingAmount.lessThanZero");
             try {
                 this.shippingAmount = shippingAmount.setScale(currency.getDefaultFractionDigits());
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, "TransactionRequest.setShippingAmount.shippingAmount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, accessor, "TransactionRequest.setShippingAmount.shippingAmount.cannotNormalize");
             }
         }
     }
@@ -339,11 +340,11 @@ public class TransactionRequest implements Cloneable {
         if(dutyAmount==null) {
             this.dutyAmount = null;
         } else {
-            if(dutyAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setDutyAmount.dutyAmount.lessThanZero");
+            if(dutyAmount.compareTo(BigDecimal.ZERO)<0) throw new LocalizedIllegalArgumentException(accessor, "TransactionRequest.setDutyAmount.dutyAmount.lessThanZero");
             try {
                 this.dutyAmount = dutyAmount.setScale(currency.getDefaultFractionDigits());
             } catch(ArithmeticException err) {
-                throw new LocalizedIllegalArgumentException(err, ApplicationResources.accessor, "TransactionRequest.setDutyAmount.dutyAmount.cannotNormalize");
+                throw new LocalizedIllegalArgumentException(err, accessor, "TransactionRequest.setDutyAmount.dutyAmount.cannotNormalize");
             }
         }
     }
@@ -481,7 +482,7 @@ public class TransactionRequest implements Cloneable {
             this.shippingCountryCode = null;
         } else {
             shippingCountryCode = shippingCountryCode.trim().toUpperCase(Locale.ENGLISH);
-            if(shippingCountryCode.length()!=2) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setShippingCountryCode.shippingCountryCode.mustBe2Digits");
+            if(shippingCountryCode.length()!=2) throw new LocalizedIllegalArgumentException(accessor, "TransactionRequest.setShippingCountryCode.shippingCountryCode.mustBe2Digits");
             this.shippingCountryCode = shippingCountryCode;
         }
    }
@@ -519,7 +520,7 @@ public class TransactionRequest implements Cloneable {
             this.merchantEmail = null;
         } else {
             merchantEmail = merchantEmail.trim();
-            if(!GenericValidator.isEmail(merchantEmail)) throw new LocalizedIllegalArgumentException(ApplicationResources.accessor, "TransactionRequest.setMerchantEmail.merchantEmail.invalid");
+            if(!GenericValidator.isEmail(merchantEmail)) throw new LocalizedIllegalArgumentException(accessor, "TransactionRequest.setMerchantEmail.merchantEmail.invalid");
             this.merchantEmail = merchantEmail;
         }
     }
