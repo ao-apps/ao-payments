@@ -1,10 +1,27 @@
+/*
+ * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
+ * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ *     support@aoindustries.com
+ *     7262 Bull Pen Cir
+ *     Mobile, AL 36695
+ *
+ * This file is part of ao-credit-cards.
+ *
+ * ao-credit-cards is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ao-credit-cards is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.aoindustries.creditcards.usaepay;
 
-/*
- * Copyright 2008-2011 by AO Industries, Inc.,
- * 7262 Bull Pen Cir, Mobile, Alabama, 36695, U.S.A.
- * All rights reserved.
- */
 import com.aoindustries.creditcards.AuthorizationResult;
 import com.aoindustries.creditcards.CaptureResult;
 import com.aoindustries.creditcards.CreditCard;
@@ -32,6 +49,7 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -57,7 +75,7 @@ public class USAePay implements MerchantServicesProvider {
     private static final boolean DEBUG_REQUEST = false;
     private static final boolean DEBUG_RESPONSE = false;
 
-    private static final String SOFTWARE_VERSION = USAePay.class.getName()+" 1.0";
+    private static final String SOFTWARE_VERSION = USAePay.class.getName()+" 1.0.1";
 
     private final String providerId;
     private final String postUrl;
@@ -240,15 +258,17 @@ public class USAePay implements MerchantServicesProvider {
         }
     }
 
-    volatile private static Random random;
+    private static final Object randomLock = new Object();
+    private static Random random;
+
     /**
-     * Gets a secure random instance.  Not synchronized because multiple initialization is acceptable.
+     * Gets a secure random instance.
      */
     private static Random getRandom() throws NoSuchAlgorithmException {
-        if(random==null) {
-            random=SecureRandom.getInstance("SHA1PRNG");
+        synchronized(randomLock) {
+            if(random==null) random = new SecureRandom();
+            return random;
         }
-        return random;
     }
 
     /**
@@ -297,249 +317,256 @@ public class USAePay implements MerchantServicesProvider {
         }
     }
 
-    private static Map<String,ConvertedError> convertedErrors = new HashMap<String,ConvertedError>();
+    /**
+     * Unmodifiable mapping of error codes.
+     */
+    private static final Map<String,ConvertedError> convertedErrors;
+
     /*
      * http://wiki.usaepay.com/developer/errorcodes?s[]=10118
      */
     static {
+        Map<String,ConvertedError> initErrors = new HashMap<String,ConvertedError>();
         // 00001 	Password/Username Incorrect. 	Sent by login screen when the username and/or the password are incorrect.
-        convertedErrors.put("00001", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INSUFFICIENT_PERMISSIONS));
+        initErrors.put("00001", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INSUFFICIENT_PERMISSIONS));
         // 00002 	Access to page denied. 	The user has attempted to access a page they don't have permission to access.
-        convertedErrors.put("00002", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INSUFFICIENT_PERMISSIONS));
+        initErrors.put("00002", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INSUFFICIENT_PERMISSIONS));
         // 00003 	Transaction type [type] not supported. 	Please contact support. Is returned by /console/vterm.php when an unknown transaction type (sale, credit, etc) is attempted.
-        convertedErrors.put("00003", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
+        initErrors.put("00003", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
         // 00004 	Processing gateway currently offline. 	Please try back in a few moments. Return by processing engine when the gateway cannot establish a connection with the processing backend.
-        convertedErrors.put("00004", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("00004", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00005 	Error in verification module [module]. 	Please contact support. The given fraud module was did not load correctly. An upgrade may be in progress.
-        convertedErrors.put("00005", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
+        initErrors.put("00005", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
         // 00006 	Merchant not found. 	The system was not able to locate the requested merchant.
-        convertedErrors.put("00006", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("00006", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 00007 	Merchant has been deactivated. 	Merchant account has been marked as deactivate. Contact USAePay customer service.
-        convertedErrors.put("00007", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
+        initErrors.put("00007", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
         // 00008 	Unable to retrieve current batch. 	Failed to get the id of the current batch. Typically this indicates that the merchant account is not active or batches are out of sync. Verify all merchant account info provided to usaepay.
-        convertedErrors.put("00008", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
+        initErrors.put("00008", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
         // 00009 	Unable To Create Transaction. 	Please Contact Support. Internal database error, system may be in the process of failing over to backup database server. Retry transaction.
-        convertedErrors.put("00009", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("00009", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00010 	Unable To Allocate Transaction Slot. 	Please contact support. Internal database error, system may be in the process of failing over to backup database server. Retry transaction.
-        convertedErrors.put("00010", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("00010", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00011 	Invalid Card Number (1) 	The cardnumber contains illegal characters. A card number may only include numbers.
-        convertedErrors.put("00011", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NUMBER));
+        initErrors.put("00011", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NUMBER));
         // 00012 	Invalid Card Number (2) 	Card Number was not between 13 and 16 digits.
-        convertedErrors.put("00012", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NUMBER));
+        initErrors.put("00012", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NUMBER));
         // 00013 	Invalid Card Number (3) 	Cardnumber failed Luhn Mod-10 Checkdigit Method (ISO 2894/ANSI 4.13)
-        convertedErrors.put("00013", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NUMBER));
+        initErrors.put("00013", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NUMBER));
         // 00014 	Invalid Credit Card Number (1) 	Cardnumber passed length, format and checkdigit tests but didn't match any of the cardnumber profiles enabled in the system. Contact USAePay to verify support of cardtype.
-        convertedErrors.put("00014", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
+        initErrors.put("00014", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
         // 00015 	Invalid expiration date. 	Must be in MMYY format. Expiration contains invalid characters (nothing but numbers allowed)
-        convertedErrors.put("00015", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE));
+        initErrors.put("00015", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE));
         // 00016 	Invalid expiration date. 	Must be in MMYY format. Could not guess format of date. It wasn't MMYY or MMYYYY or MMDDYYYY or even MMDDYY format.
-        convertedErrors.put("00016", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE));
+        initErrors.put("00016", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE));
         // 00017 	Credit card has expired. 	The credit card expiration date has passed.
-        convertedErrors.put("00017", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_EXPIRED));
+        initErrors.put("00017", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_EXPIRED));
         // 00018 	Gateway temporarily offline. 	Please try again shortly. Unable to contact processor backend. Failed bank link maybe in the process of coming back up. Retry transaction.
-        convertedErrors.put("00018", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("00018", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00019 	Gateway temporarily offline for maintenance. 	Please try again in a few minutes. Processor backend is offline for maintenance. Retry transaction.
-        convertedErrors.put("00019", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES));
+        initErrors.put("00019", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES));
         // 00020 	User not configured correctly, please contact support. 	User not configured correctly. Remove the user and readd.
-        convertedErrors.put("00020", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("00020", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 00021 	Invalid username. 	The merchant didn't type in a valid username when adding a new user.
-        convertedErrors.put("00021", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("00021", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 00022 	You do not have access to this page. 	The user tried to access a page they don't have permission to access.
-        convertedErrors.put("00022", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INSUFFICIENT_PERMISSIONS));
+        initErrors.put("00022", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INSUFFICIENT_PERMISSIONS));
         // 00023 	Specified source key not found. 	The source key provided did not match any of the currently active keys.
-        convertedErrors.put("00023", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("00023", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 00024 	Transaction already voided. 	The transaction was already marked as voided and wasn't going to be settled anyway.
-        convertedErrors.put("00024", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
+        initErrors.put("00024", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
         // 00025 	Unable to find transaction in batch. 	The batchid on the transaction references a batch that doesn't exist. If there isn't a valid batch then trying to void a transaction isn't going to do much.
-        convertedErrors.put("00025", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
+        initErrors.put("00025", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
         // 00026 	The batch has already been closed. Please apply a credit instead. 	The specified transaction has already been settled. Once a transaction has been sent in for settlement it can not be voided.
-        convertedErrors.put("00026", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
+        initErrors.put("00026", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
         // 00027 	Gateway temporarily offline. Please try again shortly. (2) 	Error communicating with the processing backend. Retry transaction.
-        convertedErrors.put("00027", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("00027", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00028 	Unable to verify source. 	VerifySource couldn't find the source or the source was disabled.
-        convertedErrors.put("00028", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("00028", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 00029 	Unable to generate security key. 	VerifySource wasn't able to create a source on the fly. Trouble finding a key.
-        convertedErrors.put("00029", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET));
+        initErrors.put("00029", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET));
         // 00030 	Source has been blocked from processing transactions. 	Merchant has disabled the specified source key.
-        convertedErrors.put("00030", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
+        initErrors.put("00030", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
         // 00031 	Duplicate transaction, wait at least [minutes] minutes before trying again. 	The duplicate transaction fraud module detected a dupe.
-        convertedErrors.put("00031", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.DUPLICATE));
+        initErrors.put("00031", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.DUPLICATE));
         // 00032 	The maximum order amount is $[amount]. 	Fraud module response.
-        convertedErrors.put("00032", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT, AuthorizationResult.DeclineReason.MAX_SALE_EXCEEDED));
+        initErrors.put("00032", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT, AuthorizationResult.DeclineReason.MAX_SALE_EXCEEDED));
         // 00033 	The minimum order amount is $[amount]. 	Fraud module response.
-        convertedErrors.put("00033", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT, AuthorizationResult.DeclineReason.MIN_SALE_NOT_MET));
+        initErrors.put("00033", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT, AuthorizationResult.DeclineReason.MIN_SALE_NOT_MET));
         // 00034 	Your billing information does not match your credit card. Please check with your bank. 	AVS Response fraud module blocked this transaction.
-        convertedErrors.put("00034", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN, AuthorizationResult.DeclineReason.AVS_MISMATCH));
+        initErrors.put("00034", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN, AuthorizationResult.DeclineReason.AVS_MISMATCH));
         // 00035 	Unable to locate transaction. 	Was not able to find the requested transaction for voiding.
-        convertedErrors.put("00035", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.TRANSACTION_NOT_FOUND));
+        initErrors.put("00035", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.TRANSACTION_NOT_FOUND));
         // 00036 	Gateway temporarily offline for maintenance. 	Please try again in a few minutes. VeriCheck link has been brought down for maintenance. Retry transaction.
-        convertedErrors.put("00036", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES));
+        initErrors.put("00036", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES));
         // 00037 	Customer Name not submitted. 	Cardholder field was blank.
-        convertedErrors.put("00037", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NAME));
+        initErrors.put("00037", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NAME));
         // 00038 	Invalid Routing Number. 	Check Routing number did not meet requirement of 9 digits.
-        convertedErrors.put("00038", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
+        initErrors.put("00038", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
         // 00039 	Invalid Checking Account Number. 	Check Account number is not at least 4 digits long.
-        convertedErrors.put("00039", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
+        initErrors.put("00039", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
         // 00040 	Merchant does not currently support check transactions. 	The merchant doesn't have a valid tax id or password entered for check processing.
-        convertedErrors.put("00040", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
+        initErrors.put("00040", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
         // 00041 	Check processing temporarily offline. Please try again shortly. 	Internal system error encountered while communicating with check processor. Please contact USAePay support.
-        convertedErrors.put("00041", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("00041", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00042 	Temporarily unable to process transaction. Please try again shortly. 	A corrupted response (unparsable) was received from vericheck.
-        convertedErrors.put("00042", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("00042", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00043 	Transaction Requires Voice Authentication. Please Call-In. 	Processor returned a referral.
-        convertedErrors.put("00043", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.VOICE_AUTHORIZATION_REQUIRED));
+        initErrors.put("00043", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.VOICE_AUTHORIZATION_REQUIRED));
         // 00044 	Merchant not configured properly (CardAuth) 	The merchant has payment authentication enabled but does not have a processorid/merchantid entered.
-        convertedErrors.put("00044", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("00044", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 00045 	Auth service unavailable. 	Internal system error was encountered while connecting to authentication platform. Contact USAePay support.
-        convertedErrors.put("00045", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("00045", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00046 	Auth service unavailable (6). 	A corrupted response was received from the authentication platform.
-        convertedErrors.put("00046", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("00046", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00050 	Invalid SSN. 	Social Security number must be 9 digits.
-        convertedErrors.put("00050", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CUSTOMER_TAX_ID));
+        initErrors.put("00050", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CUSTOMER_TAX_ID));
         // 00070 	Transaction exceeds maximum amount. 	Transaction exceeds the maximum allowable amount of $99,999.
-        convertedErrors.put("00070", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT, AuthorizationResult.DeclineReason.MAX_SALE_EXCEEDED));
+        initErrors.put("00070", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT, AuthorizationResult.DeclineReason.MAX_SALE_EXCEEDED));
         // 00071 	Transaction out of balance. 	Transaction does not add up correctly: subtotal + tip + tax + shipping - discount must equal the amount.
-        convertedErrors.put("00071", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT));
+        initErrors.put("00071", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT));
         // 00080 	Transaction type not allowed from this source. 	The requested command (sale, authonly, etc) was blocked by the merchant's source key. The command must be checked on source key settings screen to be accepted by the gateway.
-        convertedErrors.put("00080", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
+        initErrors.put("00080", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
         // 02034 	Your billing address does not match your credit card. 	Please check with your bank. The AVS result received from the platform was blocked by the Merchant's fraud preferences. Funds were not held for this transaction.
-        convertedErrors.put("02034", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN, AuthorizationResult.DeclineReason.AVS_MISMATCH));
+        initErrors.put("02034", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN, AuthorizationResult.DeclineReason.AVS_MISMATCH));
         // 10001 	Processing Error Please Try Again Error from FDMS Nashville. 	Invalid Transaction Code
-        convertedErrors.put("10001", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.TRANSACTION_NOT_FOUND));
+        initErrors.put("10001", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.TRANSACTION_NOT_FOUND));
         // 10003 	Merchant does not accept this type of card (1) 	Error from FDMS Nashville: Terminal ID not setup for settlement on this Card Type.
-        convertedErrors.put("10003", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
+        initErrors.put("10003", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
         // 10004 	Merchant does not accept this type of card (2) 	Error from FDMS Nashville: Terminal ID not setup for authorization on this Card Type.
-        convertedErrors.put("10004", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
+        initErrors.put("10004", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
         // 10005 	Invalid Card Expiration Date Error from FDMS Nashville 	Terminal ID not setup for settlement on this Card Type.
-        convertedErrors.put("10005", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE));
+        initErrors.put("10005", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE));
         // 10006 	Merchant does not accept this type of card (3) Error from FDMS Nashville. 	Invalid Process Code, Authorization Type or Card Type.
-        convertedErrors.put("10006", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
+        initErrors.put("10006", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
         // 10007 	Invalid amount Error from FDMS Nashville 	Invalid Transaction or Other Dollar Amount.
-        convertedErrors.put("10007", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT));
+        initErrors.put("10007", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_AMOUNT));
         // 10008 	Processing Error Please Try Again (08) Error from FDMS Nashville. 	Invalid Entry Mode.
-        convertedErrors.put("10008", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10008", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10009 	Processing Error Please Try Again (09) Error from FDMS Nashville 	Invalid Card Present Flag.
-        convertedErrors.put("10009", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10009", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10010 	Processing Error Please Try Again (10) Error from FDMS Nashville 	Invalid Customer Present Flag.
-        convertedErrors.put("10010", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10010", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10011 	Processing Error Please Try Again (11) Error from FDMS Nashville 	Invalid Transaction Count Value.
-        convertedErrors.put("10011", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10011", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10012 	Processing Error Please Try Again (12) Error from FDMS Nashville 	Invalid Terminal Type.
-        convertedErrors.put("10012", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10012", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10013 	Processing Error Please Try Again (13) Error from FDMS Nashville 	Invalid Terminal Capability.
-        convertedErrors.put("10013", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10013", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10014 	Processing Error Please Try Again (14) Error from FDMS Nashville 	Invalid Source ID.
-        convertedErrors.put("10014", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10014", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10015 	Processing Error Please Try Again (15) Error from FDMS Nashville 	Invalid Summary ID.
-        convertedErrors.put("10015", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10015", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10016 	Processing Error Please Try Again (16) Error from FDMS Nashville 	Invalid Mag Strip Data.
-        convertedErrors.put("10016", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10016", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10017 	Invalid Invoice Number (17) Error from FDMS Nashville 	Invalid Invoice Number.
-        convertedErrors.put("10017", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_INVOICE_NUMBER));
+        initErrors.put("10017", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_INVOICE_NUMBER));
         // 10018 	Invalid Transaction Date or Time (18) Error from FDMS Nashville 	Invalid Transaction Date or Time.
-        convertedErrors.put("10018", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10018", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10019 	Processing Error Please Try Again (19) Error from FDMS Nashville 	Invalid bankcard merchant number in First Data database.
-        convertedErrors.put("10019", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10019", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10020 	Processing Error Please Try Again (20) Error from FDMS Nashville 	File Access Error in First Data database.
-        convertedErrors.put("10020", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10020", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10026 	Merchant has been deactivated (26) Error from FDMS Nashville 	Terminal flagged as Inactive in First Data database.
-        convertedErrors.put("10026", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
+        initErrors.put("10026", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
         // 10027 	Invalid Merchant Account (27) Error from FDMS Nashville. 	Invalid Merchant/Terminal ID combination, verify numbers are accurate.
-        convertedErrors.put("10027", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_MERCHANT_ID));
+        initErrors.put("10027", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_MERCHANT_ID));
         // 10030 	Processing Error Please Try Again (30) Error from FDMS Nashville. 	Unrecoverable database error from an authorization process (usually means the Merchant/Terminal ID was already in use).
-        convertedErrors.put("10030", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10030", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10031 	Processing Error Please Retry Transaction (31) Error from FDMS Nashville. 	Database access lock encountered, retry transaction.
-        convertedErrors.put("10031", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10031", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10033 	Processing Error Please Try Again (33) Error from FDMS Nashville. 	Database error in summary process, retry transaction.
-        convertedErrors.put("10033", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10033", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10043 	Sequence Error, Please Contact Support (43) Error from FDMS Nashville. 	Transaction ID invalid, incorrect or out of sequence.
-        convertedErrors.put("10043", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10043", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10051 	Merchant has been deactivated (51) Error from FDMS Nashville. 	Terminal flagged as not usable (violated) in First Data database, Call Customer Support.
-        convertedErrors.put("10051", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
+        initErrors.put("10051", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
         // 10054 	Merchant has not been setup correctly (54) Error from FDMS Nashville. 	Terminal ID not set up on First Data database for leased line access.
-        convertedErrors.put("10054", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("10054", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 10057 	Merchant does not support this card type (57) Error from FDMS Nashville. 	Terminal is not programmed for this service, call customer support.
-        convertedErrors.put("10057", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
+        initErrors.put("10057", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED));
         // 10059 	Processing Error Please Try Again (59) Error from FDMS Nashville. 	Settle Trans for Summary ID where earlier Summary ID still open.
-        convertedErrors.put("10059", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10059", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10060 	Invalid Account Number (60) Error from FDMS Nashville. 	Invalid account number found by authorization process.
-        convertedErrors.put("10060", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NUMBER));
+        initErrors.put("10060", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_NUMBER));
         // 10061 	Processing Error Please Try Again (61) Error from FDMS Nashville. 	Invalid settlement data found in summary process (trans level).
-        convertedErrors.put("10061", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10061", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10062 	Processing Error Please Try Again (62) Error from FDMS Nashville. 	Invalid settlement data (i.e., 'future' date found, erroneous Pserve data found) (summary level).
-        convertedErrors.put("10062", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10062", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10080 	Processing Error Please Try Again (80) Error from FDMS Nashville. 	Invalid Payment Service data found in summary process (trans level).
-        convertedErrors.put("10080", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10080", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10098 	Processing Error Please Try Again (98) Error from FDMS Nashville. 	General System Error.
-        convertedErrors.put("10098", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10098", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10099 	Session timed out. Please re-login. 	Session timed out - (checkout timeout setting).
-        convertedErrors.put("10099", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.NO_SESSION));
+        initErrors.put("10099", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.NO_SESSION));
         // 10100 	Your account has been locked for excessive login attempts. 	The user failed login too many times. Their account has been locked for 60 minutes.
-        convertedErrors.put("10100", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
+        initErrors.put("10100", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
         // 10101 	Your username has been de-activated due to inactivity for 90 days. 	Please contact support to re-activate your account. VISA Cisp requires locking of accounts that have not been accessed in the past 90 days.
-        convertedErrors.put("10101", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
+        initErrors.put("10101", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CUSTOMER_ACCOUNT_DISABLED));
         // 10102 	Unable to open certificate. Unable to load required certificate. 	Contact Support.
-        convertedErrors.put("10102", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.MUST_BE_ENCRYPTED));
+        initErrors.put("10102", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.MUST_BE_ENCRYPTED));
         // 10103 	Unable to read certificate. Unable to load required certificate. 	Contact Support.
-        convertedErrors.put("10103", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.MUST_BE_ENCRYPTED));
+        initErrors.put("10103", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.MUST_BE_ENCRYPTED));
         // 10104 	Error reading certificate. Unable to load required certificate. 	Contact support.
-        convertedErrors.put("10104", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.MUST_BE_ENCRYPTED));
+        initErrors.put("10104", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.MUST_BE_ENCRYPTED));
         // 10105 	Unable to find original transaction. 	A capture or void operation was not able to locate the original transaction.
-        convertedErrors.put("10105", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.TRANSACTION_NOT_FOUND));
+        initErrors.put("10105", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.TRANSACTION_NOT_FOUND));
         // 10106 	You have tried too many card numbers, please contact merchant. 	The transaction was blocked by the MultipleCardTries module.
-        convertedErrors.put("10106", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN, AuthorizationResult.DeclineReason.USAGE_EXCEEDED_1_DAY));
+        initErrors.put("10106", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN, AuthorizationResult.DeclineReason.USAGE_EXCEEDED_1_DAY));
         // 10107 	Invalid billing zip code. 	The ZipCodeVerification module was not able to locate the billing zip code.
-        convertedErrors.put("10107", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_POSTAL_CODE));
+        initErrors.put("10107", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_POSTAL_CODE));
         // 10108 	Invalid shipping zip code. 	The ZipCodeValidation fraud module was not able to find module.
-        convertedErrors.put("10108", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_SHIPPING_POSTAL_CODE));
+        initErrors.put("10108", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_SHIPPING_POSTAL_CODE));
         // 10109 	Billing state does not match billing zip code. 	ZipCodeVerification database came up with a conflict.
-        convertedErrors.put("10109", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_STATE));
+        initErrors.put("10109", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_STATE));
         // 10110 	Billing city does not match billing zip code. 	ZipCodeVerification database came up with a conflict.
-        convertedErrors.put("10110", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_CITY));
+        initErrors.put("10110", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_CITY));
         // 10111 	Billing area code does not match billing zip code. 	ZipCodeVerification database came up with a conflict.
-        convertedErrors.put("10111", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_PHONE));
+        initErrors.put("10111", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_PHONE));
         // 10112 	Shipping state does not match shipping zip code. 	ZipCodeVerification database came up with a conflict.
-        convertedErrors.put("10112", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_SHIPPING_STATE));
+        initErrors.put("10112", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_SHIPPING_STATE));
         // 10113 	Shipping city does not match shipping zip code. 	ZipCodeVerification database came up with a conflict.
-        convertedErrors.put("10113", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_SHIPPING_CITY));
+        initErrors.put("10113", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_SHIPPING_CITY));
         // 10114 	Shipping area code does not match shipping zip code. 	ZipCodeVerification database came up with a conflict.
-        convertedErrors.put("10114", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_SHIPPING_POSTAL_CODE));
+        initErrors.put("10114", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_SHIPPING_POSTAL_CODE));
         // 10115 	Merchant does not accept transactions from [country]. 	IpCountry module blocked transaction.
-        convertedErrors.put("10115", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET));
+        initErrors.put("10115", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET));
         // 10116 	Unable to verify card ID number. 	CVV2, CID, etc result was blocked by CVVresponse fraud module.
-        convertedErrors.put("10116", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_CODE, AuthorizationResult.DeclineReason.CVV2_MISMATCH));
+        initErrors.put("10116", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_CARD_CODE, AuthorizationResult.DeclineReason.CVV2_MISMATCH));
         // 10117 	Transaction authentication required. 	The merchant has set a pin for this transaction but the api did not receive a UMmd5hash. They need to either upgrade their software to send the hash or they need to remove the pin on the source.
-        convertedErrors.put("10117", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.HASH_CHECK_FAILED));
+        initErrors.put("10117", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.HASH_CHECK_FAILED));
         // 10118 	Transaction authentication failed. 	The UMmd5hash did not match the hash that was calculated for the transaction.
-        convertedErrors.put("10118", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.HASH_CHECK_FAILED));
+        initErrors.put("10118", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.HASH_CHECK_FAILED));
         // 10119 	Unable to parse mag stripe data. 	Could not determine the mag data format that was sent in.
-        convertedErrors.put("10119", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
+        initErrors.put("10119", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN));
         // 10120 	Unable to locate valid installation. 	Please contact support. A wireless transaction came in with an install id that wasn't found in the system.
-        convertedErrors.put("10120", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("10120", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 10121 	Wireless key disabled. 	Please contact support. The install id submitted has been deleted/disabled.
-        convertedErrors.put("10121", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("10121", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 10122 	Wireless key mismatch. 	The wireless key submitted does not correspond to the source id created for this installation.
-        convertedErrors.put("10122", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("10122", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 10123 	Success Operation was successful. 	-
-        convertedErrors.put("10123", new ConvertedError(TransactionResult.CommunicationResult.SUCCESS, TransactionResult.ErrorCode.UNKNOWN));
+        initErrors.put("10123", new ConvertedError(TransactionResult.CommunicationResult.SUCCESS, TransactionResult.ErrorCode.UNKNOWN));
         // 10124 	Unsupported transaction type. 	Only authonly, sales and voids may be captured. An attempt was made to settle a transaction that can not be captured. This error will occur if you attempt to capture an echeck transaction.
-        convertedErrors.put("10124", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
+        initErrors.put("10124", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
         // 10125 	Original transaction not approved. 	You are trying to capture (settle) a transaction that was declined or resulted in an error. You can only capture approved transactions.
-        convertedErrors.put("10125", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
+        initErrors.put("10125", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
         // 10126 	Transactions has already been settled. 	You are trying to capture a transaction that has already been settled.
-        convertedErrors.put("10126", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
+        initErrors.put("10126", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_TRANSACTION_TYPE));
         // 10127 	Card Declined Hard decline from First Data. 	-
-        convertedErrors.put("10127", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN, AuthorizationResult.DeclineReason.NO_SPECIFIC));
+        initErrors.put("10127", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.UNKNOWN, AuthorizationResult.DeclineReason.NO_SPECIFIC));
         // 10128 	Processor Error ([response]) 	Unknown response code from First Data Nashville.
-        convertedErrors.put("10128", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10128", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10129 	Invalid transaction data. 	PHP Library detected missing or invalid fields.
-        convertedErrors.put("10129", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10129", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 10130 	Library Error. 	CURL support not found PHP Library was not able to find curl support. You must compile php with curl and openssl.
-        convertedErrors.put("10130", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("10130", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 10131 	Library Error. 	Unable to initialize CURL PHP Library was unable to initialize CURL. SSL support may be missing or incorrectly configured.
-        convertedErrors.put("10131", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
+        initErrors.put("10131", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR));
         // 10132 	Error reading from card processing gateway. 	PHP Library was received a bad response from the gateway.
-        convertedErrors.put("10132", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        initErrors.put("10132", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
+        // Make unmodifiable
+        convertedErrors = Collections.unmodifiableMap(initErrors);
     }
 
     private AuthorizationResult authorizeOrSale(TransactionRequest transactionRequest, CreditCard creditCard, String command) {
@@ -550,7 +577,7 @@ public class USAePay implements MerchantServicesProvider {
             // Build the request parameters
             request.put("UMcommand", command);
             request.put("UMkey", key);
-            // Note: UMhash is added at the bottom of this block to benefit from the values that are fomatted below
+            // Note: UMhash is added at the bottom of this block to benefit from the values that are formatted below
             request.put("UMcard", creditCard.getCardNumber());
             request.put("UMexpir", creditCard.getExpirationDateMMYY());
             
