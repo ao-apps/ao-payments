@@ -22,7 +22,6 @@
  */
 package com.aoindustries.creditcards;
 
-import com.aoindustries.util.i18n.ApplicationResourcesAccessor;
 import com.aoindustries.util.i18n.EditableResourceBundle;
 import com.aoindustries.util.i18n.EditableResourceBundleSet;
 import java.io.File;
@@ -30,8 +29,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * Provides a simplified interface for obtaining localized values from the ApplicationResources.properties files.
- * Is also an editable resource bundle.
+ * Do not use directly.
  *
  * @author  AO Industries, Inc.
  */
@@ -41,9 +39,26 @@ public final class ApplicationResources extends EditableResourceBundle {
         ApplicationResources.class.getName(),
         Arrays.asList(
             Locale.ROOT,
-            Locale.JAPANESE
+            new Locale("ar"),
+            Locale.GERMAN,
+            Locale.ENGLISH,
+            new Locale("es"),
+            Locale.FRENCH,
+            Locale.ITALIAN,
+            Locale.JAPANESE,
+            new Locale("pt"),
+            Locale.CHINESE
         )
     );
+
+    static File[] getSourceDirectories(String filename) {
+        return new File[] {
+            // AO development system
+            new File(System.getProperty("user.home")+"/common/aoprod/cvswork/ao-credit-cards/src/com/aoindustries/creditcards", filename),
+            // Windows development system
+            new File("C:/ao/cvswork/ao-credit-cards/src/com/aoindustries/creditcards", filename)
+        };
+    }
 
     /**
      * Do not use directly.
@@ -52,9 +67,7 @@ public final class ApplicationResources extends EditableResourceBundle {
         super(
             Locale.ROOT,
             bundleSet,
-            new File(System.getProperty("user.home")+"/common/ao/cvswork/ao-credit-cards/src/com/aoindustries/creditcards/ApplicationResources.properties")
+            getSourceDirectories("ApplicationResources.properties")
         );
     }
-
-    public static final ApplicationResourcesAccessor accessor = ApplicationResourcesAccessor.getInstance(bundleSet.getBaseName());
 }
