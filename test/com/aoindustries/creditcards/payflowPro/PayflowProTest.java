@@ -29,8 +29,8 @@ import com.aoindustries.creditcards.PropertiesPersistenceMechanism;
 import com.aoindustries.creditcards.Transaction;
 import com.aoindustries.creditcards.TransactionRequest;
 import com.aoindustries.creditcards.TransactionResult;
+import com.aoindustries.util.PropertiesUtils;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.security.Principal;
@@ -55,17 +55,7 @@ public class PayflowProTest extends TestCase {
     
     private static Properties config;
     synchronized private static String getConfig(String name) throws IOException {
-        if(config==null) {
-            InputStream in = PayflowProTest.class.getResourceAsStream("PayflowProTest.properties");
-            if(in==null) throw new IOException("Unable to find resource: PayflowProTest.properties");
-            try {
-                Properties props = new Properties();
-                props.load(in);
-                config = props;
-            } finally {
-                in.close();
-            }
-        }
+        if(config==null) config = PropertiesUtils.loadFromResource(PayflowProTest.class, "PayflowProTest.properties");
         return config.getProperty(name);
     }
 
