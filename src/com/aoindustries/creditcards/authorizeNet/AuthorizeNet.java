@@ -44,6 +44,7 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -263,7 +264,7 @@ public class AuthorizeNet implements MerchantServicesProvider {
         }
 
         // Now try to process, considering as a GATEWAY_ERROR for any ErrorCodeExceptions.
-        String[] response;
+        List<String> response;
         try {
             // Perform query
             if(DEBUG_REQUEST) logger.log(Level.INFO, "Query: {0}", query);
@@ -292,16 +293,16 @@ public class AuthorizeNet implements MerchantServicesProvider {
             if(DEBUG_RESPONSE) logger.log(Level.INFO, "Response: {0}", responseString);
 
             response = StringUtility.splitString(responseString, X_DELIM_CHAR);
-            if(response.length<68) throw new Exception("Not enough fields in response");
-            for(int i=0; i<response.length; i++) {
+            if(response.size()<68) throw new Exception("Not enough fields in response");
+            for(int i=0; i<response.size(); i++) {
                 // Must start and end with encap_char
-                String value = response[i];
+                String value = response.get(i);
                 if(
                     value.length()<2
                     || !value.startsWith(Character.toString(X_ENCAP_CHAR))
                     || !value.endsWith(Character.toString(X_ENCAP_CHAR))
                 ) throw new Exception("Response value not encapsulated");
-                response[i] = value.substring(1, value.length()-1);
+                response.set(i, value.substring(1, value.length()-1));
             }
         } catch(Exception err) {
             return new AuthorizationResult(
@@ -328,13 +329,13 @@ public class AuthorizeNet implements MerchantServicesProvider {
         // Get the values from the response
         // Note: The docs are 1-based and arrays are 0-based, so these are all off by one
         final String
-            responseCode       = response[0],
-            responseReasonCode = response[2],
-            responseReasonText = response[3],
-            authorizationCode  = response[4],
-            avsResponse        = response[5],
-            transactionId      = response[6],
-            cardCodeResponse   = response[38]
+            responseCode       = response.get(0),
+            responseReasonCode = response.get(2),
+            responseReasonText = response.get(3),
+            authorizationCode  = response.get(4),
+            avsResponse        = response.get(5),
+            transactionId      = response.get(6),
+            cardCodeResponse   = response.get(38)
         ;
 
         // Convert to CvvResult
