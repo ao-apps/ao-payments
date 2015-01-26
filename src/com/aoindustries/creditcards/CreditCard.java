@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -93,7 +93,22 @@ public class CreditCard implements Cloneable {
         return SB.toString();
     }
 
-    private String persistenceUniqueId;
+    /**
+     * Combines the first and last names into a single name String.
+     */
+    public static String getFullName(String firstName, String lastName) {
+        if(firstName==null) {
+            if(lastName==null) return "";
+            return lastName.trim();
+        } else {
+            firstName=firstName.trim();
+            if(lastName==null) return firstName;
+            lastName=lastName.trim();
+            return (firstName+" "+lastName).trim();
+        }
+    }
+
+	private String persistenceUniqueId;
     private String principalName;
     private String groupName;
     private String providerId;
@@ -208,14 +223,14 @@ public class CreditCard implements Cloneable {
     }
 
     /**
-     * Gets the name of the pricipal who added the card.
+     * Gets the name of the principal who added the card.
      */
     public String getPrincipalName() {
         return principalName;
     }
     
     /**
-     * Sets the name of the pricipal who added the card.
+     * Sets the name of the principal who added the card.
      */
     public void setPrincipalName(String principalName) {
         this.principalName = principalName;

@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -461,14 +461,29 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
         return Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
     }
 
+	@Override
+	public void updateCreditCard(CreditCard creditCard) throws IOException {
+        // First allow for random errors
+        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCard error");
+	}
+
     @Override
-    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
+    public void updateCreditCardNumberAndExpiration(
+		CreditCard creditCard,
+		String cardNumber,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardNumberAndExpiration error");
     }
 
     @Override
-    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
+    public void updateCreditCardExpiration(
+		CreditCard creditCard,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardExpiration error");
     }
