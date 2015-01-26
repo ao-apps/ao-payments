@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -741,13 +741,27 @@ public class AuthorizeNet implements MerchantServicesProvider {
         throw new NotImplementedException();
     }
 
-    @Override
-    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
+	@Override
+	public void updateCreditCard(CreditCard creditCard) throws IOException {
+        throw new NotImplementedException();
+	}
+
+	@Override
+    public void updateCreditCardNumberAndExpiration(
+		CreditCard creditCard,
+		String cardNumber,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         throw new NotImplementedException();
     }
 
     @Override
-    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
+    public void updateCreditCardExpiration(
+		CreditCard creditCard,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         throw new NotImplementedException();
     }
 

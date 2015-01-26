@@ -169,7 +169,7 @@ public class CreditCardProcessor {
             principal==null ? null : principal.getName(),
             null, // authorizationResult
             (long)-1, // captureTime
-            null, // capturePricipalName
+            null, // capturePrincipalName
             null, // captureResult
             (long)-1, // voidTime
             null, // voidPrincipalName
@@ -317,6 +317,25 @@ public class CreditCardProcessor {
     }
 
     /**
+     * Updates the credit card details, all except the card number and expiration.  If card stored to secure storage, updates that storage.
+	 * Any desired changes must have been made to <code>creditCard</code> object preceeding this call.
+     *
+     * @throws  IOException   when unable to contact the bank
+     * @throws  SQLException  when unable to store in the persistence layer
+     */
+    public void updateCreditCard(
+		Principal principal,
+		CreditCard creditCard
+	) throws IOException, SQLException {
+        if(creditCard.getProviderUniqueId()!=null) {
+            // Update in persistence (this also enforces security)
+            persistenceMechanism.updateCreditCard(principal, creditCard);
+            // Update in secure storage
+            provider.updateCreditCard(creditCard);
+		}
+    }
+
+	/**
      * Updates the credit card number and expiration.  If card stored to secure storage, updates that storage.
      * Otherwise updates <code>creditCard</code> directly.  In either event, the masked card number is updated.
      *

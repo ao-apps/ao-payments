@@ -229,21 +229,6 @@ public class USAePay implements MerchantServicesProvider {
     }
 
     /**
-     * Combines the first and last names into a single name String.
-     */
-    protected static String getFullName(String firstName, String lastName) {
-        if(firstName==null) {
-            if(lastName==null) return "";
-            return lastName.trim();
-        } else {
-            firstName=firstName.trim();
-            if(lastName==null) return firstName;
-            lastName=lastName.trim();
-            return (firstName+" "+lastName).trim();
-        }
-    }
-
-    /**
      * Combines the two street address lines into a single String.
      */
     protected static String getStreetAddress(String line1, String line2) {
@@ -360,7 +345,7 @@ public class USAePay implements MerchantServicesProvider {
         // 00016 	Invalid expiration date. 	Must be in MMYY format. Could not guess format of date. It wasn't MMYY or MMYYYY or MMDDYYYY or even MMDDYY format.
         initErrors.put("00016", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE));
         // 00017 	Credit card has expired. 	The credit card expiration date has passed.
-        initErrors.put("00017", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_EXPIRED));
+        initErrors.put("00017", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.CARD_EXPIRED, AuthorizationResult.DeclineReason.EXPIRED_CARD));
         // 00018 	Gateway temporarily offline. 	Please try again shortly. Unable to contact processor backend. Failed bank link maybe in the process of coming back up. Retry transaction.
         initErrors.put("00018", new ConvertedError(TransactionResult.CommunicationResult.GATEWAY_ERROR, TransactionResult.ErrorCode.ERROR_TRY_AGAIN));
         // 00019 	Gateway temporarily offline for maintenance. 	Please try again in a few minutes. Processor backend is offline for maintenance. Retry transaction.
@@ -665,7 +650,7 @@ public class USAePay implements MerchantServicesProvider {
             if(email!=null && email.length()>0) request.put("UMcustemail", email);
 
             // name
-            request.put("UMname", getFullName(creditCard.getFirstName(), creditCard.getLastName()));
+            request.put("UMname", CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName()));
 
             // street address
             String street = getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2());
@@ -1140,13 +1125,27 @@ public class USAePay implements MerchantServicesProvider {
         throw new NotImplementedException();
     }
 
+	@Override
+	public void updateCreditCard(CreditCard creditCard) throws IOException {
+        throw new NotImplementedException();
+	}
+
     @Override
-    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
+    public void updateCreditCardNumberAndExpiration(
+		CreditCard creditCard,
+		String cardNumber,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         throw new NotImplementedException();
     }
 
     @Override
-    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
+    public void updateCreditCardExpiration(
+		CreditCard creditCard,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         throw new NotImplementedException();
     }
 

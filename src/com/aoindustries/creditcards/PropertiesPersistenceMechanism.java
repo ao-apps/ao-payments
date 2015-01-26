@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -25,14 +25,11 @@ package com.aoindustries.creditcards;
 import static com.aoindustries.creditcards.ApplicationResourcesAccessor.accessor;
 import com.aoindustries.io.FileUtils;
 import com.aoindustries.sql.LocalizedSQLException;
-import com.aoindustries.io.LocalizedIOException;
-import java.io.BufferedInputStream;
+import com.aoindustries.util.PropertiesUtils;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -58,7 +55,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
 
     private static final Logger logger = Logger.getLogger(PropertiesPersistenceMechanism.class.getName());
 
-    private static final Map<String,PropertiesPersistenceMechanism> ppms = new HashMap<String,PropertiesPersistenceMechanism>();
+    private static final Map<String,PropertiesPersistenceMechanism> ppms = new HashMap<>();
 
     /**
      * For intra-JVM reusability, only one instance is made per unique path.
@@ -109,15 +106,9 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
             try {
                 File file = new File(propertiesFilePath);
                 if(file.exists()) {
-                    List<CreditCard> newCreditCards = new ArrayList<CreditCard>();
-                    List<Transaction> newTransactions = new ArrayList<Transaction>();
-                    Properties props = new Properties();
-                    InputStream in = new BufferedInputStream(new FileInputStream(file));
-                    try {
-                        props.load(in);
-                    } finally {
-                        in.close();
-                    }
+                    List<CreditCard> newCreditCards = new ArrayList<>();
+                    List<Transaction> newTransactions = new ArrayList<>();
+                    Properties props = PropertiesUtils.loadFromFile(file);
                     for(long counter=1; counter<Long.MAX_VALUE; counter++) {
                         String persistenceUniqueId = props.getProperty("creditCards."+counter+".persistenceUniqueId");
                         if(persistenceUniqueId==null) break;
@@ -478,7 +469,40 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
      * Card numbers and expiration dates are not persisted to the properties files - encrypted local storage not supported.
      */
     @Override
-    synchronized public void updateCardNumber(Principal principal, CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws SQLException {
+    synchronized public void updateCreditCard(Principal principal, CreditCard creditCard) throws SQLException {
+        loadIfNeeded();
+        // Find the card with matching persistence id
+        CreditCard internalCreditCard = getCreditCard(creditCard.getPersistenceUniqueId());
+        if(internalCreditCard==null) throw new LocalizedSQLException(accessor, "PersistenceMechanism.updateCardNumber.unableToFindCard", creditCard.getPersistenceUniqueId());
+        internalCreditCard.setFirstName(creditCard.getFirstName());
+        internalCreditCard.setLastName(creditCard.getLastName());
+        internalCreditCard.setCompanyName(creditCard.getCompanyName());
+        internalCreditCard.setEmail(creditCard.getEmail());
+        internalCreditCard.setPhone(creditCard.getPhone());
+        internalCreditCard.setFax(creditCard.getFax());
+        internalCreditCard.setCustomerId(creditCard.getCustomerId());
+        internalCreditCard.setCustomerTaxId(creditCard.getCustomerTaxId());
+        internalCreditCard.setStreetAddress1(creditCard.getStreetAddress1());
+        internalCreditCard.setStreetAddress2(creditCard.getStreetAddress2());
+        internalCreditCard.setCity(creditCard.getCity());
+        internalCreditCard.setState(creditCard.getState());
+        internalCreditCard.setPostalCode(creditCard.getPostalCode());
+        internalCreditCard.setCountryCode(creditCard.getCountryCode());
+        internalCreditCard.setComments(creditCard.getComments());
+        save();
+    }
+
+	/**
+     * Card numbers and expiration dates are not persisted to the properties files - encrypted local storage not supported.
+     */
+    @Override
+    synchronized public void updateCardNumber(
+		Principal principal,
+		CreditCard creditCard,
+		String cardNumber,
+		byte expirationMonth,
+		short expirationYear
+	) throws SQLException {
         loadIfNeeded();
         // Find the card with matching persistence id
         CreditCard internalCreditCard = getCreditCard(creditCard.getPersistenceUniqueId());
@@ -491,7 +515,12 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
      * Expiration dates are not persisted to the properties files - encrypted local storage not supported.
      */
     @Override
-    public void updateExpiration(Principal principal, CreditCard creditCard, byte expirationMonth, short expirationYear) throws SQLException {
+    public void updateExpiration(
+		Principal principal,
+		CreditCard creditCard,
+		byte expirationMonth,
+		short expirationYear
+	) throws SQLException {
     }
 
     synchronized private CreditCard getCreditCard(String persistenceUniqueId) throws SQLException {

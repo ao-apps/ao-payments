@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -139,21 +139,6 @@ public class PayflowPro implements MerchantServicesProvider {
     }
 
     /**
-     * Combines the first and last names into a single name String.
-     */
-    protected static String getFullName(String firstName, String lastName) {
-        if(firstName==null) {
-            if(lastName==null) return "";
-            return lastName.trim();
-        } else {
-            firstName=firstName.trim();
-            if(lastName==null) return firstName;
-            lastName=lastName.trim();
-            return (firstName+" "+lastName).trim();
-        }
-    }
-
-    /**
      * Combines the two street address lines into a single String.
      */
     protected static String getStreetAddress(String line1, String line2) {
@@ -280,7 +265,7 @@ public class PayflowPro implements MerchantServicesProvider {
             paypal.payflow.CreditCard ppCreditCard = new paypal.payflow.CreditCard(creditCard.getCardNumber(), creditCard.getExpirationDateMMYY());
             String cvv2 = creditCard.getCardCode();
             if(cvv2!=null && cvv2.length()>0) ppCreditCard.setCvv2(cvv2);
-            ppCreditCard.setName(getFullName(creditCard.getFirstName(), creditCard.getLastName()));
+            ppCreditCard.setName(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName()));
             CardTender cardTender = new CardTender(ppCreditCard);
 
             // ClientInfo
@@ -687,13 +672,27 @@ public class PayflowPro implements MerchantServicesProvider {
         throw new NotImplementedException();
     }
 
+	@Override
+	public void updateCreditCard(CreditCard creditCard) throws IOException {
+        throw new NotImplementedException();
+	}
+
     @Override
-    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
+    public void updateCreditCardNumberAndExpiration(
+		CreditCard creditCard,
+		String cardNumber,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         throw new NotImplementedException();
     }
 
     @Override
-    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
+    public void updateCreditCardExpiration(
+		CreditCard creditCard,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         throw new NotImplementedException();
     }
 

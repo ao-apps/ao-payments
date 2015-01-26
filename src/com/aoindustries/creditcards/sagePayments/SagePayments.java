@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -72,21 +72,6 @@ import org.w3c.dom.Node;
 public class SagePayments implements MerchantServicesProvider {
 
     private static final Logger logger = Logger.getLogger(SagePayments.class.getName());
-
-    /**
-     * Combines the first and last names into a single name String.
-     */
-    protected static String getFullName(String firstName, String lastName) {
-        if(firstName==null) {
-            if(lastName==null) return "";
-            return lastName.trim();
-        } else {
-            firstName=firstName.trim();
-            if(lastName==null) return firstName;
-            lastName=lastName.trim();
-            return (firstName+" "+lastName).trim();
-        }
-    }
 
     /**
      * Combines the two street address lines into a single String.
@@ -253,7 +238,7 @@ public class SagePayments implements MerchantServicesProvider {
                             ? new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_SALE(
                                 emptyStringIfNull(merchantId),
                                 emptyStringIfNull(merchantKey),
-                                emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+                                emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
                                 emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
                                 emptyStringIfNull(creditCard.getCity()),
                                 emptyStringIfNull(creditCard.getState()),
@@ -269,7 +254,7 @@ public class SagePayments implements MerchantServicesProvider {
                                 emptyStringIfNull(transactionRequest.getOrderNumber()),
                                 emptyStringIfNull(creditCard.getPhone()),
                                 emptyStringIfNull(creditCard.getFax()),
-                                emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+                                emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
                                 emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
                                 emptyStringIfNull(transactionRequest.getShippingCity()),
                                 emptyStringIfNull(transactionRequest.getShippingState()),
@@ -279,7 +264,7 @@ public class SagePayments implements MerchantServicesProvider {
                             : new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_AUTHONLY(
                                 emptyStringIfNull(merchantId),
                                 emptyStringIfNull(merchantKey),
-                                emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+                                emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
                                 emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
                                 emptyStringIfNull(creditCard.getCity()),
                                 emptyStringIfNull(creditCard.getState()),
@@ -295,7 +280,7 @@ public class SagePayments implements MerchantServicesProvider {
                                 emptyStringIfNull(transactionRequest.getOrderNumber()),
                                 emptyStringIfNull(creditCard.getPhone()),
                                 emptyStringIfNull(creditCard.getFax()),
-                                emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+                                emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
                                 emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
                                 emptyStringIfNull(transactionRequest.getShippingCity()),
                                 emptyStringIfNull(transactionRequest.getShippingState()),
@@ -310,7 +295,7 @@ public class SagePayments implements MerchantServicesProvider {
                              ? new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_SALE(
                                 emptyStringIfNull(merchantId),
                                 emptyStringIfNull(merchantKey),
-                                emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+                                emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
                                 emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
                                 emptyStringIfNull(creditCard.getCity()),
                                 emptyStringIfNull(creditCard.getState()),
@@ -328,7 +313,7 @@ public class SagePayments implements MerchantServicesProvider {
                                 emptyStringIfNull(transactionRequest.getOrderNumber()),
                                 emptyStringIfNull(creditCard.getPhone()),
                                 emptyStringIfNull(creditCard.getFax()),
-                                emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+                                emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
                                 emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
                                 emptyStringIfNull(transactionRequest.getShippingCity()),
                                 emptyStringIfNull(transactionRequest.getShippingState()),
@@ -338,7 +323,7 @@ public class SagePayments implements MerchantServicesProvider {
                             : new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_AUTHONLY(
                                 emptyStringIfNull(merchantId),
                                 emptyStringIfNull(merchantKey),
-                                emptyStringIfNull(getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+                                emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
                                 emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
                                 emptyStringIfNull(creditCard.getCity()),
                                 emptyStringIfNull(creditCard.getState()),
@@ -356,7 +341,7 @@ public class SagePayments implements MerchantServicesProvider {
                                 emptyStringIfNull(transactionRequest.getOrderNumber()),
                                 emptyStringIfNull(creditCard.getPhone()),
                                 emptyStringIfNull(creditCard.getFax()),
-                                emptyStringIfNull(getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+                                emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
                                 emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
                                 emptyStringIfNull(transactionRequest.getShippingCity()),
                                 emptyStringIfNull(transactionRequest.getShippingState()),
@@ -732,8 +717,18 @@ public class SagePayments implements MerchantServicesProvider {
         }
     }
 
+	@Override
+	public void updateCreditCard(CreditCard creditCard) {
+		// Nothing to do, only local persistence used for these values
+	}
+
     @Override
-    public void updateCreditCardNumberAndExpiration(CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException {
+    public void updateCreditCardNumberAndExpiration(
+		CreditCard creditCard,
+		String cardNumber,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         try {
             String success = null;
             String guid = null;
@@ -773,7 +768,11 @@ public class SagePayments implements MerchantServicesProvider {
     }
 
     @Override
-    public void updateCreditCardExpiration(CreditCard creditCard, byte expirationMonth, short expirationYear) throws IOException {
+    public void updateCreditCardExpiration(
+		CreditCard creditCard,
+		byte expirationMonth,
+		short expirationYear
+	) throws IOException {
         try {
             String success = null;
             String guid = null;
