@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -789,7 +789,7 @@ public class USAePay implements MerchantServicesProvider {
         // Now try to process, considering as a GATEWAY_ERROR for any ErrorCodeExceptions.
         Map<String,String> results;
         try {
-            // Now that the local request has been created successfully, contact the PayflowPro API.
+            // Now that the local request has been created successfully, contact the USAePay API.
             results = submitTransaction(request, transactionRequest.getTestMode());
         } catch(ErrorCodeException err) {
             return new AuthorizationResult(
