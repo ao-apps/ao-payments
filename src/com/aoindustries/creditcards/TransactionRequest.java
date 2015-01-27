@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -44,6 +44,22 @@ public class TransactionRequest implements Cloneable {
      * The default number of seconds for duplication detection.
      */
     private static final int DEFAULT_DUPLICATE_WINDOW = 120;
+
+	/**
+	 * Adds-up all amounts into a total amount.
+	 * @return   amount + tax + shipping + duty
+	 */
+	public static BigDecimal getTotalAmount(
+		BigDecimal amount,
+		BigDecimal taxAmount,
+		BigDecimal shippingAmount,
+		BigDecimal dutyAmount
+	) {
+        if(taxAmount!=null) amount = amount.add(taxAmount);
+        if(shippingAmount!=null) amount = amount.add(shippingAmount);
+        if(dutyAmount!=null) amount = amount.add(dutyAmount);
+        return amount;
+	}
 
     private boolean testMode;
     private String customerIp;
@@ -349,7 +365,15 @@ public class TransactionRequest implements Cloneable {
         }
     }
 
-    /**
+	/**
+	 * Adds-up all amounts into a total amount.
+	 * @return   amount + tax + shipping + duty
+	 */
+	public BigDecimal getTotalAmount() {
+		return getTotalAmount(amount, taxAmount, shippingAmount, dutyAmount);
+	}
+
+	/**
      * Gets the first name of the recipient.
      */
     public String getShippingFirstName() {

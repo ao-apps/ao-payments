@@ -217,338 +217,338 @@ public class SagePayments implements MerchantServicesProvider {
                 null,
                 null
             );
-        } else {
-            try {
-                String approvalIndicator = null;
-                String code = null;
-                String message = null;
-                //String frontEndIndicator = null;
-                String cvvIndicator = null;
-                String avsIndicator = null;
-                String riskIndicator = null;
-                String reference = null;
-                String orderNumber = null;
-
-                {
-                    MessageElement[] results;
-                    if(creditCard.getProviderUniqueId()!=null) {
-                        //System.out.println("sale, creditCard.providerUniqueId="+creditCard.getProviderUniqueId());
-                        results =
-                            capture
-                            ? new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_SALE(
-                                emptyStringIfNull(merchantId),
-                                emptyStringIfNull(merchantKey),
-                                emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
-                                emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
-                                emptyStringIfNull(creditCard.getCity()),
-                                emptyStringIfNull(creditCard.getState()),
-                                emptyStringIfNull(creditCard.getPostalCode()),
-                                emptyStringIfNull(creditCard.getCountryCode()),
-                                emptyStringIfNull(creditCard.getEmail()),
-                                emptyStringIfNull(creditCard.getProviderUniqueId()),
-                                emptyStringIfNull(null),
-                                // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
-                                emptyStringIfNull(transactionRequest.getAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getOrderNumber()),
-                                emptyStringIfNull(creditCard.getPhone()),
-                                emptyStringIfNull(creditCard.getFax()),
-                                emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
-                                emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
-                                emptyStringIfNull(transactionRequest.getShippingCity()),
-                                emptyStringIfNull(transactionRequest.getShippingState()),
-                                emptyStringIfNull(transactionRequest.getShippingPostalCode()),
-                                emptyStringIfNull(transactionRequest.getShippingCountryCode())
-                            ).get_any()
-                            : new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_AUTHONLY(
-                                emptyStringIfNull(merchantId),
-                                emptyStringIfNull(merchantKey),
-                                emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
-                                emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
-                                emptyStringIfNull(creditCard.getCity()),
-                                emptyStringIfNull(creditCard.getState()),
-                                emptyStringIfNull(creditCard.getPostalCode()),
-                                emptyStringIfNull(creditCard.getCountryCode()),
-                                emptyStringIfNull(creditCard.getEmail()),
-                                emptyStringIfNull(creditCard.getProviderUniqueId()),
-                                emptyStringIfNull(null),
-                                // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
-                                emptyStringIfNull(transactionRequest.getAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getOrderNumber()),
-                                emptyStringIfNull(creditCard.getPhone()),
-                                emptyStringIfNull(creditCard.getFax()),
-                                emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
-                                emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
-                                emptyStringIfNull(transactionRequest.getShippingCity()),
-                                emptyStringIfNull(transactionRequest.getShippingState()),
-                                emptyStringIfNull(transactionRequest.getShippingPostalCode()),
-                                emptyStringIfNull(transactionRequest.getShippingCountryCode())
-                            ).get_any()
-                        ;
-                    } else {
-                        // Use new card
-                        results =
-                            capture
-                             ? new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_SALE(
-                                emptyStringIfNull(merchantId),
-                                emptyStringIfNull(merchantKey),
-                                emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
-                                emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
-                                emptyStringIfNull(creditCard.getCity()),
-                                emptyStringIfNull(creditCard.getState()),
-                                emptyStringIfNull(creditCard.getPostalCode()),
-                                emptyStringIfNull(creditCard.getCountryCode()),
-                                emptyStringIfNull(creditCard.getEmail()),
-                                emptyStringIfNull(creditCard.getCardNumber()),
-                                emptyStringIfNull(creditCard.getExpirationDateMMYY()),
-                                emptyStringIfNull(creditCard.getCardCode()),
-                                emptyStringIfNull(null),
-                                // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
-                                emptyStringIfNull(transactionRequest.getAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getOrderNumber()),
-                                emptyStringIfNull(creditCard.getPhone()),
-                                emptyStringIfNull(creditCard.getFax()),
-                                emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
-                                emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
-                                emptyStringIfNull(transactionRequest.getShippingCity()),
-                                emptyStringIfNull(transactionRequest.getShippingState()),
-                                emptyStringIfNull(transactionRequest.getShippingPostalCode()),
-                                emptyStringIfNull(transactionRequest.getShippingCountryCode())
-                            ).get_any()
-                            : new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_AUTHONLY(
-                                emptyStringIfNull(merchantId),
-                                emptyStringIfNull(merchantKey),
-                                emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
-                                emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
-                                emptyStringIfNull(creditCard.getCity()),
-                                emptyStringIfNull(creditCard.getState()),
-                                emptyStringIfNull(creditCard.getPostalCode()),
-                                emptyStringIfNull(creditCard.getCountryCode()),
-                                emptyStringIfNull(creditCard.getEmail()),
-                                emptyStringIfNull(creditCard.getCardNumber()),
-                                emptyStringIfNull(creditCard.getExpirationDateMMYY()),
-                                emptyStringIfNull(creditCard.getCardCode()),
-                                emptyStringIfNull(null),
-                                // TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
-                                emptyStringIfNull(transactionRequest.getAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
-                                emptyStringIfNull(transactionRequest.getOrderNumber()),
-                                emptyStringIfNull(creditCard.getPhone()),
-                                emptyStringIfNull(creditCard.getFax()),
-                                emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
-                                emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
-                                emptyStringIfNull(transactionRequest.getShippingCity()),
-                                emptyStringIfNull(transactionRequest.getShippingState()),
-                                emptyStringIfNull(transactionRequest.getShippingPostalCode()),
-                                emptyStringIfNull(transactionRequest.getShippingCountryCode())
-                            ).get_any()
-                        ;
-                    }
-
-                    Node child = null;
-                    MessageElement me = results[results.length-1];
-                    if(me!=null) {
-                        Node meChild = me.getFirstChild();
-                        if(meChild!=null) {
-                            Node table1 = meChild.getFirstChild();
-                            if(table1!=null) child = table1.getFirstChild();
-                        }
-                    }
-                    while(child!=null) {
-                        if("APPROVAL_INDICATOR".equals(child.getNodeName())) approvalIndicator = getFirstChildNodeValue(child);
-                        if("CODE".equals(child.getNodeName())) code = getFirstChildNodeValue(child);
-                        if("MESSAGE".equals(child.getNodeName())) message = getFirstChildNodeValue(child);
-                        //if("FRONT_END_INDICATOR".equals(child.getNodeName())) frontEndIndicator = getFirstChildNodeValue(child);
-                        if("CVV_INDICATOR".equals(child.getNodeName())) cvvIndicator = getFirstChildNodeValue(child);
-                        if("AVS_INDICATOR".equals(child.getNodeName())) avsIndicator = getFirstChildNodeValue(child);
-                        if("RISK_INDICATOR".equals(child.getNodeName())) riskIndicator = getFirstChildNodeValue(child);
-                        if("REFERENCE".equals(child.getNodeName())) reference = getFirstChildNodeValue(child);
-                        if("ORDER_NUMBER".equals(child.getNodeName())) orderNumber = getFirstChildNodeValue(child);
-                        child = child.getNextSibling();
-                    }
-
-                    //System.out.println("approvalIndicator="+approvalIndicator);
-                    //System.out.println("code="+code);
-                    //System.out.println("message="+message);
-                    //System.out.println("frontEndIndicator="+frontEndIndicator);
-                    //System.out.println("cvvIndicator="+cvvIndicator);
-                    //System.out.println("avsIndicator="+avsIndicator);
-                    //System.out.println("riskIndicator="+riskIndicator);
-                    //System.out.println("reference="+reference);
-                    //System.out.println("orderNumber="+orderNumber);
-                }
-
-                // Correct output for CVV2 failure not setting cvvIndicator and setting error instead
-                boolean didCvvFix = false;
-                if("P".equals(cvvIndicator) && "0000N7".equals(code) && "CVV2 MISMATCH".equals(message)) {
-                    code = null;
-                    cvvIndicator = "N";
-                    didCvvFix = true;
-                } else if("P".equals(cvvIndicator) && (creditCard.getCardCode()==null || creditCard.getCardCode().length()==0)) {
-                    // Correct when no CardCode is provided and it returns "P"
-                    cvvIndicator = "S";
-                }
-
-                String providerUniqueId = "0000000000".equals(reference) || "".equals(reference) ? null : reference;
-                String providerApprovalResult = approvalIndicator;
-                String providerReviewReason = null;
-                AuthorizationResult.ReviewReason reviewReason = null;
-                // CVV
-                String providerCvvResult = cvvIndicator;
-                AuthorizationResult.CvvResult cvvResult;
-                if("M".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.MATCH;
-                else if("N".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.NO_MATCH;
-                else if("P".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.NOT_PROCESSED;
-                else if("S".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.CVV2_NOT_PROVIDED_BY_MERCHANT;
-                else if("U".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.NOT_SUPPORTED_BY_ISSUER;
-                else if(cvvIndicator==null || "".equals(cvvIndicator)) cvvResult = null;
-                else cvvResult = AuthorizationResult.CvvResult.UNKNOWN;
-                // AVS
-                String providerAvsResult = avsIndicator;
-                AuthorizationResult.AvsResult avsResult;
-                if("X".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_9;
-                else if("Y".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_5;
-                else if("A".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_N;
-                else if("W".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_9;
-                else if("Z".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_5;
-                else if("N".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_N;
-                else if("U".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
-                else if("R".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.RETRY;
-                else if("E".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ERROR;
-                else if("S".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
-                else if("".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
-                else if("0".equals(avsIndicator) || avsIndicator==null) avsResult = null;
-                else avsResult = AuthorizationResult.AvsResult.UNKNOWN;
-                // Decline Reason
-                String providerDeclineReason = riskIndicator;
-                AuthorizationResult.DeclineReason declineReason;
-                // The 000054 is undocumented
-                if("000054".equals(code)) declineReason = AuthorizationResult.DeclineReason.EXPIRED_CARD;
-                else if(riskIndicator==null || "".equals(riskIndicator) || "00".equals(riskIndicator)) declineReason = null;
-                else if("01".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.MAX_SALE_EXCEEDED;
-                else if("02".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.MIN_SALE_NOT_MET;
-                else if("03".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.VOLUME_EXCEEDED_1_DAY;
-                else if("04".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.USAGE_EXCEEDED_1_DAY;
-                else if("05".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.VOLUME_EXCEEDED_3_DAYS;
-                else if("06".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.USAGE_EXCEEDED_3_DAYS;
-                else if("07".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.VOLUME_EXCEEDED_15_DAYS;
-                else if("08".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.USAGE_EXCEEDED_15_DAYS;
-                else if("09".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.VOLUME_EXCEEDED_30_DAYS;
-                else if("10".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.USAGE_EXCEEDED_30_DAYS;
-                else if("11".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.STOLEN_OR_LOST_CARD;
-                else if("12".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.AVS_FAILURE;
-                else declineReason = AuthorizationResult.DeclineReason.UNKNOWN;
-                TransactionResult.CommunicationResult communicationResult;
-                String providerErrorCode;
-                TransactionResult.ErrorCode errorCode;
-                String providerErrorMessage;
-                AuthorizationResult.ApprovalResult approvalResult;
-                String approvalCode;
-                if("A".equals(approvalIndicator)) {
-                    // Approved
-                    communicationResult = TransactionResult.CommunicationResult.SUCCESS;
-                    providerErrorCode = null;
-                    errorCode = null;
-                    providerErrorMessage = null;
-                    approvalResult = AuthorizationResult.ApprovalResult.APPROVED;
-                    approvalCode = code;
-                } else if("E".equals(approvalIndicator) || "X".equals(approvalIndicator)) {
-                    if("E".equals(approvalIndicator) && didCvvFix) {
-                        // Gateway Error
-                        communicationResult = TransactionResult.CommunicationResult.SUCCESS;
-                        providerErrorCode = code;
-                        errorCode = null;
-                        providerErrorMessage = message;
-                        approvalResult = AuthorizationResult.ApprovalResult.DECLINED;
-                        approvalCode = null;
-                        if(declineReason==null) declineReason = AuthorizationResult.DeclineReason.CVV2_MISMATCH;
-                    } else {
-                        // Gateway Error
-                        communicationResult = declineReason==null ? TransactionResult.CommunicationResult.GATEWAY_ERROR : TransactionResult.CommunicationResult.SUCCESS;
-                        providerErrorCode = code;
-                        errorCode = declineReason==null ? convertErrorCode(code) : null;
-                        providerErrorMessage = message;
-                        approvalResult = declineReason==null ? null : AuthorizationResult.ApprovalResult.DECLINED;
-                        approvalCode = null;
-                    }
-                } else {
-                    // Unknown response
-                    communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
-                    providerErrorCode = code;
-                    errorCode = convertErrorCode(code);
-                    providerErrorMessage = message;
-                    approvalResult = null;
-                    approvalCode = null;
-                }
-                return new AuthorizationResult(
-                    getProviderId(),
-                    communicationResult,
-                    providerErrorCode,
-                    errorCode,
-                    providerErrorMessage,
-                    providerUniqueId,
-                    providerApprovalResult,
-                    approvalResult,
-                    providerDeclineReason,
-                    declineReason,
-                    providerReviewReason,
-                    reviewReason,
-                    providerCvvResult,
-                    cvvResult,
-                    providerAvsResult,
-                    avsResult,
-                    approvalCode
-                );
-            } catch(ServiceException err) {
-                logger.log(Level.SEVERE, null, err);
-                return new AuthorizationResult(
-                    getProviderId(),
-                    TransactionResult.CommunicationResult.LOCAL_ERROR,
-                    err.getClass().getName(),
-                    TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
-                    err.getMessage(),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-                );
-            } catch(RemoteException err) {
-                logger.log(Level.SEVERE, null, err);
-                return new AuthorizationResult(
-                    getProviderId(),
-                    TransactionResult.CommunicationResult.IO_ERROR,
-                    err.getClass().getName(),
-                    TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
-                    err.getMessage(),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-                );
-            }
         }
+		try {
+			String approvalIndicator = null;
+			String code = null;
+			String message = null;
+			//String frontEndIndicator = null;
+			String cvvIndicator = null;
+			String avsIndicator = null;
+			String riskIndicator = null;
+			String reference = null;
+			String orderNumber = null;
+
+			{
+				MessageElement[] results;
+				if(creditCard.getProviderUniqueId() != null) {
+					// Is a stored card
+					//System.out.println("sale, creditCard.providerUniqueId="+creditCard.getProviderUniqueId());
+					results =
+						capture
+						? new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_SALE(
+							emptyStringIfNull(merchantId),
+							emptyStringIfNull(merchantKey),
+							emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+							emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
+							emptyStringIfNull(creditCard.getCity()),
+							emptyStringIfNull(creditCard.getState()),
+							emptyStringIfNull(creditCard.getPostalCode()),
+							emptyStringIfNull(creditCard.getCountryCode()),
+							emptyStringIfNull(creditCard.getEmail()),
+							emptyStringIfNull(creditCard.getProviderUniqueId()),
+							emptyStringIfNull(null),
+							// TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
+							emptyStringIfNull(transactionRequest.getAmount().toString()),
+							emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
+							emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
+							emptyStringIfNull(transactionRequest.getOrderNumber()),
+							emptyStringIfNull(creditCard.getPhone()),
+							emptyStringIfNull(creditCard.getFax()),
+							emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+							emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
+							emptyStringIfNull(transactionRequest.getShippingCity()),
+							emptyStringIfNull(transactionRequest.getShippingState()),
+							emptyStringIfNull(transactionRequest.getShippingPostalCode()),
+							emptyStringIfNull(transactionRequest.getShippingCountryCode())
+						).get_any()
+						: new WsVaultBankcardLocator().getwsVaultBankcardSoap().VAULT_BANKCARD_AUTHONLY(
+							emptyStringIfNull(merchantId),
+							emptyStringIfNull(merchantKey),
+							emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+							emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
+							emptyStringIfNull(creditCard.getCity()),
+							emptyStringIfNull(creditCard.getState()),
+							emptyStringIfNull(creditCard.getPostalCode()),
+							emptyStringIfNull(creditCard.getCountryCode()),
+							emptyStringIfNull(creditCard.getEmail()),
+							emptyStringIfNull(creditCard.getProviderUniqueId()),
+							emptyStringIfNull(null),
+							// TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
+							emptyStringIfNull(transactionRequest.getAmount().toString()),
+							emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
+							emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
+							emptyStringIfNull(transactionRequest.getOrderNumber()),
+							emptyStringIfNull(creditCard.getPhone()),
+							emptyStringIfNull(creditCard.getFax()),
+							emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+							emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
+							emptyStringIfNull(transactionRequest.getShippingCity()),
+							emptyStringIfNull(transactionRequest.getShippingState()),
+							emptyStringIfNull(transactionRequest.getShippingPostalCode()),
+							emptyStringIfNull(transactionRequest.getShippingCountryCode())
+						).get_any()
+					;
+				} else {
+					// Is a new card
+					results =
+						capture
+						 ? new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_SALE(
+							emptyStringIfNull(merchantId),
+							emptyStringIfNull(merchantKey),
+							emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+							emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
+							emptyStringIfNull(creditCard.getCity()),
+							emptyStringIfNull(creditCard.getState()),
+							emptyStringIfNull(creditCard.getPostalCode()),
+							emptyStringIfNull(creditCard.getCountryCode()),
+							emptyStringIfNull(creditCard.getEmail()),
+							emptyStringIfNull(creditCard.getCardNumber()),
+							emptyStringIfNull(creditCard.getExpirationDateMMYY()),
+							emptyStringIfNull(creditCard.getCardCode()),
+							emptyStringIfNull(null),
+							// TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
+							emptyStringIfNull(transactionRequest.getAmount().toString()),
+							emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
+							emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
+							emptyStringIfNull(transactionRequest.getOrderNumber()),
+							emptyStringIfNull(creditCard.getPhone()),
+							emptyStringIfNull(creditCard.getFax()),
+							emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+							emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
+							emptyStringIfNull(transactionRequest.getShippingCity()),
+							emptyStringIfNull(transactionRequest.getShippingState()),
+							emptyStringIfNull(transactionRequest.getShippingPostalCode()),
+							emptyStringIfNull(transactionRequest.getShippingCountryCode())
+						).get_any()
+						: new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_AUTHONLY(
+							emptyStringIfNull(merchantId),
+							emptyStringIfNull(merchantKey),
+							emptyStringIfNull(CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName())),
+							emptyStringIfNull(getStreetAddress(creditCard.getStreetAddress1(), creditCard.getStreetAddress2())),
+							emptyStringIfNull(creditCard.getCity()),
+							emptyStringIfNull(creditCard.getState()),
+							emptyStringIfNull(creditCard.getPostalCode()),
+							emptyStringIfNull(creditCard.getCountryCode()),
+							emptyStringIfNull(creditCard.getEmail()),
+							emptyStringIfNull(creditCard.getCardNumber()),
+							emptyStringIfNull(creditCard.getExpirationDateMMYY()),
+							emptyStringIfNull(creditCard.getCardCode()),
+							emptyStringIfNull(null),
+							// TODO: Should amount be the total, or just the part before adding shipping, tax, duty???
+							emptyStringIfNull(transactionRequest.getAmount().toString()),
+							emptyStringIfNull(transactionRequest.getShippingAmount()==null ? null : transactionRequest.getShippingAmount().toString()),
+							emptyStringIfNull(transactionRequest.getTaxAmount()==null ? null : transactionRequest.getTaxAmount().toString()),
+							emptyStringIfNull(transactionRequest.getOrderNumber()),
+							emptyStringIfNull(creditCard.getPhone()),
+							emptyStringIfNull(creditCard.getFax()),
+							emptyStringIfNull(CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName())),
+							emptyStringIfNull(getStreetAddress(transactionRequest.getShippingStreetAddress1(), transactionRequest.getShippingStreetAddress2())),
+							emptyStringIfNull(transactionRequest.getShippingCity()),
+							emptyStringIfNull(transactionRequest.getShippingState()),
+							emptyStringIfNull(transactionRequest.getShippingPostalCode()),
+							emptyStringIfNull(transactionRequest.getShippingCountryCode())
+						).get_any()
+					;
+				}
+
+				Node child = null;
+				MessageElement me = results[results.length-1];
+				if(me!=null) {
+					Node meChild = me.getFirstChild();
+					if(meChild!=null) {
+						Node table1 = meChild.getFirstChild();
+						if(table1!=null) child = table1.getFirstChild();
+					}
+				}
+				while(child!=null) {
+					if("APPROVAL_INDICATOR".equals(child.getNodeName())) approvalIndicator = getFirstChildNodeValue(child);
+					if("CODE".equals(child.getNodeName())) code = getFirstChildNodeValue(child);
+					if("MESSAGE".equals(child.getNodeName())) message = getFirstChildNodeValue(child);
+					//if("FRONT_END_INDICATOR".equals(child.getNodeName())) frontEndIndicator = getFirstChildNodeValue(child);
+					if("CVV_INDICATOR".equals(child.getNodeName())) cvvIndicator = getFirstChildNodeValue(child);
+					if("AVS_INDICATOR".equals(child.getNodeName())) avsIndicator = getFirstChildNodeValue(child);
+					if("RISK_INDICATOR".equals(child.getNodeName())) riskIndicator = getFirstChildNodeValue(child);
+					if("REFERENCE".equals(child.getNodeName())) reference = getFirstChildNodeValue(child);
+					if("ORDER_NUMBER".equals(child.getNodeName())) orderNumber = getFirstChildNodeValue(child);
+					child = child.getNextSibling();
+				}
+
+				//System.out.println("approvalIndicator="+approvalIndicator);
+				//System.out.println("code="+code);
+				//System.out.println("message="+message);
+				//System.out.println("frontEndIndicator="+frontEndIndicator);
+				//System.out.println("cvvIndicator="+cvvIndicator);
+				//System.out.println("avsIndicator="+avsIndicator);
+				//System.out.println("riskIndicator="+riskIndicator);
+				//System.out.println("reference="+reference);
+				//System.out.println("orderNumber="+orderNumber);
+			}
+
+			// Correct output for CVV2 failure not setting cvvIndicator and setting error instead
+			boolean didCvvFix = false;
+			if("P".equals(cvvIndicator) && "0000N7".equals(code) && "CVV2 MISMATCH".equals(message)) {
+				code = null;
+				cvvIndicator = "N";
+				didCvvFix = true;
+			} else if("P".equals(cvvIndicator) && (creditCard.getCardCode()==null || creditCard.getCardCode().length()==0)) {
+				// Correct when no CardCode is provided and it returns "P"
+				cvvIndicator = "S";
+			}
+
+			String providerUniqueId = "0000000000".equals(reference) || "".equals(reference) ? null : reference;
+			String providerApprovalResult = approvalIndicator;
+			String providerReviewReason = null;
+			AuthorizationResult.ReviewReason reviewReason = null;
+			// CVV
+			String providerCvvResult = cvvIndicator;
+			AuthorizationResult.CvvResult cvvResult;
+			if("M".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.MATCH;
+			else if("N".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.NO_MATCH;
+			else if("P".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.NOT_PROCESSED;
+			else if("S".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.CVV2_NOT_PROVIDED_BY_MERCHANT;
+			else if("U".equals(cvvIndicator)) cvvResult = AuthorizationResult.CvvResult.NOT_SUPPORTED_BY_ISSUER;
+			else if(cvvIndicator==null || "".equals(cvvIndicator)) cvvResult = null;
+			else cvvResult = AuthorizationResult.CvvResult.UNKNOWN;
+			// AVS
+			String providerAvsResult = avsIndicator;
+			AuthorizationResult.AvsResult avsResult;
+			if("X".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_9;
+			else if("Y".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_5;
+			else if("A".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_N;
+			else if("W".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_9;
+			else if("Z".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_5;
+			else if("N".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_N;
+			else if("U".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
+			else if("R".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.RETRY;
+			else if("E".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.ERROR;
+			else if("S".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
+			else if("".equals(avsIndicator)) avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
+			else if("0".equals(avsIndicator) || avsIndicator==null) avsResult = null;
+			else avsResult = AuthorizationResult.AvsResult.UNKNOWN;
+			// Decline Reason
+			String providerDeclineReason = riskIndicator;
+			AuthorizationResult.DeclineReason declineReason;
+			// The 000054 is undocumented
+			if("000054".equals(code)) declineReason = AuthorizationResult.DeclineReason.EXPIRED_CARD;
+			else if(riskIndicator==null || "".equals(riskIndicator) || "00".equals(riskIndicator)) declineReason = null;
+			else if("01".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.MAX_SALE_EXCEEDED;
+			else if("02".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.MIN_SALE_NOT_MET;
+			else if("03".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.VOLUME_EXCEEDED_1_DAY;
+			else if("04".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.USAGE_EXCEEDED_1_DAY;
+			else if("05".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.VOLUME_EXCEEDED_3_DAYS;
+			else if("06".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.USAGE_EXCEEDED_3_DAYS;
+			else if("07".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.VOLUME_EXCEEDED_15_DAYS;
+			else if("08".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.USAGE_EXCEEDED_15_DAYS;
+			else if("09".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.VOLUME_EXCEEDED_30_DAYS;
+			else if("10".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.USAGE_EXCEEDED_30_DAYS;
+			else if("11".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.STOLEN_OR_LOST_CARD;
+			else if("12".equals(riskIndicator)) declineReason = AuthorizationResult.DeclineReason.AVS_FAILURE;
+			else declineReason = AuthorizationResult.DeclineReason.UNKNOWN;
+			TransactionResult.CommunicationResult communicationResult;
+			String providerErrorCode;
+			TransactionResult.ErrorCode errorCode;
+			String providerErrorMessage;
+			AuthorizationResult.ApprovalResult approvalResult;
+			String approvalCode;
+			if("A".equals(approvalIndicator)) {
+				// Approved
+				communicationResult = TransactionResult.CommunicationResult.SUCCESS;
+				providerErrorCode = null;
+				errorCode = null;
+				providerErrorMessage = null;
+				approvalResult = AuthorizationResult.ApprovalResult.APPROVED;
+				approvalCode = code;
+			} else if("E".equals(approvalIndicator) || "X".equals(approvalIndicator)) {
+				if("E".equals(approvalIndicator) && didCvvFix) {
+					// Gateway Error
+					communicationResult = TransactionResult.CommunicationResult.SUCCESS;
+					providerErrorCode = code;
+					errorCode = null;
+					providerErrorMessage = message;
+					approvalResult = AuthorizationResult.ApprovalResult.DECLINED;
+					approvalCode = null;
+					if(declineReason==null) declineReason = AuthorizationResult.DeclineReason.CVV2_MISMATCH;
+				} else {
+					// Gateway Error
+					communicationResult = declineReason==null ? TransactionResult.CommunicationResult.GATEWAY_ERROR : TransactionResult.CommunicationResult.SUCCESS;
+					providerErrorCode = code;
+					errorCode = declineReason==null ? convertErrorCode(code) : null;
+					providerErrorMessage = message;
+					approvalResult = declineReason==null ? null : AuthorizationResult.ApprovalResult.DECLINED;
+					approvalCode = null;
+				}
+			} else {
+				// Unknown response
+				communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
+				providerErrorCode = code;
+				errorCode = convertErrorCode(code);
+				providerErrorMessage = message;
+				approvalResult = null;
+				approvalCode = null;
+			}
+			return new AuthorizationResult(
+				getProviderId(),
+				communicationResult,
+				providerErrorCode,
+				errorCode,
+				providerErrorMessage,
+				providerUniqueId,
+				providerApprovalResult,
+				approvalResult,
+				providerDeclineReason,
+				declineReason,
+				providerReviewReason,
+				reviewReason,
+				providerCvvResult,
+				cvvResult,
+				providerAvsResult,
+				avsResult,
+				approvalCode
+			);
+		} catch(ServiceException err) {
+			logger.log(Level.SEVERE, null, err);
+			return new AuthorizationResult(
+				getProviderId(),
+				TransactionResult.CommunicationResult.LOCAL_ERROR,
+				err.getClass().getName(),
+				TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
+				err.getMessage(),
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null
+			);
+		} catch(RemoteException err) {
+			logger.log(Level.SEVERE, null, err);
+			return new AuthorizationResult(
+				getProviderId(),
+				TransactionResult.CommunicationResult.IO_ERROR,
+				err.getClass().getName(),
+				TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
+				err.getMessage(),
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null
+			);
+		}
     }
 
     @Override

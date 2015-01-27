@@ -48,6 +48,9 @@ import com.stripe.model.CustomerCardCollection;
 import com.stripe.model.DeletedCustomer;
 import com.stripe.net.RequestOptions;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,11 +62,11 @@ import java.util.Map;
  *   <li>apiKey - the Stripe account secret key</li>
  * </ol>
  *
+ * TODO: Support testMode with optional testApiKey
+ *
  * @author  AO Industries, Inc.
  */
 public class Stripe implements MerchantServicesProvider {
-
-	// TODO: Statement descriptor with Accounting code and transid? "NMW #3443"
 
 	private static final String STRIPE_API_VERSION = "2015-01-11";
 
@@ -72,7 +75,18 @@ public class Stripe implements MerchantServicesProvider {
 	private static final int MAX_METADATA_KEY_LENGTH = 40;
 	private static final int MAX_METADATA_VALUE_LENGTH = 500;
 
-    private final String providerId;
+	/**
+	 * The maximum allowed statement descriptor.
+	 * From https://stripe.com/docs/api#create_charge
+	 */
+	private static final int MAX_STATEMENT_DESCRIPTOR_LEN = 22;
+
+	/**
+	 * The characters on the statement before the order number.
+	 */
+	private static final String STATEMENT_DESCRIPTOR_PREFIX = "AO#";
+
+	private final String providerId;
     private final String apiKey;
 
 	private final RequestOptions options;
@@ -141,6 +155,15 @@ public class Stripe implements MerchantServicesProvider {
 		if(update) metadata.put(key, null);
 	}
 
+	private static void addMetaData(boolean update, Map<String,Object> metadata, String key, Object value) {
+		addMetaData(
+			update,
+			metadata,
+			key,
+			value==null ? (String)value : value.toString()
+		);
+	}
+
 	/** https://stripe.com/docs/api#metadata */
 	private static Map<String,Object> makeMetadata(CreditCard creditCard, boolean update) {
 		Map<String,Object> metadata = new HashMap<>();
@@ -149,6 +172,25 @@ public class Stripe implements MerchantServicesProvider {
 		addMetaData(update, metadata, "fax", creditCard.getFax());
 		addMetaData(update, metadata, "customer_id", creditCard.getCustomerId());
 		addMetaData(update, metadata, "customer_tax_id", creditCard.getCustomerTaxId());
+		return metadata;
+	}
+
+	/**
+	 * Meta data contains both card meta data (also associated with "customer" for stored cards) and transaction meta data.
+	 * https://stripe.com/docs/api#create_charge
+	 */
+	private static Map<String,Object> makeMetadata(TransactionRequest transactionRequest, CreditCard creditCard, boolean update) {
+		Map<String,Object> metadata = makeMetadata(creditCard, update);
+		addMetaData(update, metadata, "customer_ip", transactionRequest.getCustomerIp());
+		addMetaData(update, metadata, "order_number", transactionRequest.getOrderNumber());
+		addMetaData(update, metadata, "amount", transactionRequest.getAmount());
+		addMetaData(update, metadata, "tax_amount", transactionRequest.getTaxAmount());
+		addMetaData(update, metadata, "tax_exempt", transactionRequest.getTaxExempt());
+		addMetaData(update, metadata, "shipping_amount", transactionRequest.getShippingAmount());
+		addMetaData(update, metadata, "duty_amount", transactionRequest.getDutyAmount());
+		addMetaData(update, metadata, "shipping_company_name", transactionRequest.getShippingCompanyName());
+		addMetaData(update, metadata, "invoice_number", transactionRequest.getInvoiceNumber());
+		addMetaData(update, metadata, "purchase_order_number", transactionRequest.getPurchaseOrderNumber());
 		return metadata;
 	}
 
@@ -202,6 +244,29 @@ public class Stripe implements MerchantServicesProvider {
 			creditCard.getExpirationMonth(),
 			creditCard.getExpirationYear()
 		);
+	}
+
+	/** https://stripe.com/docs/api#create_charge */
+	private static Map<String,Object> makeShippingAddressParams(TransactionRequest transactionRequest, boolean update) {
+		Map<String,Object> shippingAddressParams = new HashMap<>();
+		addParam(update, shippingAddressParams, "line1", transactionRequest.getShippingStreetAddress1());
+		addParam(update, shippingAddressParams, "line2", transactionRequest.getShippingStreetAddress2());
+		addParam(update, shippingAddressParams, "city", transactionRequest.getShippingCity());
+		addParam(update, shippingAddressParams, "state", transactionRequest.getShippingState());
+		addParam(update, shippingAddressParams, "postal_code", transactionRequest.getShippingPostalCode());
+		addParam(update, shippingAddressParams, "country", transactionRequest.getShippingCountryCode());
+		return shippingAddressParams;
+	}
+
+	/** https://stripe.com/docs/api#create_charge */
+	private static Map<String,Object> makeShippingParams(TransactionRequest transactionRequest, CreditCard creditCard, boolean update) {
+		Map<String,Object> shippingParams = new HashMap<>();
+		addParam(update, shippingParams, "address", makeShippingAddressParams(transactionRequest, update));
+		addParam(update, shippingParams, "name", CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName()));
+		// Phone cannot be in the shipping by itself
+		if(!shippingParams.isEmpty()) addParam(update, shippingParams, "phone", creditCard.getPhone());
+		// Unused: tracking_number
+		return shippingParams;
 	}
     // </editor-fold>
 	
@@ -352,13 +417,241 @@ public class Stripe implements MerchantServicesProvider {
 
 	@Override
     public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new NotImplementedException();
+        AuthorizationResult authorizationResult = saleOrAuthorize(transactionRequest, creditCard, true);
+        return new SaleResult(
+            authorizationResult,
+            new CaptureResult(
+                authorizationResult.getProviderId(),
+                authorizationResult.getCommunicationResult(),
+                authorizationResult.getProviderErrorCode(),
+                authorizationResult.getErrorCode(),
+                authorizationResult.getProviderErrorMessage(),
+                authorizationResult.getProviderUniqueId()
+            )
+        );
     }
 
     @Override
     public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new NotImplementedException();
+        return saleOrAuthorize(transactionRequest, creditCard, false);
     }
+
+    private AuthorizationResult saleOrAuthorize(TransactionRequest transactionRequest, CreditCard creditCard, boolean capture) {
+		// Test mode not currently supported
+		if(transactionRequest.getTestMode()) {
+			throw new UnsupportedOperationException("Test mode not currently supported");
+		}
+		// Convert amount into smallest unit
+		BigDecimal totalAmount = transactionRequest.getTotalAmount();
+		Currency currency = transactionRequest.getCurrency();
+		int currencyDigits = currency.getDefaultFractionDigits();
+		if(currencyDigits < 0) throw new AssertionError("currencyDigits < 0: " + currencyDigits);
+		BigInteger amount = totalAmount.scaleByPowerOfTen(currencyDigits).toBigIntegerExact();
+		// Create the Charge
+		// https://stripe.com/docs/api#create_charge
+		Map<String,Object> chargeParams = new HashMap<>();
+		addParam(false, chargeParams, "amount", amount);
+		addParam(false, chargeParams, "currency", currency.getCurrencyCode());
+		if(creditCard.getProviderUniqueId() != null) {
+			// Is a stored card
+			addParam(false, chargeParams, "customer", creditCard.getProviderUniqueId());
+		} else {
+			// Is a new card
+			addParam(false, chargeParams, "card", makeCardParams(creditCard, false));
+		}
+		addParam(false, chargeParams, "description", transactionRequest.getDescription());
+		addParam(false, chargeParams, "metadata", makeMetadata(transactionRequest, creditCard, false));
+		addParam(false, chargeParams, "capture", capture);
+		if(transactionRequest.getOrderNumber() != null) {
+			String combined = STATEMENT_DESCRIPTOR_PREFIX + transactionRequest.getOrderNumber();
+			if(combined.length() <= MAX_STATEMENT_DESCRIPTOR_LEN) addParam(false, chargeParams, "statement_descriptor", combined);
+		}
+		if(transactionRequest.getEmailCustomer()) {
+			addParam(false, chargeParams, "receipt_email", creditCard.getEmail());
+		}
+		// Unused: application_fee
+		addParam(false, chargeParams, "shipping", makeShippingParams(transactionRequest, creditCard, false));
+		try {
+			Charge charge = Charge.create(chargeParams, options);
+			Card card = charge.getCard();
+			// AVS
+			final String providerAvsResult;
+			final AuthorizationResult.AvsResult avsResult;
+			// <editor-fold defaultstate="collapsed" desc="AVS conversion">
+			{
+				String addressResult = card.getAddressLine1Check();
+				String zipResult = card.getAddressZipCheck();
+				if(addressResult != null) {
+					if(zipResult != null) {
+						// Both address and ZIP
+						providerAvsResult = addressResult + "," + zipResult;
+						// ADDRESS_Y_ZIP_5
+						if(addressResult.equals("pass") && zipResult.equals("pass")) {
+							avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_5;
+						}
+						// ADDRESS_Y_ZIP_N
+						else if(addressResult.equals("pass")) {
+							avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_N;
+						}
+						// ADDRESS_N_ZIP_5
+						else if(zipResult.equals("pass")) {
+							avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_5;
+						}
+						// ADDRESS_N_ZIP_N
+						else if(addressResult.equals("fail") && zipResult.equals("fail")) {
+							avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_N;
+						}
+						// UNAVAILABLE
+						else if(addressResult.equals("unavailable") && zipResult.equals("unavailable")) {
+							avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
+						}
+						// SERVICE_NOT_SUPPORTED
+						else if(addressResult.equals("unchecked") && zipResult.equals("unchecked")) {
+							avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
+						} else {
+							avsResult = AuthorizationResult.AvsResult.UNKNOWN;
+						}
+					} else {
+						// Address only
+						providerAvsResult = addressResult + ",";
+						switch(addressResult) {
+							case "pass" :
+								avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_N;
+								break;
+							case "fail" :
+								avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_N;
+								break;
+							case "unavailable" :
+								avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
+								break;
+							case "unchecked" :
+								avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
+								break;
+							default :
+								avsResult = AuthorizationResult.AvsResult.UNKNOWN;
+						}
+					}
+				} else {
+					if(zipResult != null) {
+						// ZIP only
+						providerAvsResult = "," + zipResult;
+						switch(zipResult) {
+							case "pass" :
+								avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_5;
+								break;
+							case "fail" :
+								avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_N;
+								break;
+							case "unavailable" :
+								avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
+								break;
+							case "unchecked" :
+								avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
+								break;
+							default :
+								avsResult = AuthorizationResult.AvsResult.UNKNOWN;
+						}
+					} else {
+						providerAvsResult = ",";
+						avsResult = AuthorizationResult.AvsResult.ADDRESS_NOT_PROVIDED;
+					}
+				}
+			}
+			// </editor-fold>
+			// CVC
+			final String providerCvvResult = card.getCvcCheck();
+			final AuthorizationResult.CvvResult cvvResult;
+			// <editor-fold defaultstate="collapsed" desc="CVC conversion">
+			if(providerCvvResult == null) {
+				cvvResult = AuthorizationResult.CvvResult.CVV2_NOT_PROVIDED_BY_MERCHANT;
+ 			} else {
+				switch(providerCvvResult) {
+					case "pass" :
+						cvvResult = AuthorizationResult.CvvResult.MATCH;
+						break;
+					case "fail" :
+						cvvResult = AuthorizationResult.CvvResult.NO_MATCH;
+						break;
+					case "unavailable" :
+						cvvResult = AuthorizationResult.CvvResult.NOT_PROCESSED;
+						break;
+					case "unchecked" :
+						cvvResult = AuthorizationResult.CvvResult.NOT_SUPPORTED_BY_ISSUER;
+						break;
+					default :
+						cvvResult = AuthorizationResult.CvvResult.UNKNOWN;
+				}
+			}
+			// </editor-fold>
+			// TODO: FraudDetails fraudDetails = charge.getFraudDetails();
+			// Trip "ch_" from charge ID from approval code
+			String approvalCode = charge.getId();
+			if(approvalCode != null && approvalCode.startsWith("ch_")) approvalCode = approvalCode.substring(3);
+			return new AuthorizationResult(
+				getProviderId(),
+				TransactionResult.CommunicationResult.SUCCESS,
+				null, // providerErrorCode
+				null, // errorCode
+				null, // providerErrorMessage
+				charge.getId(),
+				null, // providerApprovalResult
+				AuthorizationResult.ApprovalResult.APPROVED,
+				null, // providerDeclineReason
+				null, // declineReason
+				null, // providerReviewReason
+				null, // reviewReason
+				providerCvvResult,
+				cvvResult,
+				providerAvsResult,
+				avsResult,
+				approvalCode // approvalCode
+			);
+		} catch(StripeException e) {
+			ConvertedError converted = convertError(e);
+			if(converted.declineReason == null) {
+				return new AuthorizationResult(
+					getProviderId(),
+					converted.communicationResult,
+					converted.providerErrorCode,
+					converted.errorCode,
+					converted.providerErrorMessage,
+					null, // providerUniqueId
+					null, // providerApprovalResult
+					null, // approvalResult
+					null, // providerDeclineReason
+					null, // declineReason
+					null, // providerReviewReason
+					null, // reviewReason
+					null, // providerCvvResult
+					null, // cvvResult
+					null, // providerAvsResult
+					null, // avsResult
+					null  // approvalCode
+				);
+			} else {
+				// Declined
+				return new AuthorizationResult(
+					getProviderId(),
+					converted.communicationResult,
+					null, // providerErrorCode
+					null, // errorCode
+					converted.providerErrorMessage,
+					null, // providerUniqueId
+					null, // providerApprovalResult
+					AuthorizationResult.ApprovalResult.DECLINED, // approvalResult
+					converted.providerErrorCode, // providerDeclineReason
+					converted.declineReason,
+					null, // providerReviewReason
+					null, // reviewReason
+					null, // providerCvvResult
+					null, // cvvResult
+					null, // providerAvsResult
+					null, // avsResult
+					null  // approvalCode
+				);
+			}
+		}
+	}
 
 	@Override
     public CaptureResult capture(AuthorizationResult authorizationResult) {
@@ -405,11 +698,9 @@ public class Stripe implements MerchantServicesProvider {
 
 	@Override
     public String storeCreditCard(CreditCard creditCard) throws IOException {
-		// Create the Card
-		Map<String,Object> cardParams = makeCardParams(creditCard, false);
 		// Create the Customer
 		Map<String,Object> customerParams = new HashMap<>();
-		addParam(false, customerParams, "card", cardParams);
+		addParam(false, customerParams, "card", makeCardParams(creditCard, false));
 		addCustomerParams(creditCard, false, customerParams);
 		// Make API call
 		try {
