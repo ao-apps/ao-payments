@@ -141,12 +141,15 @@ public class Stripe implements MerchantServicesProvider {
 		if(update) params.put(name, null);
 	}
 
-	private static void addMetaData(boolean update, Map<String,Object> metadata, String key, String value) {
+	private static void addMetaData(boolean update, Map<String,Object> metadata, String key, String value, boolean allowTrimValue) {
 		if(key.length() > MAX_METADATA_KEY_LENGTH) throw new IllegalArgumentException("Meta data key too long: " + key);
 		if(value != null) {
 			value = value.trim();
 			if(!value.isEmpty()) {
-				if(value.length() > MAX_METADATA_VALUE_LENGTH) throw new IllegalArgumentException("Meta data value too long: " + value);
+				if(value.length() > MAX_METADATA_VALUE_LENGTH) {
+					if(allowTrimValue) value = value.substring(0, MAX_METADATA_VALUE_LENGTH);
+					else throw new IllegalArgumentException("Meta data value too long: " + value);
+				}
 				if(!metadata.containsKey(key) && metadata.size() >= MAX_METADATA_KEYS) throw new IllegalStateException("Too many meta data keys");
 				metadata.put(key, value);
 				return;
@@ -155,23 +158,24 @@ public class Stripe implements MerchantServicesProvider {
 		if(update) metadata.put(key, null);
 	}
 
-	private static void addMetaData(boolean update, Map<String,Object> metadata, String key, Object value) {
+	private static void addMetaData(boolean update, Map<String,Object> metadata, String key, Object value, boolean allowTrimValue) {
 		addMetaData(
 			update,
 			metadata,
 			key,
-			value==null ? (String)value : value.toString()
+			value==null ? (String)value : value.toString(),
+			allowTrimValue
 		);
 	}
 
 	/** https://stripe.com/docs/api#metadata */
 	private static Map<String,Object> makeMetadata(CreditCard creditCard, boolean update) {
 		Map<String,Object> metadata = new HashMap<>();
-		addMetaData(update, metadata, "company_name", creditCard.getCompanyName());
-		addMetaData(update, metadata, "phone", creditCard.getPhone());
-		addMetaData(update, metadata, "fax", creditCard.getFax());
-		addMetaData(update, metadata, "customer_id", creditCard.getCustomerId());
-		addMetaData(update, metadata, "customer_tax_id", creditCard.getCustomerTaxId());
+		addMetaData(update, metadata, "company_name", creditCard.getCompanyName(), true);
+		addMetaData(update, metadata, "phone", creditCard.getPhone(), true);
+		addMetaData(update, metadata, "fax", creditCard.getFax(), true);
+		addMetaData(update, metadata, "customer_id", creditCard.getCustomerId(), true);
+		addMetaData(update, metadata, "customer_tax_id", creditCard.getCustomerTaxId(), true);
 		return metadata;
 	}
 
@@ -181,16 +185,20 @@ public class Stripe implements MerchantServicesProvider {
 	 */
 	private static Map<String,Object> makeMetadata(TransactionRequest transactionRequest, CreditCard creditCard, boolean update) {
 		Map<String,Object> metadata = makeMetadata(creditCard, update);
-		addMetaData(update, metadata, "customer_ip", transactionRequest.getCustomerIp());
-		addMetaData(update, metadata, "order_number", transactionRequest.getOrderNumber());
-		addMetaData(update, metadata, "amount", transactionRequest.getAmount());
-		addMetaData(update, metadata, "tax_amount", transactionRequest.getTaxAmount());
-		addMetaData(update, metadata, "tax_exempt", transactionRequest.getTaxExempt());
-		addMetaData(update, metadata, "shipping_amount", transactionRequest.getShippingAmount());
-		addMetaData(update, metadata, "duty_amount", transactionRequest.getDutyAmount());
-		addMetaData(update, metadata, "shipping_company_name", transactionRequest.getShippingCompanyName());
-		addMetaData(update, metadata, "invoice_number", transactionRequest.getInvoiceNumber());
-		addMetaData(update, metadata, "purchase_order_number", transactionRequest.getPurchaseOrderNumber());
+		// Additional customer meta data
+		addMetaData(update, metadata, "customer_description", creditCard.getComments(), true);
+		addMetaData(update, metadata, "customer_email", creditCard.getEmail(), false);
+		// Transaction meta data
+		addMetaData(update, metadata, "customer_ip", transactionRequest.getCustomerIp(), false);
+		addMetaData(update, metadata, "order_number", transactionRequest.getOrderNumber(), false);
+		addMetaData(update, metadata, "amount", transactionRequest.getAmount(), false);
+		addMetaData(update, metadata, "tax_amount", transactionRequest.getTaxAmount(), false);
+		addMetaData(update, metadata, "tax_exempt", transactionRequest.getTaxExempt(), false);
+		addMetaData(update, metadata, "shipping_amount", transactionRequest.getShippingAmount(), false);
+		addMetaData(update, metadata, "duty_amount", transactionRequest.getDutyAmount(), false);
+		addMetaData(update, metadata, "shipping_company_name", transactionRequest.getShippingCompanyName(), true);
+		addMetaData(update, metadata, "invoice_number", transactionRequest.getInvoiceNumber(), false);
+		addMetaData(update, metadata, "purchase_order_number", transactionRequest.getPurchaseOrderNumber(), false);
 		return metadata;
 	}
 
