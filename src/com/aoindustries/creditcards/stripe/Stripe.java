@@ -211,7 +211,7 @@ public class Stripe implements MerchantServicesProvider {
 		boolean update,
 		Map<String,Object> cardParams
 	) {
-		addParam(update, cardParams, "name", creditCard.getFirstName());
+		addParam(update, cardParams, "name", CreditCard.getFullName(creditCard.getFirstName(), creditCard.getLastName()));
 		addParam(update, cardParams, "address_line1", creditCard.getStreetAddress1());
 		addParam(update, cardParams, "address_line2", creditCard.getStreetAddress2());
 		addParam(update, cardParams, "address_city", creditCard.getCity());
