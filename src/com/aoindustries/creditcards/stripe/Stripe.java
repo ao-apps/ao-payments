@@ -52,7 +52,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Currency;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Provider for Stripe<br>
@@ -170,7 +172,7 @@ public class Stripe implements MerchantServicesProvider {
 
 	/** https://stripe.com/docs/api#metadata */
 	private static Map<String,Object> makeMetadata(CreditCard creditCard, boolean update) {
-		Map<String,Object> metadata = new HashMap<>();
+		Map<String,Object> metadata = new LinkedHashMap<>();
 		addMetaData(update, metadata, "company_name", creditCard.getCompanyName(), true);
 		addMetaData(update, metadata, "phone", creditCard.getPhone(), true);
 		addMetaData(update, metadata, "fax", creditCard.getFax(), true);
