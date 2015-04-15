@@ -64,6 +64,7 @@ import java.util.Map;
  * </ol>
  *
  * TODO: Support testMode with optional testApiKey
+ * TODO: Support Stripe.js
  *
  * @author  AO Industries, Inc.
  */
@@ -347,57 +348,74 @@ public class Stripe implements MerchantServicesProvider {
 			String code = ce.getCode();
 			String param = ce.getParam();
 			// Convert to ErrorCode, see https://stripe.com/docs/api/java#errors
-			TransactionResult.ErrorCode errorCode;
-			AuthorizationResult.DeclineReason declineReason;
+			final TransactionResult.CommunicationResult communicationResult;
+			final TransactionResult.ErrorCode errorCode;
+			final AuthorizationResult.DeclineReason declineReason;
 			switch(code) {
 				case "incorrect_number" :
 				case "invalid_number" :
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
 					errorCode = TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
 					declineReason = null;
 					break;
 				case "invalid_expiry_month" :
 				case "invalid_expiry_year" :
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
 					errorCode = TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE;
 					declineReason = null;
 					break;
 				case "invalid_cvc" :
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
 					errorCode = TransactionResult.ErrorCode.INVALID_CARD_CODE;
 					declineReason = null;
 					break;
 				case "expired_card" :
+					communicationResult = TransactionResult.CommunicationResult.SUCCESS;
 					errorCode = TransactionResult.ErrorCode.CARD_EXPIRED;
 					declineReason = AuthorizationResult.DeclineReason.EXPIRED_CARD;
 					break;
 				case "incorrect_cvc" :
+					communicationResult = TransactionResult.CommunicationResult.SUCCESS;
 					errorCode = TransactionResult.ErrorCode.INVALID_CARD_CODE;
 					declineReason = AuthorizationResult.DeclineReason.CVV2_MISMATCH;
 					break;
 				case "incorrect_zip" :
+					communicationResult = TransactionResult.CommunicationResult.SUCCESS;
 					errorCode = TransactionResult.ErrorCode.UNKNOWN;
 					declineReason = AuthorizationResult.DeclineReason.AVS_MISMATCH;
 					break;
 				case "card_declined" :
+					communicationResult = TransactionResult.CommunicationResult.SUCCESS;
 					errorCode = TransactionResult.ErrorCode.UNKNOWN;
 					declineReason = AuthorizationResult.DeclineReason.UNKNOWN;
 					break;
 				case "missing" :
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
 					errorCode = TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR;
 					declineReason = null;
 					break;
 				case "processing_error" :
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
 					errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
 					declineReason = null;
 					break;
 				case "rate_limit" :
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
 					errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES;
 					declineReason = null;
 					break;
 				default :
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
 					errorCode = TransactionResult.ErrorCode.UNKNOWN;
 					declineReason = null;
 			}
+			if(communicationResult == TransactionResult.CommunicationResult.SUCCESS) {
+				if(declineReason == null) throw new AssertionError("declineReason required when communicationResult is SUCCESS");
+			} else if(communicationResult != TransactionResult.CommunicationResult.SUCCESS) {
+				if(declineReason != null) throw new AssertionError("declineReason not allowed when communicationResult is not SUCCESS");
+			}
 			return new ConvertedError(
-				TransactionResult.CommunicationResult.SUCCESS,
+				communicationResult,
 				code,
 				errorCode,
 				getMessage(e),
