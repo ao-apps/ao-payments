@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -336,20 +336,20 @@ public class CreditCardProcessor {
     }
 
 	/**
-     * Updates the credit card number and expiration.  If card stored to secure storage, updates that storage.
+     * Updates the credit card number, expiration, and (optionally) card code.  If card stored to secure storage, updates that storage.
      * Otherwise updates <code>creditCard</code> directly.  In either event, the masked card number is updated.
      *
      * @throws  IOException   when unable to contact the bank
      * @throws  SQLException  when unable to store in the persistence layer
      */
-    public void updateCreditCardNumberAndExpiration(Principal principal, CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear) throws IOException, SQLException {
+    public void updateCreditCardNumberAndExpiration(Principal principal, CreditCard creditCard, String cardNumber, byte expirationMonth, short expirationYear, String cardCode) throws IOException, SQLException {
         cardNumber = CreditCard.numbersOnly(cardNumber);
         if(creditCard.getProviderUniqueId()!=null) {
             // Update in persistence (this also enforces security)
             String maskedCardNumber = CreditCard.maskCreditCardNumber(cardNumber);
             persistenceMechanism.updateCardNumber(principal, creditCard, cardNumber, expirationMonth, expirationYear);
             // Update in secure storage
-            provider.updateCreditCardNumberAndExpiration(creditCard, cardNumber, expirationMonth, expirationYear);
+            provider.updateCreditCardNumberAndExpiration(creditCard, cardNumber, expirationMonth, expirationYear, cardCode);
             // Update the masked number
             creditCard.setMaskedCardNumber(maskedCardNumber);
         } else {
@@ -357,6 +357,7 @@ public class CreditCardProcessor {
             creditCard.setCardNumber(cardNumber); // This also sets the masked value
             creditCard.setExpirationMonth(expirationMonth);
             creditCard.setExpirationYear(expirationYear);
+			if(cardCode != null) creditCard.setCardCode(cardCode);
         }
     }
 

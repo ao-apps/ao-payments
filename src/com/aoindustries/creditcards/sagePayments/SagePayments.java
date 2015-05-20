@@ -722,12 +722,16 @@ public class SagePayments implements MerchantServicesProvider {
 		// Nothing to do, only local persistence used for these values
 	}
 
+	/**
+	 * @param cardCode Note: Sage Payments does not update stored card code
+	 */
     @Override
     public void updateCreditCardNumberAndExpiration(
 		CreditCard creditCard,
 		String cardNumber,
 		byte expirationMonth,
-		short expirationYear
+		short expirationYear,
+		String cardCode
 	) throws IOException {
         try {
             String success = null;

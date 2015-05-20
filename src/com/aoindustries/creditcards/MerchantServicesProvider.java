@@ -95,7 +95,7 @@ public interface MerchantServicesProvider {
 	void updateCreditCard(CreditCard creditCard) throws IOException;
 
 	/**
-	 * Updates the credit card number and expiration in the secure storage, card number and expiration on <code>creditCard</code> are not changed.
+	 * Updates the credit card number, expiration, and (optionally) card code in the secure storage, card number, expiration, and card code on <code>creditCard</code> are not changed.
 	 * This information is stored by local persistence, but some providers also have a copy of this information.  This is used to keep the two
 	 * systems in sync.
 	 *
@@ -105,7 +105,8 @@ public interface MerchantServicesProvider {
 		CreditCard creditCard,
 		String cardNumber,
 		byte expirationMonth,
-		short expirationYear
+		short expirationYear,
+		String cardCode
 	) throws IOException;
 
 	/**

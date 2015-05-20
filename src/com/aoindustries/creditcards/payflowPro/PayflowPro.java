@@ -682,7 +682,8 @@ public class PayflowPro implements MerchantServicesProvider {
 		CreditCard creditCard,
 		String cardNumber,
 		byte expirationMonth,
-		short expirationYear
+		short expirationYear,
+		String cardCode
 	) throws IOException {
         throw new NotImplementedException();
     }

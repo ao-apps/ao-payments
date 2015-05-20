@@ -472,7 +472,8 @@ public class TestMerchantServicesProvider implements MerchantServicesProvider {
 		CreditCard creditCard,
 		String cardNumber,
 		byte expirationMonth,
-		short expirationYear
+		short expirationYear,
+		String cardCode
 	) throws IOException {
         // First allow for random errors
         if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardNumberAndExpiration error");

@@ -235,13 +235,14 @@ public class Stripe implements MerchantServicesProvider {
 		boolean update,
 		String cardNumber,
 		byte expirationMonth,
-		short expirationYear
+		short expirationYear,
+		String cardCode
 	) {
 		Map<String,Object> cardParams = new HashMap<>();
 		addParam(update, cardParams, "number", CreditCard.numbersOnly(cardNumber));
 		addParam(update, cardParams, "exp_month", expirationMonth);
 		addParam(update, cardParams, "exp_year", expirationYear);
-		addParam(update, cardParams, "cvc", creditCard.getCardCode());
+		addParam(update, cardParams, "cvc", cardCode);
 		addCardParams(creditCard, update, cardParams);
 		return cardParams;
 	}
@@ -252,7 +253,8 @@ public class Stripe implements MerchantServicesProvider {
 			update,
 			creditCard.getCardNumber(),
 			creditCard.getExpirationMonth(),
-			creditCard.getExpirationYear()
+			creditCard.getExpirationYear(),
+			creditCard.getCardCode()
 		);
 	}
 
@@ -767,10 +769,18 @@ public class Stripe implements MerchantServicesProvider {
 		CreditCard creditCard,
 		String cardNumber,
 		byte expirationMonth,
-		short expirationYear
+		short expirationYear,
+		String cardCode
 	) throws IOException {
 		// Replace the default Card
-		Map<String,Object> cardParams = makeCardParams(creditCard, true, cardNumber, expirationMonth, expirationYear);
+		Map<String,Object> cardParams = makeCardParams(
+			creditCard,
+			true,
+			cardNumber,
+			expirationMonth,
+			expirationYear,
+			cardCode!=null ? CreditCard.numbersOnly(cardCode) : creditCard.getCardCode()
+		);
 		Map<String,Object> updateParams = new HashMap<>();
 		addParam(true, updateParams, "card", cardParams);
 		try {
