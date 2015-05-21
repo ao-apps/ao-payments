@@ -380,24 +380,36 @@ public class CreditCard implements Cloneable {
         return cardCode;
     }
 
-    /**
+	/**
+	 * Checks a card code format.
+	 * 
+	 * @param cardCode The card code to check
+	 *
+	 * @return The card code to use
+	 * 
+	 * @throws LocalizedIllegalArgumentException if card code invalid
+	 */
+	public static String validateCardCode(String cardCode) throws LocalizedIllegalArgumentException {
+        if(cardCode==null) return null;
+		cardCode = cardCode.trim();
+		if(cardCode.length()==0) return null;
+
+		if(cardCode.length()!=3 && cardCode.length()!=4) throw new LocalizedIllegalArgumentException(accessor, "CreditCard.validateCardCode.cardCode.mustBe3Or4Digits");
+		// Each digit must be a number
+		for(int c=0;c<cardCode.length();c++) {
+			char ch = cardCode.charAt(c);
+			if(ch<'0' || ch>'9') throw new LocalizedIllegalArgumentException(accessor, "CreditCard.validateCardCode.cardCode.mustBeDigits");
+		}
+		return cardCode;
+	}
+
+	/**
      * Trims and sets the three or four digit card security code.
      *
      * @throws  IllegalArgumentException  if the value is not either <code>null</code> or purely digits (after trimming) and 3 or 4 digits long.
      */
-    public void setCardCode(String cardCode) {
-        if(cardCode==null || cardCode.length()==0) {
-            this.cardCode=null;
-        } else {
-            cardCode = cardCode.trim();
-            if(cardCode.length()!=3 && cardCode.length()!=4) throw new LocalizedIllegalArgumentException(accessor, "CreditCard.setCardCode.cardCode.mustBe3Or4Digits");
-            // Each digit must be a number
-            for(int c=0;c<cardCode.length();c++) {
-                char ch = cardCode.charAt(c);
-                if(ch<'0' || ch>'9') throw new LocalizedIllegalArgumentException(accessor, "CreditCard.setCardCode.cardCode.mustBeDigits");
-            }
-            this.cardCode = cardCode;
-        }
+    public void setCardCode(String cardCode) throws LocalizedIllegalArgumentException {
+		this.cardCode = validateCardCode(cardCode);
     }
 
     /**
