@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
+ * Copyright (C) 2010, 2011, 2012, 2013, 2015, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -36,14 +36,15 @@ import com.aoindustries.creditcards.VoidResult;
 import com.aoindustries.io.IoUtils;
 import com.aoindustries.lang.NotImplementedException;
 import com.aoindustries.util.StringUtility;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -142,7 +143,6 @@ public class AuthorizeNet implements MerchantServicesProvider {
     private static void addField(StringBuilder query, String name, String value) throws UnsupportedEncodingException {
         if(value!=null && (value = stripDelimiters(value).trim()).length()>0) {
             if(query.length()>0) query.append('&');
-            else query.append(PRODUCTION_URL).append('?');
             query.append(URLEncoder.encode(name, "UTF-8")).append('=').append(URLEncoder.encode(value, "UTF-8"));
         }
     }
@@ -241,7 +241,7 @@ public class AuthorizeNet implements MerchantServicesProvider {
                 null,
                 null
             );
-        } catch(Exception err) {
+        } catch(RuntimeException | UnsupportedEncodingException err) {
             return new AuthorizationResult(
                 getProviderId(),
                 TransactionResult.CommunicationResult.LOCAL_ERROR,
@@ -267,27 +267,38 @@ public class AuthorizeNet implements MerchantServicesProvider {
         List<String> response;
         try {
             // Perform query
-            if(DEBUG_REQUEST) logger.log(Level.INFO, "Query: {0}", query);
             String responseString;
-            URL url = new URL(query);
-            HttpURLConnection uc = (HttpURLConnection)url.openConnection();
-            try {
-                uc.setUseCaches(false);
-                uc.setRequestMethod("GET");
-                uc.setDoOutput(false);
-                uc.setDoInput(true);
+			{
+	            if(DEBUG_REQUEST) logger.log(Level.INFO, "Query: {0}", query);
+				// 2016-06-07: Converting from GET to POST per Authorize.Net requirements
+				//             http://stackoverflow.com/questions/4205980/java-sending-http-parameters-via-post-method-easily
+				byte[] postData = query.getBytes(StandardCharsets.UTF_8);
+				HttpURLConnection conn = (HttpURLConnection)new URL(PRODUCTION_URL).openConnection();
+				try {
+					conn.setRequestMethod("POST");
+					conn.setDoOutput(true);
+					conn.setDoInput(true);
+					conn.setInstanceFollowRedirects(false);
+					conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+					conn.setRequestProperty("charset", "utf-8");
+					conn.setRequestProperty("Content-Length", Integer.toString(postData.length));
+					conn.setUseCaches(false);
 
-                ByteArrayOutputStream bout = new ByteArrayOutputStream();
-                InputStream in = uc.getInputStream();
-                try {
-                    IoUtils.copy(in, bout);
-                } finally {
-                    in.close();
-                }
-                responseString = bout.toString();
-            } finally {
-                uc.disconnect();
-            }
+					// Write Request
+					try(OutputStream out = conn.getOutputStream()) {
+						out.write(postData);
+					}
+
+					// Read response
+					byte[] responseBytes;
+					try(InputStream in = conn.getInputStream()) {
+						responseBytes = IoUtils.readFully(in);
+					}
+					responseString = new String(responseBytes, StandardCharsets.UTF_8); // Assuming UTF-8, should we check response encoding?
+				} finally {
+					conn.disconnect();
+				}
+			}
 
             // Parse response
             if(DEBUG_RESPONSE) logger.log(Level.INFO, "Response: {0}", responseString);
