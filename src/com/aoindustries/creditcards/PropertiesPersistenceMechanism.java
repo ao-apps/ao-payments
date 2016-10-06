@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -55,7 +55,7 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
 
     private static final Logger logger = Logger.getLogger(PropertiesPersistenceMechanism.class.getName());
 
-    private static final Map<String,PropertiesPersistenceMechanism> ppms = new HashMap<>();
+    private static final Map<String,PropertiesPersistenceMechanism> ppms = new HashMap<String,PropertiesPersistenceMechanism>();
 
     /**
      * For intra-JVM reusability, only one instance is made per unique path.
@@ -106,8 +106,8 @@ public class PropertiesPersistenceMechanism implements PersistenceMechanism {
             try {
                 File file = new File(propertiesFilePath);
                 if(file.exists()) {
-                    List<CreditCard> newCreditCards = new ArrayList<>();
-                    List<Transaction> newTransactions = new ArrayList<>();
+                    List<CreditCard> newCreditCards = new ArrayList<CreditCard>();
+                    List<Transaction> newTransactions = new ArrayList<Transaction>();
                     Properties props = PropertiesUtils.loadFromFile(file);
                     for(long counter=1; counter<Long.MAX_VALUE; counter++) {
                         String persistenceUniqueId = props.getProperty("creditCards."+counter+".persistenceUniqueId");

@@ -241,7 +241,7 @@ public class AuthorizeNet implements MerchantServicesProvider {
                 null,
                 null
             );
-        } catch(RuntimeException | UnsupportedEncodingException err) {
+        } catch(Throwable err) {
             return new AuthorizationResult(
                 getProviderId(),
                 TransactionResult.CommunicationResult.LOCAL_ERROR,
@@ -285,14 +285,20 @@ public class AuthorizeNet implements MerchantServicesProvider {
 					conn.setUseCaches(false);
 
 					// Write Request
-					try(OutputStream out = conn.getOutputStream()) {
+					OutputStream out = conn.getOutputStream();
+					try {
 						out.write(postData);
+					} finally {
+						out.close();
 					}
 
 					// Read response
 					byte[] responseBytes;
-					try(InputStream in = conn.getInputStream()) {
+					InputStream in = conn.getInputStream();
+					try {
 						responseBytes = IoUtils.readFully(in);
+					} finally {
+						in.close();
 					}
 					responseString = new String(responseBytes, StandardCharsets.UTF_8); // Assuming UTF-8, should we check response encoding?
 				} finally {

@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2015  AO Industries, Inc.
+ * Copyright (C) 2015, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -172,7 +172,7 @@ public class Stripe implements MerchantServicesProvider {
 
 	/** https://stripe.com/docs/api#metadata */
 	private static Map<String,Object> makeMetadata(CreditCard creditCard, boolean update) {
-		Map<String,Object> metadata = new LinkedHashMap<>();
+		Map<String,Object> metadata = new LinkedHashMap<String,Object>();
 		addMetaData(update, metadata, "company_name", creditCard.getCompanyName(), true);
 		addMetaData(update, metadata, "phone", creditCard.getPhone(), true);
 		addMetaData(update, metadata, "fax", creditCard.getFax(), true);
@@ -238,7 +238,7 @@ public class Stripe implements MerchantServicesProvider {
 		short expirationYear,
 		String cardCode
 	) {
-		Map<String,Object> cardParams = new HashMap<>();
+		Map<String,Object> cardParams = new HashMap<String,Object>();
 		addParam(update, cardParams, "number", CreditCard.numbersOnly(cardNumber));
 		addParam(update, cardParams, "exp_month", expirationMonth);
 		addParam(update, cardParams, "exp_year", expirationYear);
@@ -260,7 +260,7 @@ public class Stripe implements MerchantServicesProvider {
 
 	/** https://stripe.com/docs/api#create_charge */
 	private static Map<String,Object> makeShippingAddressParams(TransactionRequest transactionRequest, boolean update) {
-		Map<String,Object> shippingAddressParams = new HashMap<>();
+		Map<String,Object> shippingAddressParams = new HashMap<String,Object>();
 		addParam(update, shippingAddressParams, "line1", transactionRequest.getShippingStreetAddress1());
 		addParam(update, shippingAddressParams, "line2", transactionRequest.getShippingStreetAddress2());
 		addParam(update, shippingAddressParams, "city", transactionRequest.getShippingCity());
@@ -272,7 +272,7 @@ public class Stripe implements MerchantServicesProvider {
 
 	/** https://stripe.com/docs/api#create_charge */
 	private static Map<String,Object> makeShippingParams(TransactionRequest transactionRequest, CreditCard creditCard, boolean update) {
-		Map<String,Object> shippingParams = new HashMap<>();
+		Map<String,Object> shippingParams = new HashMap<String,Object>();
 		addParam(update, shippingParams, "address", makeShippingAddressParams(transactionRequest, update));
 		addParam(update, shippingParams, "name", CreditCard.getFullName(transactionRequest.getShippingFirstName(), transactionRequest.getShippingLastName()));
 		// Phone cannot be in the shipping by itself
@@ -353,63 +353,56 @@ public class Stripe implements MerchantServicesProvider {
 			final TransactionResult.CommunicationResult communicationResult;
 			final TransactionResult.ErrorCode errorCode;
 			final AuthorizationResult.DeclineReason declineReason;
-			switch(code) {
-				case "incorrect_number" :
-				case "invalid_number" :
-					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-					errorCode = TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
-					declineReason = null;
-					break;
-				case "invalid_expiry_month" :
-				case "invalid_expiry_year" :
-					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-					errorCode = TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE;
-					declineReason = null;
-					break;
-				case "invalid_cvc" :
-					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-					errorCode = TransactionResult.ErrorCode.INVALID_CARD_CODE;
-					declineReason = null;
-					break;
-				case "expired_card" :
-					communicationResult = TransactionResult.CommunicationResult.SUCCESS;
-					errorCode = TransactionResult.ErrorCode.CARD_EXPIRED;
-					declineReason = AuthorizationResult.DeclineReason.EXPIRED_CARD;
-					break;
-				case "incorrect_cvc" :
-					communicationResult = TransactionResult.CommunicationResult.SUCCESS;
-					errorCode = TransactionResult.ErrorCode.INVALID_CARD_CODE;
-					declineReason = AuthorizationResult.DeclineReason.CVV2_MISMATCH;
-					break;
-				case "incorrect_zip" :
-					communicationResult = TransactionResult.CommunicationResult.SUCCESS;
-					errorCode = TransactionResult.ErrorCode.UNKNOWN;
-					declineReason = AuthorizationResult.DeclineReason.AVS_MISMATCH;
-					break;
-				case "card_declined" :
-					communicationResult = TransactionResult.CommunicationResult.SUCCESS;
-					errorCode = TransactionResult.ErrorCode.UNKNOWN;
-					declineReason = AuthorizationResult.DeclineReason.UNKNOWN;
-					break;
-				case "missing" :
-					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-					errorCode = TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR;
-					declineReason = null;
-					break;
-				case "processing_error" :
-					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-					errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-					declineReason = null;
-					break;
-				case "rate_limit" :
-					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-					errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES;
-					declineReason = null;
-					break;
-				default :
-					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-					errorCode = TransactionResult.ErrorCode.UNKNOWN;
-					declineReason = null;
+			if(
+				"incorrect_number".equals(code)
+				|| "invalid_number".equals(code)
+			) {
+				communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+				errorCode = TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
+				declineReason = null;
+			} else if(
+				"invalid_expiry_month".equals(code)
+				|| "invalid_expiry_year".equals(code)
+			) {
+				communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+				errorCode = TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE;
+				declineReason = null;
+			} else if("invalid_cvc".equals(code)) {
+				communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+				errorCode = TransactionResult.ErrorCode.INVALID_CARD_CODE;
+				declineReason = null;
+			} else if("expired_card".equals(code)) {
+				communicationResult = TransactionResult.CommunicationResult.SUCCESS;
+				errorCode = TransactionResult.ErrorCode.CARD_EXPIRED;
+				declineReason = AuthorizationResult.DeclineReason.EXPIRED_CARD;
+			} else if("incorrect_cvc".equals(code)) {
+				communicationResult = TransactionResult.CommunicationResult.SUCCESS;
+				errorCode = TransactionResult.ErrorCode.INVALID_CARD_CODE;
+				declineReason = AuthorizationResult.DeclineReason.CVV2_MISMATCH;
+			} else if("incorrect_zip".equals(code)) {
+				communicationResult = TransactionResult.CommunicationResult.SUCCESS;
+				errorCode = TransactionResult.ErrorCode.UNKNOWN;
+				declineReason = AuthorizationResult.DeclineReason.AVS_MISMATCH;
+			} else if("card_declined".equals(code)) {
+				communicationResult = TransactionResult.CommunicationResult.SUCCESS;
+				errorCode = TransactionResult.ErrorCode.UNKNOWN;
+				declineReason = AuthorizationResult.DeclineReason.UNKNOWN;
+			} else if("missing".equals(code)) {
+				communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+				errorCode = TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR;
+				declineReason = null;
+			} else if("processing_error".equals(code)) {
+				communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+				errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+				declineReason = null;
+			} else if("rate_limit".equals(code)) {
+				communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+				errorCode = TransactionResult.ErrorCode.ERROR_TRY_AGAIN_5_MINUTES;
+				declineReason = null;
+			} else {
+				communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+				errorCode = TransactionResult.ErrorCode.UNKNOWN;
+				declineReason = null;
 			}
 			if(communicationResult == TransactionResult.CommunicationResult.SUCCESS) {
 				if(declineReason == null) throw new AssertionError("declineReason required when communicationResult is SUCCESS");
@@ -478,7 +471,7 @@ public class Stripe implements MerchantServicesProvider {
 		BigInteger amount = totalAmount.scaleByPowerOfTen(currencyDigits).toBigIntegerExact();
 		// Create the Charge
 		// https://stripe.com/docs/api#create_charge
-		Map<String,Object> chargeParams = new HashMap<>();
+		Map<String,Object> chargeParams = new HashMap<String,Object>();
 		addParam(false, chargeParams, "amount", amount);
 		addParam(false, chargeParams, "currency", currency.getCurrencyCode());
 		if(creditCard.getProviderUniqueId() != null) {
@@ -543,42 +536,32 @@ public class Stripe implements MerchantServicesProvider {
 					} else {
 						// Address only
 						providerAvsResult = addressResult + ",";
-						switch(addressResult) {
-							case "pass" :
-								avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_N;
-								break;
-							case "fail" :
-								avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_N;
-								break;
-							case "unavailable" :
-								avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
-								break;
-							case "unchecked" :
-								avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
-								break;
-							default :
-								avsResult = AuthorizationResult.AvsResult.UNKNOWN;
+						if("pass".equals(addressResult)) {
+							avsResult = AuthorizationResult.AvsResult.ADDRESS_Y_ZIP_N;
+						} else if("fail".equals(addressResult)) {
+							avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_N;
+						} else if("unavailable".equals(addressResult)) {
+							avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
+						} else if("unchecked".equals(addressResult)) {
+							avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
+						} else {
+							avsResult = AuthorizationResult.AvsResult.UNKNOWN;
 						}
 					}
 				} else {
 					if(zipResult != null) {
 						// ZIP only
 						providerAvsResult = "," + zipResult;
-						switch(zipResult) {
-							case "pass" :
-								avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_5;
-								break;
-							case "fail" :
-								avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_N;
-								break;
-							case "unavailable" :
-								avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
-								break;
-							case "unchecked" :
-								avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
-								break;
-							default :
-								avsResult = AuthorizationResult.AvsResult.UNKNOWN;
+						if("pass".equals(zipResult)) {
+							avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_5;
+						} else if("fail".equals(zipResult)) {
+							avsResult = AuthorizationResult.AvsResult.ADDRESS_N_ZIP_N;
+						} else if("unavailable".equals(zipResult)) {
+							avsResult = AuthorizationResult.AvsResult.UNAVAILABLE;
+						} else if("unchecked".equals(zipResult)) {
+							avsResult = AuthorizationResult.AvsResult.SERVICE_NOT_SUPPORTED;
+						} else {
+							avsResult = AuthorizationResult.AvsResult.UNKNOWN;
 						}
 					} else {
 						providerAvsResult = ",";
@@ -594,21 +577,16 @@ public class Stripe implements MerchantServicesProvider {
 			if(providerCvvResult == null) {
 				cvvResult = AuthorizationResult.CvvResult.CVV2_NOT_PROVIDED_BY_MERCHANT;
  			} else {
-				switch(providerCvvResult) {
-					case "pass" :
-						cvvResult = AuthorizationResult.CvvResult.MATCH;
-						break;
-					case "fail" :
-						cvvResult = AuthorizationResult.CvvResult.NO_MATCH;
-						break;
-					case "unavailable" :
-						cvvResult = AuthorizationResult.CvvResult.NOT_PROCESSED;
-						break;
-					case "unchecked" :
-						cvvResult = AuthorizationResult.CvvResult.NOT_SUPPORTED_BY_ISSUER;
-						break;
-					default :
-						cvvResult = AuthorizationResult.CvvResult.UNKNOWN;
+				if("pass".equals(providerCvvResult)) {
+					cvvResult = AuthorizationResult.CvvResult.MATCH;
+				} else if("fail".equals(providerCvvResult)) {
+					cvvResult = AuthorizationResult.CvvResult.NO_MATCH;
+				} else if("unavailable".equals(providerCvvResult)) {
+					cvvResult = AuthorizationResult.CvvResult.NOT_PROCESSED;
+				} else if("unchecked".equals(providerCvvResult)) {
+					cvvResult = AuthorizationResult.CvvResult.NOT_SUPPORTED_BY_ISSUER;
+				} else {
+					cvvResult = AuthorizationResult.CvvResult.UNKNOWN;
 				}
 			}
 			// </editor-fold>
@@ -728,7 +706,7 @@ public class Stripe implements MerchantServicesProvider {
 	@Override
     public String storeCreditCard(CreditCard creditCard) throws IOException {
 		// Create the Customer
-		Map<String,Object> customerParams = new HashMap<>();
+		Map<String,Object> customerParams = new HashMap<String,Object>();
 		addParam(false, customerParams, "card", makeCardParams(creditCard, false));
 		addCustomerParams(creditCard, false, customerParams);
 		// Make API call
@@ -745,10 +723,10 @@ public class Stripe implements MerchantServicesProvider {
 	@Override
 	public void updateCreditCard(CreditCard creditCard) throws IOException {
 		// Update the Customer
-		Map<String,Object> updateCustomerParams = new HashMap<>();
+		Map<String,Object> updateCustomerParams = new HashMap<String,Object>();
 		addCustomerParams(creditCard, true, updateCustomerParams);
 		// Update the default Card
-		Map<String,Object> updateCardParams = new HashMap<>();
+		Map<String,Object> updateCardParams = new HashMap<String,Object>();
 		addCardParams(creditCard, true, updateCardParams);
 		try {
 			Customer customer = Customer.retrieve(creditCard.getProviderUniqueId(), options);
@@ -781,7 +759,7 @@ public class Stripe implements MerchantServicesProvider {
 			expirationYear,
 			cardCode!=null ? CreditCard.numbersOnly(cardCode) : creditCard.getCardCode()
 		);
-		Map<String,Object> updateParams = new HashMap<>();
+		Map<String,Object> updateParams = new HashMap<String,Object>();
 		addParam(true, updateParams, "card", cardParams);
 		try {
 			Customer customer = Customer.retrieve(creditCard.getProviderUniqueId(), options);
@@ -800,7 +778,7 @@ public class Stripe implements MerchantServicesProvider {
 		short expirationYear
 	) throws IOException {
 		// Update the default Card
-		Map<String,Object> updateParams = new HashMap<>();
+		Map<String,Object> updateParams = new HashMap<String,Object>();
 		addParam(true, updateParams, "exp_month", expirationMonth);
 		addParam(true, updateParams, "exp_year", expirationYear);
 		try {
@@ -819,7 +797,7 @@ public class Stripe implements MerchantServicesProvider {
     public void deleteCreditCard(CreditCard creditCard) throws IOException {
 		try {
 			Customer customer = Customer.retrieve(creditCard.getProviderUniqueId(), options);
-			if(customer.getDeleted() != Boolean.TRUE) {
+			if(customer.getDeleted() == null || !customer.getDeleted()) {
 				DeletedCustomer deletedCustomer = customer.delete(options);
 			}
 		} catch(StripeException e) {
