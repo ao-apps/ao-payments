@@ -30,7 +30,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 
 	<groupId>com.aoindustries</groupId>
 	<artifactId>ao-credit-cards</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>AO Credit Cards</name>
@@ -63,7 +63,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<connection>scm:git:git://github.com/aoindustries/ao-credit-cards.git</connection>
 		<developerConnection>scm:git:git@github.com:aoindustries/ao-credit-cards.git</developerConnection>
 		<url>http://github.com/aoindustries/ao-credit-cards</url>
-		<tag>HEAD</tag>
+		<tag>ao-credit-cards-1.0.0</tag>
 	</scm>
 
 	<repositories>
