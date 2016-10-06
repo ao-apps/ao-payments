@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -52,446 +52,446 @@ import java.util.Random;
  */
 public class TestMerchantServicesProvider implements MerchantServicesProvider {
 
-    /** Shared by all instances */
-    private static final Random random = new Random();
+	/** Shared by all instances */
+	private static final Random random = new Random();
 
-    private final String providerId;
-    private final byte errorChance;
-    private final byte declineChance;
+	private final String providerId;
+	private final byte errorChance;
+	private final byte declineChance;
 
-    public TestMerchantServicesProvider(String providerId, byte errorChance, byte declineChance) {
-        this.providerId = providerId;
-        this.errorChance = errorChance;
-        this.declineChance = declineChance;
-    }
+	public TestMerchantServicesProvider(String providerId, byte errorChance, byte declineChance) {
+		this.providerId = providerId;
+		this.errorChance = errorChance;
+		this.declineChance = declineChance;
+	}
 
-    /**
-     * @throws  NumberFormatException when can't parse errorChance or declineChance
-     */
-    public TestMerchantServicesProvider(String providerId, String errorChance, String declineChance) throws NumberFormatException {
-        this(
-            providerId,
-            Byte.parseByte(errorChance),
-            Byte.parseByte(declineChance)
-        );
-    }
+	/**
+	 * @throws  NumberFormatException when can't parse errorChance or declineChance
+	 */
+	public TestMerchantServicesProvider(String providerId, String errorChance, String declineChance) throws NumberFormatException {
+		this(
+			providerId,
+			Byte.parseByte(errorChance),
+			Byte.parseByte(declineChance)
+		);
+	}
 
-    @Override
-    public String getProviderId() {
-        return providerId;
-    }
+	@Override
+	public String getProviderId() {
+		return providerId;
+	}
 
-    public byte getErrorChance() {
-        return errorChance;
-    }
-    
-    public byte getDeclineChance() {
-        return declineChance;
-    }
+	public byte getErrorChance() {
+		return errorChance;
+	}
 
-    @Override
-    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
-        // First allow for random errors
-        if(random.nextInt(100)<errorChance) {
-            // Random error class
-            TransactionResult.CommunicationResult communicationResult;
-            int randomInt = random.nextInt(3);
-            switch(randomInt) {
-                case 0: {
-                    communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
-                    break;
-                }
-                case 1: {
-                    communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
-                    break;
-                }
-                case 2: {
-                    communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-                    break;
-                }
-                default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
-            }
+	public byte getDeclineChance() {
+		return declineChance;
+	}
 
-            // Random error code
-            TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
-            TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
+	@Override
+	public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
+		// First allow for random errors
+		if(random.nextInt(100)<errorChance) {
+			// Random error class
+			TransactionResult.CommunicationResult communicationResult;
+			int randomInt = random.nextInt(3);
+			switch(randomInt) {
+				case 0: {
+					communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
+					break;
+				}
+				case 1: {
+					communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
+					break;
+				}
+				case 2: {
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+					break;
+				}
+				default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
+			}
 
-            return new SaleResult(
-                new AuthorizationResult(
-                    getProviderId(),
-                    communicationResult,
-                    null,
-                    errorCode,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-                ),
-                new CaptureResult(
-                    getProviderId(),
-                    communicationResult,
-                    null,
-                    errorCode,
-                    null,
-                    null
-                )
-            );
-        }
-        
-        // Second allow for declines
-        if(random.nextInt(100)<declineChance) {
-            // Random decline reason
-            AuthorizationResult.DeclineReason[] values = AuthorizationResult.DeclineReason.values();
-            AuthorizationResult.DeclineReason declineReason = values[random.nextInt(values.length)];
+			// Random error code
+			TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
+			TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
 
-            // Random doesn't ensure uniquiness - but this is easily implemented without persistence
-            String providerUniqueId = Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
+			return new SaleResult(
+				new AuthorizationResult(
+					getProviderId(),
+					communicationResult,
+					null,
+					errorCode,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null
+				),
+				new CaptureResult(
+					getProviderId(),
+					communicationResult,
+					null,
+					errorCode,
+					null,
+					null
+				)
+			);
+		}
 
-            return new SaleResult(
-                new AuthorizationResult(
-                    getProviderId(),
-                    TransactionResult.CommunicationResult.SUCCESS,
-                    null,
-                    null,
-                    null,
-                    providerUniqueId,
-                    null,
-                    AuthorizationResult.ApprovalResult.DECLINED,
-                    null,
-                    declineReason,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-                ),
-                new CaptureResult(
-                    getProviderId(),
-                    TransactionResult.CommunicationResult.SUCCESS,
-                    null,
-                    null,
-                    null,
-                    providerUniqueId
-                )
-            );
-        }
+		// Second allow for declines
+		if(random.nextInt(100)<declineChance) {
+			// Random decline reason
+			AuthorizationResult.DeclineReason[] values = AuthorizationResult.DeclineReason.values();
+			AuthorizationResult.DeclineReason declineReason = values[random.nextInt(values.length)];
 
-        // Simulate success
+			// Random doesn't ensure uniquiness - but this is easily implemented without persistence
+			String providerUniqueId = Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
 
-        // Random doesn't ensure uniquiness - but this is easily implemented without persistence
-        String providerUniqueId = Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
-        
-        String approvalCode =
-            new StringBuilder()
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .toString();
+			return new SaleResult(
+				new AuthorizationResult(
+					getProviderId(),
+					TransactionResult.CommunicationResult.SUCCESS,
+					null,
+					null,
+					null,
+					providerUniqueId,
+					null,
+					AuthorizationResult.ApprovalResult.DECLINED,
+					null,
+					declineReason,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null
+				),
+				new CaptureResult(
+					getProviderId(),
+					TransactionResult.CommunicationResult.SUCCESS,
+					null,
+					null,
+					null,
+					providerUniqueId
+				)
+			);
+		}
 
-        return new SaleResult(
-            new AuthorizationResult(
-                getProviderId(),
-                TransactionResult.CommunicationResult.SUCCESS,
-                null,
-                null,
-                null,
-                providerUniqueId,
-                null,
-                AuthorizationResult.ApprovalResult.APPROVED,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                approvalCode
-            ),
-            new CaptureResult(
-                getProviderId(),
-                TransactionResult.CommunicationResult.SUCCESS,
-                null,
-                null,
-                null,
-                providerUniqueId
-            )
-        );
-    }
+		// Simulate success
 
-    @Override
-    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
-        // First allow for random errors
-        if(random.nextInt(100)<errorChance) {
-            // Random error class
-            TransactionResult.CommunicationResult communicationResult;
-            int randomInt = random.nextInt(3);
-            switch(randomInt) {
-                case 0: {
-                    communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
-                    break;
-                }
-                case 1: {
-                    communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
-                    break;
-                }
-                case 2: {
-                    communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-                    break;
-                }
-                default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
-            }
+		// Random doesn't ensure uniquiness - but this is easily implemented without persistence
+		String providerUniqueId = Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
 
-            // Random error code
-            TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
-            TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
+		String approvalCode =
+			new StringBuilder()
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.toString();
 
-            return new AuthorizationResult(
-                getProviderId(),
-                communicationResult,
-                null,
-                errorCode,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            );
-        }
-        
-        // Second allow for declines
-        if(random.nextInt(100)<declineChance) {
-            // Random decline reason
-            AuthorizationResult.DeclineReason[] values = AuthorizationResult.DeclineReason.values();
-            AuthorizationResult.DeclineReason declineReason = values[random.nextInt(values.length)];
+		return new SaleResult(
+			new AuthorizationResult(
+				getProviderId(),
+				TransactionResult.CommunicationResult.SUCCESS,
+				null,
+				null,
+				null,
+				providerUniqueId,
+				null,
+				AuthorizationResult.ApprovalResult.APPROVED,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				approvalCode
+			),
+			new CaptureResult(
+				getProviderId(),
+				TransactionResult.CommunicationResult.SUCCESS,
+				null,
+				null,
+				null,
+				providerUniqueId
+			)
+		);
+	}
 
-            // Random doesn't ensure uniquiness - but this is easily implemented without persistence
-            String providerUniqueId = Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
+	@Override
+	public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
+		// First allow for random errors
+		if(random.nextInt(100)<errorChance) {
+			// Random error class
+			TransactionResult.CommunicationResult communicationResult;
+			int randomInt = random.nextInt(3);
+			switch(randomInt) {
+				case 0: {
+					communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
+					break;
+				}
+				case 1: {
+					communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
+					break;
+				}
+				case 2: {
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+					break;
+				}
+				default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
+			}
 
-            return new AuthorizationResult(
-                getProviderId(),
-                TransactionResult.CommunicationResult.SUCCESS,
-                null,
-                null,
-                null,
-                providerUniqueId,
-                null,
-                AuthorizationResult.ApprovalResult.DECLINED,
-                null,
-                declineReason,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            );
-        }
+			// Random error code
+			TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
+			TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
 
-        // Simulate success
+			return new AuthorizationResult(
+				getProviderId(),
+				communicationResult,
+				null,
+				errorCode,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null
+			);
+		}
 
-        // Random doesn't ensure uniquiness - but this is an easy implementation not requiring persistence
-        String providerUniqueId = Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
+		// Second allow for declines
+		if(random.nextInt(100)<declineChance) {
+			// Random decline reason
+			AuthorizationResult.DeclineReason[] values = AuthorizationResult.DeclineReason.values();
+			AuthorizationResult.DeclineReason declineReason = values[random.nextInt(values.length)];
 
-        String approvalCode =
-            new StringBuilder()
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .append(random.nextInt(10))
-                .toString();
+			// Random doesn't ensure uniquiness - but this is easily implemented without persistence
+			String providerUniqueId = Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
 
-        return new AuthorizationResult(
-            getProviderId(),
-            TransactionResult.CommunicationResult.SUCCESS,
-            null,
-            null,
-            null,
-            providerUniqueId,
-            null,
-            AuthorizationResult.ApprovalResult.APPROVED,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            approvalCode
-        );
-    }
+			return new AuthorizationResult(
+				getProviderId(),
+				TransactionResult.CommunicationResult.SUCCESS,
+				null,
+				null,
+				null,
+				providerUniqueId,
+				null,
+				AuthorizationResult.ApprovalResult.DECLINED,
+				null,
+				declineReason,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null
+			);
+		}
 
-    @Override
-    public CaptureResult capture(AuthorizationResult authorizationResult) {
-        // First allow for random errors
-        if(random.nextInt(100)<errorChance) {
-            // Random error class
-            TransactionResult.CommunicationResult communicationResult;
-            int randomInt = random.nextInt(3);
-            switch(randomInt) {
-                case 0: {
-                    communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
-                    break;
-                }
-                case 1: {
-                    communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
-                    break;
-                }
-                case 2: {
-                    communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-                    break;
-                }
-                default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
-            }
+		// Simulate success
 
-            // Random error code
-            TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
-            TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
+		// Random doesn't ensure uniquiness - but this is an easy implementation not requiring persistence
+		String providerUniqueId = Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
 
-            return new CaptureResult(
-                getProviderId(),
-                communicationResult,
-                null,
-                errorCode,
-                null,
-                authorizationResult.getProviderUniqueId()
-            );
-        }
-        
-        // Simulate success
-        return new CaptureResult(
-            getProviderId(),
-            TransactionResult.CommunicationResult.SUCCESS,
-            null,
-            null,
-            null,
-            authorizationResult.getProviderUniqueId()
-        );
-    }
+		String approvalCode =
+			new StringBuilder()
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.append(random.nextInt(10))
+				.toString();
 
-    @Override
-    public VoidResult voidTransaction(Transaction transaction) {
-        // First allow for random errors
-        if(random.nextInt(100)<errorChance) {
-            // Random error class
-            TransactionResult.CommunicationResult communicationResult;
-            int randomInt = random.nextInt(3);
-            switch(randomInt) {
-                case 0: {
-                    communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
-                    break;
-                }
-                case 1: {
-                    communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
-                    break;
-                }
-                case 2: {
-                    communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-                    break;
-                }
-                default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
-            }
+		return new AuthorizationResult(
+			getProviderId(),
+			TransactionResult.CommunicationResult.SUCCESS,
+			null,
+			null,
+			null,
+			providerUniqueId,
+			null,
+			AuthorizationResult.ApprovalResult.APPROVED,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			approvalCode
+		);
+	}
 
-            // Random error code
-            TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
-            TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
+	@Override
+	public CaptureResult capture(AuthorizationResult authorizationResult) {
+		// First allow for random errors
+		if(random.nextInt(100)<errorChance) {
+			// Random error class
+			TransactionResult.CommunicationResult communicationResult;
+			int randomInt = random.nextInt(3);
+			switch(randomInt) {
+				case 0: {
+					communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
+					break;
+				}
+				case 1: {
+					communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
+					break;
+				}
+				case 2: {
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+					break;
+				}
+				default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
+			}
 
-            return new VoidResult(
-                getProviderId(),
-                communicationResult,
-                null,
-                errorCode,
-                null,
-                transaction.getAuthorizationResult().getProviderUniqueId()
-            );
-        }
-        
-        // Simulate success
-        return new VoidResult(
-            getProviderId(),
-            TransactionResult.CommunicationResult.SUCCESS,
-            null,
-            null,
-            null,
-            transaction.getAuthorizationResult().getProviderUniqueId()
-        );
-    }
+			// Random error code
+			TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
+			TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
 
-    @Override
-    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new NotImplementedException();
-    }
+			return new CaptureResult(
+				getProviderId(),
+				communicationResult,
+				null,
+				errorCode,
+				null,
+				authorizationResult.getProviderUniqueId()
+			);
+		}
 
-    @Override
-    public boolean canStoreCreditCards() throws IOException {
-        return true;
-    }
+		// Simulate success
+		return new CaptureResult(
+			getProviderId(),
+			TransactionResult.CommunicationResult.SUCCESS,
+			null,
+			null,
+			null,
+			authorizationResult.getProviderUniqueId()
+		);
+	}
 
-    @Override
-    public String storeCreditCard(CreditCard creditCard) throws IOException {
-        // First allow for random errors
-        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated storeCreditCard error");
-        
-        return Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
-    }
+	@Override
+	public VoidResult voidTransaction(Transaction transaction) {
+		// First allow for random errors
+		if(random.nextInt(100)<errorChance) {
+			// Random error class
+			TransactionResult.CommunicationResult communicationResult;
+			int randomInt = random.nextInt(3);
+			switch(randomInt) {
+				case 0: {
+					communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
+					break;
+				}
+				case 1: {
+					communicationResult = TransactionResult.CommunicationResult.IO_ERROR;
+					break;
+				}
+				case 2: {
+					communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+					break;
+				}
+				default: throw new RuntimeException("random.nextInt(3) didn't return value between 0 and 2 inclusive: "+randomInt);
+			}
+
+			// Random error code
+			TransactionResult.ErrorCode[] values = TransactionResult.ErrorCode.values();
+			TransactionResult.ErrorCode errorCode = values[random.nextInt(values.length)];
+
+			return new VoidResult(
+				getProviderId(),
+				communicationResult,
+				null,
+				errorCode,
+				null,
+				transaction.getAuthorizationResult().getProviderUniqueId()
+			);
+		}
+
+		// Simulate success
+		return new VoidResult(
+			getProviderId(),
+			TransactionResult.CommunicationResult.SUCCESS,
+			null,
+			null,
+			null,
+			transaction.getAuthorizationResult().getProviderUniqueId()
+		);
+	}
+
+	@Override
+	public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public boolean canStoreCreditCards() throws IOException {
+		return true;
+	}
+
+	@Override
+	public String storeCreditCard(CreditCard creditCard) throws IOException {
+		// First allow for random errors
+		if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated storeCreditCard error");
+
+		return Long.toString(Math.abs(random.nextLong()), 16).toUpperCase();
+	}
 
 	@Override
 	public void updateCreditCard(CreditCard creditCard) throws IOException {
-        // First allow for random errors
-        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCard error");
+		// First allow for random errors
+		if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCard error");
 	}
 
-    @Override
-    public void updateCreditCardNumberAndExpiration(
+	@Override
+	public void updateCreditCardNumberAndExpiration(
 		CreditCard creditCard,
 		String cardNumber,
 		byte expirationMonth,
 		short expirationYear,
 		String cardCode
 	) throws IOException {
-        // First allow for random errors
-        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardNumberAndExpiration error");
-    }
+		// First allow for random errors
+		if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardNumberAndExpiration error");
+	}
 
-    @Override
-    public void updateCreditCardExpiration(
+	@Override
+	public void updateCreditCardExpiration(
 		CreditCard creditCard,
 		byte expirationMonth,
 		short expirationYear
 	) throws IOException {
-        // First allow for random errors
-        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardExpiration error");
-    }
+		// First allow for random errors
+		if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated updateCreditCardExpiration error");
+	}
 
-    @Override
-    public void deleteCreditCard(CreditCard creditCard) throws IOException {
-        // First allow for random errors
-        if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated deleteCreditCard error");
-    }
+	@Override
+	public void deleteCreditCard(CreditCard creditCard) throws IOException {
+		// First allow for random errors
+		if(random.nextInt(100)<errorChance) throw new IOException("Test-mode simulated deleteCreditCard error");
+	}
 }

@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -32,31 +32,31 @@ import com.aoindustries.io.LocalizedIOException;
  */
 public class ErrorCodeException extends LocalizedIOException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    final private TransactionResult.ErrorCode errorCode;
+	final private TransactionResult.ErrorCode errorCode;
 
-    public ErrorCodeException(TransactionResult.ErrorCode errorCode, String key) {
-        super(accessor, key);
-        this.errorCode = errorCode;
-    }
+	public ErrorCodeException(TransactionResult.ErrorCode errorCode, String key) {
+		super(accessor, key);
+		this.errorCode = errorCode;
+	}
 
-    public ErrorCodeException(TransactionResult.ErrorCode errorCode, String key, Object... args) {
-        super(accessor, key, args);
-        this.errorCode = errorCode;
-    }
+	public ErrorCodeException(TransactionResult.ErrorCode errorCode, String key, Object... args) {
+		super(accessor, key, args);
+		this.errorCode = errorCode;
+	}
 
-    public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, String key) {
-        super(cause, accessor, key);
-        this.errorCode = errorCode;
-    }
+	public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, String key) {
+		super(cause, accessor, key);
+		this.errorCode = errorCode;
+	}
 
-    public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, String key, Object... args) {
-        super(cause, accessor, key, args);
-        this.errorCode = errorCode;
-    }
+	public ErrorCodeException(Throwable cause, TransactionResult.ErrorCode errorCode, String key, Object... args) {
+		super(cause, accessor, key, args);
+		this.errorCode = errorCode;
+	}
 
-    public TransactionResult.ErrorCode getErrorCode() {
-        return errorCode;
-    }
+	public TransactionResult.ErrorCode getErrorCode() {
+		return errorCode;
+	}
 }

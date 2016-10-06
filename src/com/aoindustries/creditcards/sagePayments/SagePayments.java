@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -71,153 +71,153 @@ import org.w3c.dom.Node;
  */
 public class SagePayments implements MerchantServicesProvider {
 
-    private static final Logger logger = Logger.getLogger(SagePayments.class.getName());
+	private static final Logger logger = Logger.getLogger(SagePayments.class.getName());
 
-    /**
-     * Combines the two street address lines into a single String.
-     */
-    protected static String getStreetAddress(String line1, String line2) {
-        if(line1==null) {
-            if(line2==null) return "";
-            return line2.trim();
-        } else {
-            line1=line1.trim();
-            if(line2==null) return line1;
-            line2=line2.trim();
-            return (line1+" "+line2).trim();
-        }
-    }
+	/**
+	 * Combines the two street address lines into a single String.
+	 */
+	protected static String getStreetAddress(String line1, String line2) {
+		if(line1==null) {
+			if(line2==null) return "";
+			return line2.trim();
+		} else {
+			line1=line1.trim();
+			if(line2==null) return line1;
+			line2=line2.trim();
+			return (line1+" "+line2).trim();
+		}
+	}
 
-    /**
-     * Returns "" is the String is null.
-     */
-    protected static String emptyStringIfNull(String S) {
-        return S==null ? "" : S;
-    }
+	/**
+	 * Returns "" is the String is null.
+	 */
+	protected static String emptyStringIfNull(String S) {
+		return S==null ? "" : S;
+	}
 
-    private static String getFirstChildNodeValue(Node child) {
-        Node firstChild = child.getFirstChild();
-        if(firstChild==null) return null;
-        return firstChild.getNodeValue();
-    }
-    
-    private static TransactionResult.ErrorCode convertErrorCode(String code) {
-        if(code==null) return null;
-        // Not documented, from testing
-        if("000014".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
-        if("000015".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NUMBER; // NO SUCH ISSUER (when using 4111 1111 1111 1111)
-        // Documented
-        if("000000".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-        if("900000".equals(code)) return TransactionResult.ErrorCode.INVALID_ORDER_NUMBER;
-        if("900001".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NAME;
-        if("900002".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_ADDRESS;
-        if("900003".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_CITY;
-        if("900004".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_STATE;
-        if("900005".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_POSTAL_CODE;
-        if("900006".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_COUNTRY_CODE;
-        if("900007".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_PHONE;
-        if("900008".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_FAX;
-        if("900009".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_EMAIL;
-        if("900010".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_NAME;
-        if("900011".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_ADDRESS;
-        if("900012".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_CITY;
-        if("900013".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_STATE;
-        if("900014".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_POSTAL_CODE;
-        if("900015".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_COUNTRY_CODE;
-        if("900016".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
-        if("900017".equals(code)) return TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE;
-        if("900018".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_CODE;
-        if("900019".equals(code)) return TransactionResult.ErrorCode.INVALID_AMOUNT;
-        if("900020".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-        if("900021".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-        if("900022".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-        if("900023".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-        if("900024".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-        if("900025".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-        if("910000".equals(code)) return TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR;
-        if("910001".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
-        if("910002".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
-        if("910003".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
-        if("910004".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
-        if("910005".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
-        if("911911".equals(code)) return TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET;
-        if("920000".equals(code)) return TransactionResult.ErrorCode.TRANSACTION_NOT_FOUND;
-        if("920001".equals(code)) return TransactionResult.ErrorCode.SUM_OF_CREDITS_TOO_HIGH;
-        if("920002".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-        if("999999".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
-        return TransactionResult.ErrorCode.UNKNOWN;
-    }
+	private static String getFirstChildNodeValue(Node child) {
+		Node firstChild = child.getFirstChild();
+		if(firstChild==null) return null;
+		return firstChild.getNodeValue();
+	}
 
-    private final String providerId;
-    private final String merchantId;
-    private final String merchantKey;
+	private static TransactionResult.ErrorCode convertErrorCode(String code) {
+		if(code==null) return null;
+		// Not documented, from testing
+		if("000014".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
+		if("000015".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NUMBER; // NO SUCH ISSUER (when using 4111 1111 1111 1111)
+		// Documented
+		if("000000".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+		if("900000".equals(code)) return TransactionResult.ErrorCode.INVALID_ORDER_NUMBER;
+		if("900001".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NAME;
+		if("900002".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_ADDRESS;
+		if("900003".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_CITY;
+		if("900004".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_STATE;
+		if("900005".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_POSTAL_CODE;
+		if("900006".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_COUNTRY_CODE;
+		if("900007".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_PHONE;
+		if("900008".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_FAX;
+		if("900009".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_EMAIL;
+		if("900010".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_NAME;
+		if("900011".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_ADDRESS;
+		if("900012".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_CITY;
+		if("900013".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_STATE;
+		if("900014".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_POSTAL_CODE;
+		if("900015".equals(code)) return TransactionResult.ErrorCode.INVALID_SHIPPING_COUNTRY_CODE;
+		if("900016".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_NUMBER;
+		if("900017".equals(code)) return TransactionResult.ErrorCode.INVALID_EXPIRATION_DATE;
+		if("900018".equals(code)) return TransactionResult.ErrorCode.INVALID_CARD_CODE;
+		if("900019".equals(code)) return TransactionResult.ErrorCode.INVALID_AMOUNT;
+		if("900020".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+		if("900021".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+		if("900022".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+		if("900023".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+		if("900024".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+		if("900025".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+		if("910000".equals(code)) return TransactionResult.ErrorCode.PROVIDER_CONFIGURATION_ERROR;
+		if("910001".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
+		if("910002".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
+		if("910003".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
+		if("910004".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
+		if("910005".equals(code)) return TransactionResult.ErrorCode.CARD_TYPE_NOT_SUPPORTED;
+		if("911911".equals(code)) return TransactionResult.ErrorCode.GATEWAY_SECURITY_GUIDELINES_NOT_MET;
+		if("920000".equals(code)) return TransactionResult.ErrorCode.TRANSACTION_NOT_FOUND;
+		if("920001".equals(code)) return TransactionResult.ErrorCode.SUM_OF_CREDITS_TOO_HIGH;
+		if("920002".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+		if("999999".equals(code)) return TransactionResult.ErrorCode.ERROR_TRY_AGAIN;
+		return TransactionResult.ErrorCode.UNKNOWN;
+	}
 
-    public SagePayments(String providerId, String merchantId, String merchantKey) {
-        this.providerId = providerId;
-        this.merchantId = merchantId;
-        this.merchantKey = merchantKey;
-    }
+	private final String providerId;
+	private final String merchantId;
+	private final String merchantKey;
 
-    @Override
-    public String getProviderId() {
-        return providerId;
-    }
+	public SagePayments(String providerId, String merchantId, String merchantKey) {
+		this.providerId = providerId;
+		this.merchantId = merchantId;
+		this.merchantKey = merchantKey;
+	}
 
-    public String getMerchantId() {
-        return merchantId;
-    }
-    
-    public String getMerchantKey() {
-        return merchantKey;
-    }
+	@Override
+	public String getProviderId() {
+		return providerId;
+	}
 
-    @Override
-    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
-        AuthorizationResult authorizationResult = saleOrAuthorize(transactionRequest, creditCard, true);
-        return new SaleResult(
-            authorizationResult,
-            new CaptureResult(
-                authorizationResult.getProviderId(),
-                authorizationResult.getCommunicationResult(),
-                authorizationResult.getProviderErrorCode(),
-                authorizationResult.getErrorCode(),
-                authorizationResult.getProviderErrorMessage(),
-                authorizationResult.getProviderUniqueId()
-            )
-        );
-    }
+	public String getMerchantId() {
+		return merchantId;
+	}
 
-    @Override
-    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
-        return saleOrAuthorize(transactionRequest, creditCard, false);
-    }
+	public String getMerchantKey() {
+		return merchantKey;
+	}
 
-    private AuthorizationResult saleOrAuthorize(TransactionRequest transactionRequest, CreditCard creditCard, boolean capture) {
-        // Only supports USD
-        if(!transactionRequest.getCurrency().getCurrencyCode().equals("USD")) {
-            // The default locale is used because that represents the locale of the system admin, and they are the ones who need to
-            // use this message (processor-specific, behind-the-scenes value)
-            String message = accessor.getMessage("TransactionRequest.currency.onlyOneSupported", "USD");
-            return new AuthorizationResult(
-                getProviderId(),
-                TransactionResult.CommunicationResult.LOCAL_ERROR,
-                TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED.name(),
-                TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED,
-                message,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            );
-        }
+	@Override
+	public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
+		AuthorizationResult authorizationResult = saleOrAuthorize(transactionRequest, creditCard, true);
+		return new SaleResult(
+			authorizationResult,
+			new CaptureResult(
+				authorizationResult.getProviderId(),
+				authorizationResult.getCommunicationResult(),
+				authorizationResult.getProviderErrorCode(),
+				authorizationResult.getErrorCode(),
+				authorizationResult.getProviderErrorMessage(),
+				authorizationResult.getProviderUniqueId()
+			)
+		);
+	}
+
+	@Override
+	public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
+		return saleOrAuthorize(transactionRequest, creditCard, false);
+	}
+
+	private AuthorizationResult saleOrAuthorize(TransactionRequest transactionRequest, CreditCard creditCard, boolean capture) {
+		// Only supports USD
+		if(!transactionRequest.getCurrency().getCurrencyCode().equals("USD")) {
+			// The default locale is used because that represents the locale of the system admin, and they are the ones who need to
+			// use this message (processor-specific, behind-the-scenes value)
+			String message = accessor.getMessage("TransactionRequest.currency.onlyOneSupported", "USD");
+			return new AuthorizationResult(
+				getProviderId(),
+				TransactionResult.CommunicationResult.LOCAL_ERROR,
+				TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED.name(),
+				TransactionResult.ErrorCode.CURRENCY_NOT_SUPPORTED,
+				message,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null
+			);
+		}
 		try {
 			String approvalIndicator = null;
 			String code = null;
@@ -549,173 +549,173 @@ public class SagePayments implements MerchantServicesProvider {
 				null
 			);
 		}
-    }
+	}
 
-    @Override
-    public CaptureResult capture(AuthorizationResult authorizationResult) {
-        throw new NotImplementedException();
-    }
+	@Override
+	public CaptureResult capture(AuthorizationResult authorizationResult) {
+		throw new NotImplementedException();
+	}
 
-    @Override
-    public VoidResult voidTransaction(Transaction transaction) {
-        try {
-            String approvalIndicator = null;
-            String code = null;
-            String message = null;
-            //String frontEndIndicator = null;
-            String cvvIndicator = null;
-            String avsIndicator = null;
-            String riskIndicator = null;
-            String reference = null;
-            String orderNumber = null;
+	@Override
+	public VoidResult voidTransaction(Transaction transaction) {
+		try {
+			String approvalIndicator = null;
+			String code = null;
+			String message = null;
+			//String frontEndIndicator = null;
+			String cvvIndicator = null;
+			String avsIndicator = null;
+			String riskIndicator = null;
+			String reference = null;
+			String orderNumber = null;
 
-            {
-                MessageElement[] results = new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_VOID(
-                    emptyStringIfNull(merchantId),
-                    emptyStringIfNull(merchantKey),
-                    emptyStringIfNull(transaction.getAuthorizationResult().getProviderUniqueId())
-                ).get_any();
+			{
+				MessageElement[] results = new TRANSACTION_PROCESSINGLocator().getTRANSACTION_PROCESSINGSoap().BANKCARD_VOID(
+					emptyStringIfNull(merchantId),
+					emptyStringIfNull(merchantKey),
+					emptyStringIfNull(transaction.getAuthorizationResult().getProviderUniqueId())
+				).get_any();
 
-                Node table1 = results[results.length-1].getFirstChild().getFirstChild();
-                Node child = table1.getFirstChild();
-                while(child!=null) {
-                    if("APPROVAL_INDICATOR".equals(child.getNodeName())) approvalIndicator = getFirstChildNodeValue(child);
-                    if("CODE".equals(child.getNodeName())) code = getFirstChildNodeValue(child);
-                    if("MESSAGE".equals(child.getNodeName())) message = getFirstChildNodeValue(child);
-                    //if("FRONT_END_INDICATOR".equals(child.getNodeName())) frontEndIndicator = getFirstChildNodeValue(child);
-                    if("CVV_INDICATOR".equals(child.getNodeName())) cvvIndicator = getFirstChildNodeValue(child);
-                    if("AVS_INDICATOR".equals(child.getNodeName())) avsIndicator = getFirstChildNodeValue(child);
-                    if("RISK_INDICATOR".equals(child.getNodeName())) riskIndicator = getFirstChildNodeValue(child);
-                    if("REFERENCE".equals(child.getNodeName())) reference = getFirstChildNodeValue(child);
-                    if("ORDER_NUMBER".equals(child.getNodeName())) orderNumber = getFirstChildNodeValue(child);
-                    child = child.getNextSibling();
-                }
+				Node table1 = results[results.length-1].getFirstChild().getFirstChild();
+				Node child = table1.getFirstChild();
+				while(child!=null) {
+					if("APPROVAL_INDICATOR".equals(child.getNodeName())) approvalIndicator = getFirstChildNodeValue(child);
+					if("CODE".equals(child.getNodeName())) code = getFirstChildNodeValue(child);
+					if("MESSAGE".equals(child.getNodeName())) message = getFirstChildNodeValue(child);
+					//if("FRONT_END_INDICATOR".equals(child.getNodeName())) frontEndIndicator = getFirstChildNodeValue(child);
+					if("CVV_INDICATOR".equals(child.getNodeName())) cvvIndicator = getFirstChildNodeValue(child);
+					if("AVS_INDICATOR".equals(child.getNodeName())) avsIndicator = getFirstChildNodeValue(child);
+					if("RISK_INDICATOR".equals(child.getNodeName())) riskIndicator = getFirstChildNodeValue(child);
+					if("REFERENCE".equals(child.getNodeName())) reference = getFirstChildNodeValue(child);
+					if("ORDER_NUMBER".equals(child.getNodeName())) orderNumber = getFirstChildNodeValue(child);
+					child = child.getNextSibling();
+				}
 
-                //System.out.println("approvalIndicator="+approvalIndicator);
-                //System.out.println("code="+code);
-                //System.out.println("message="+message);
-                //System.out.println("frontEndIndicator="+frontEndIndicator);
-                //System.out.println("cvvIndicator="+cvvIndicator);
-                //System.out.println("avsIndicator="+avsIndicator);
-                //System.out.println("riskIndicator="+riskIndicator);
-                //System.out.println("reference="+reference);
-                //System.out.println("orderNumber="+orderNumber);
-            }
+				//System.out.println("approvalIndicator="+approvalIndicator);
+				//System.out.println("code="+code);
+				//System.out.println("message="+message);
+				//System.out.println("frontEndIndicator="+frontEndIndicator);
+				//System.out.println("cvvIndicator="+cvvIndicator);
+				//System.out.println("avsIndicator="+avsIndicator);
+				//System.out.println("riskIndicator="+riskIndicator);
+				//System.out.println("reference="+reference);
+				//System.out.println("orderNumber="+orderNumber);
+			}
 
-            TransactionResult.CommunicationResult communicationResult;
-            String providerErrorCode;
-            TransactionResult.ErrorCode errorCode;
-            String providerErrorMessage;
+			TransactionResult.CommunicationResult communicationResult;
+			String providerErrorCode;
+			TransactionResult.ErrorCode errorCode;
+			String providerErrorMessage;
 
-            if("A".equals(approvalIndicator)) {
-                // Void approved
-                communicationResult = TransactionResult.CommunicationResult.SUCCESS;
-                providerErrorCode = null;
-                errorCode = null;
-                providerErrorMessage = null;
-            } else if("E".equals(approvalIndicator) || "X".equals(approvalIndicator)) {
-                // Gateway Error
-                communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
-                providerErrorCode = code;
-                errorCode = convertErrorCode(code);
-                providerErrorMessage = message;
-            } else {
-                // Unknown response
-                communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
-                providerErrorCode = code;
-                errorCode = convertErrorCode(code);
-                providerErrorMessage = message;
-            }
+			if("A".equals(approvalIndicator)) {
+				// Void approved
+				communicationResult = TransactionResult.CommunicationResult.SUCCESS;
+				providerErrorCode = null;
+				errorCode = null;
+				providerErrorMessage = null;
+			} else if("E".equals(approvalIndicator) || "X".equals(approvalIndicator)) {
+				// Gateway Error
+				communicationResult = TransactionResult.CommunicationResult.GATEWAY_ERROR;
+				providerErrorCode = code;
+				errorCode = convertErrorCode(code);
+				providerErrorMessage = message;
+			} else {
+				// Unknown response
+				communicationResult = TransactionResult.CommunicationResult.LOCAL_ERROR;
+				providerErrorCode = code;
+				errorCode = convertErrorCode(code);
+				providerErrorMessage = message;
+			}
 
-            return new VoidResult(
-                transaction.getProviderId(),
-                communicationResult,
-                providerErrorCode,
-                errorCode,
-                providerErrorMessage,
-                reference
-            );
-        } catch(ServiceException err) {
-            return new VoidResult(
-                transaction.getProviderId(),
-                TransactionResult.CommunicationResult.LOCAL_ERROR,
-                err.getClass().getName(),
-                TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
-                err.getMessage(),
-                null
-            );
-        } catch(RemoteException err) {
-            return new VoidResult(
-                transaction.getProviderId(),
-                TransactionResult.CommunicationResult.LOCAL_ERROR,
-                err.getClass().getName(),
-                TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
-                err.getMessage(),
-                null
-            );
-        }
-    }
+			return new VoidResult(
+				transaction.getProviderId(),
+				communicationResult,
+				providerErrorCode,
+				errorCode,
+				providerErrorMessage,
+				reference
+			);
+		} catch(ServiceException err) {
+			return new VoidResult(
+				transaction.getProviderId(),
+				TransactionResult.CommunicationResult.LOCAL_ERROR,
+				err.getClass().getName(),
+				TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
+				err.getMessage(),
+				null
+			);
+		} catch(RemoteException err) {
+			return new VoidResult(
+				transaction.getProviderId(),
+				TransactionResult.CommunicationResult.LOCAL_ERROR,
+				err.getClass().getName(),
+				TransactionResult.ErrorCode.ERROR_TRY_AGAIN,
+				err.getMessage(),
+				null
+			);
+		}
+	}
 
-    @Override
-    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new NotImplementedException();
-    }
+	@Override
+	public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
+		throw new NotImplementedException();
+	}
 
-    @Override
-    public boolean canStoreCreditCards() throws IOException {
-        try {
-            return new WsVaultLocator().getwsVaultSoap().VERIFY_SERVICE(
-                emptyStringIfNull(merchantId),
-                emptyStringIfNull(merchantKey)
-            );
-        } catch(ServiceException err) {
-            throw new LocalizedIOException(err, accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
-        } catch(RemoteException err) {
-            throw new LocalizedIOException(err, accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
-        }
-    }
+	@Override
+	public boolean canStoreCreditCards() throws IOException {
+		try {
+			return new WsVaultLocator().getwsVaultSoap().VERIFY_SERVICE(
+				emptyStringIfNull(merchantId),
+				emptyStringIfNull(merchantKey)
+			);
+		} catch(ServiceException err) {
+			throw new LocalizedIOException(err, accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
+		} catch(RemoteException err) {
+			throw new LocalizedIOException(err, accessor, "MerchantServicesProvider.canStoreCreditCards.ioException");
+		}
+	}
 
-    @Override
-    public String storeCreditCard(CreditCard creditCard) throws IOException {
-        try {
-            String success = null;
-            String guid = null;
-            String message = null;
+	@Override
+	public String storeCreditCard(CreditCard creditCard) throws IOException {
+		try {
+			String success = null;
+			String guid = null;
+			String message = null;
 
-            {
-                MessageElement[] results = new WsVaultLocator().getwsVaultSoap().INSERT_CREDIT_CARD_DATA(
-                    emptyStringIfNull(merchantId),
-                    emptyStringIfNull(merchantKey),
-                    emptyStringIfNull(creditCard.getCardNumber()),
-                    emptyStringIfNull(creditCard.getExpirationDateMMYY())
-                ).get_any();
+			{
+				MessageElement[] results = new WsVaultLocator().getwsVaultSoap().INSERT_CREDIT_CARD_DATA(
+					emptyStringIfNull(merchantId),
+					emptyStringIfNull(merchantKey),
+					emptyStringIfNull(creditCard.getCardNumber()),
+					emptyStringIfNull(creditCard.getExpirationDateMMYY())
+				).get_any();
 
-                Node table1 = results[results.length-1].getFirstChild().getFirstChild();
-                Node child = table1.getFirstChild();
-                while(child!=null) {
-                    if("SUCCESS".equals(child.getNodeName())) success = getFirstChildNodeValue(child);
-                    if("GUID".equals(child.getNodeName())) guid = getFirstChildNodeValue(child);
-                    if("MESSAGE".equals(child.getNodeName())) message = child.getFirstChild().getNodeValue();
-                    child = child.getNextSibling();
-                }
+				Node table1 = results[results.length-1].getFirstChild().getFirstChild();
+				Node child = table1.getFirstChild();
+				while(child!=null) {
+					if("SUCCESS".equals(child.getNodeName())) success = getFirstChildNodeValue(child);
+					if("GUID".equals(child.getNodeName())) guid = getFirstChildNodeValue(child);
+					if("MESSAGE".equals(child.getNodeName())) message = child.getFirstChild().getNodeValue();
+					child = child.getNextSibling();
+				}
 
-                //System.out.println("success="+success);
-                //System.out.println("guid="+guid);
-                //System.out.println("message="+message);
-            }
+				//System.out.println("success="+success);
+				//System.out.println("guid="+guid);
+				//System.out.println("message="+message);
+			}
 
-            if(!"true".equals(success)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.storeCreditCard.notSuccessful");
-            if(guid==null) {
-                if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.storeCreditCard.notSupported");
-                else throw new LocalizedIOException(accessor, "MerchantServicesProvider.storeCreditCard.missingProviderUniqueId");
-            }
-            return guid;
-        } catch(ServiceException err) {
-            throw new IOException(err);
-        } catch(RemoteException err) {
-            throw new IOException(err);
-        }
-    }
+			if(!"true".equals(success)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.storeCreditCard.notSuccessful");
+			if(guid==null) {
+				if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.storeCreditCard.notSupported");
+				else throw new LocalizedIOException(accessor, "MerchantServicesProvider.storeCreditCard.missingProviderUniqueId");
+			}
+			return guid;
+		} catch(ServiceException err) {
+			throw new IOException(err);
+		} catch(RemoteException err) {
+			throw new IOException(err);
+		}
+	}
 
 	@Override
 	public void updateCreditCard(CreditCard creditCard) {
@@ -725,126 +725,126 @@ public class SagePayments implements MerchantServicesProvider {
 	/**
 	 * @param cardCode Note: Sage Payments does not update stored card code
 	 */
-    @Override
-    public void updateCreditCardNumberAndExpiration(
+	@Override
+	public void updateCreditCardNumberAndExpiration(
 		CreditCard creditCard,
 		String cardNumber,
 		byte expirationMonth,
 		short expirationYear,
 		String cardCode
 	) throws IOException {
-        try {
-            String success = null;
-            String guid = null;
-            String message = null;
+		try {
+			String success = null;
+			String guid = null;
+			String message = null;
 
-            {
-                MessageElement[] results = new WsVaultLocator().getwsVaultSoap().UPDATE_CREDIT_CARD_DATA(
-                    emptyStringIfNull(merchantId),
-                    emptyStringIfNull(merchantKey),
-                    emptyStringIfNull(creditCard.getProviderUniqueId()),
-                    emptyStringIfNull(cardNumber),
-                    emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear))
-                ).get_any();
-                Node table1 = results[results.length-1].getFirstChild().getFirstChild();
-                Node child = table1.getFirstChild();
-                while(child!=null) {
-                    if("SUCCESS".equals(child.getNodeName())) success = getFirstChildNodeValue(child);
-                    if("GUID".equals(child.getNodeName())) guid = getFirstChildNodeValue(child);
-                    if("MESSAGE".equals(child.getNodeName())) message = getFirstChildNodeValue(child);
-                    child = child.getNextSibling();
-                }
+			{
+				MessageElement[] results = new WsVaultLocator().getwsVaultSoap().UPDATE_CREDIT_CARD_DATA(
+					emptyStringIfNull(merchantId),
+					emptyStringIfNull(merchantKey),
+					emptyStringIfNull(creditCard.getProviderUniqueId()),
+					emptyStringIfNull(cardNumber),
+					emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear))
+				).get_any();
+				Node table1 = results[results.length-1].getFirstChild().getFirstChild();
+				Node child = table1.getFirstChild();
+				while(child!=null) {
+					if("SUCCESS".equals(child.getNodeName())) success = getFirstChildNodeValue(child);
+					if("GUID".equals(child.getNodeName())) guid = getFirstChildNodeValue(child);
+					if("MESSAGE".equals(child.getNodeName())) message = getFirstChildNodeValue(child);
+					child = child.getNextSibling();
+				}
 
-                //System.out.println("success="+success);
-                //System.out.println("guid="+guid);
-                //System.out.println("message="+message);
-            }
+				//System.out.println("success="+success);
+				//System.out.println("guid="+guid);
+				//System.out.println("message="+message);
+			}
 
-            if(!"true".equals(success)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSuccessful");
-            if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSupported");
-            if("INVALID CARDNUMBER".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.invalidCardNumber");
-            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.unexpectedResponse", message);
-        } catch(ServiceException err) {
-            throw new IOException(err);
-        } catch(RemoteException err) {
-            throw new IOException(err);
-        }
-    }
+			if(!"true".equals(success)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSuccessful");
+			if("UNABLE TO VERIFY VAULT SERVICE".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSupported");
+			if("INVALID CARDNUMBER".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.invalidCardNumber");
+			if(!"SUCCESS".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.unexpectedResponse", message);
+		} catch(ServiceException err) {
+			throw new IOException(err);
+		} catch(RemoteException err) {
+			throw new IOException(err);
+		}
+	}
 
-    @Override
-    public void updateCreditCardExpiration(
+	@Override
+	public void updateCreditCardExpiration(
 		CreditCard creditCard,
 		byte expirationMonth,
 		short expirationYear
 	) throws IOException {
-        try {
-            String success = null;
-            String guid = null;
-            String message = null;
+		try {
+			String success = null;
+			String guid = null;
+			String message = null;
 
-            {
-                MessageElement[] results = new WsVaultLocator().getwsVaultSoap().UPDATE_CREDIT_CARD_EXPIRATION_DATE(
-                    emptyStringIfNull(merchantId),
-                    emptyStringIfNull(merchantKey),
-                    emptyStringIfNull(creditCard.getProviderUniqueId()),
-                    emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear))
-                ).get_any();
-                Node table1 = results[results.length-1].getFirstChild().getFirstChild();
-                Node child = table1.getFirstChild();
-                while(child!=null) {
-                    if("SUCCESS".equals(child.getNodeName())) success = getFirstChildNodeValue(child);
-                    if("GUID".equals(child.getNodeName())) guid = getFirstChildNodeValue(child);
-                    if("MESSAGE".equals(child.getNodeName())) message = getFirstChildNodeValue(child);
-                    child = child.getNextSibling();
-                }
+			{
+				MessageElement[] results = new WsVaultLocator().getwsVaultSoap().UPDATE_CREDIT_CARD_EXPIRATION_DATE(
+					emptyStringIfNull(merchantId),
+					emptyStringIfNull(merchantKey),
+					emptyStringIfNull(creditCard.getProviderUniqueId()),
+					emptyStringIfNull(CreditCard.getExpirationDateMMYY(expirationMonth, expirationYear))
+				).get_any();
+				Node table1 = results[results.length-1].getFirstChild().getFirstChild();
+				Node child = table1.getFirstChild();
+				while(child!=null) {
+					if("SUCCESS".equals(child.getNodeName())) success = getFirstChildNodeValue(child);
+					if("GUID".equals(child.getNodeName())) guid = getFirstChildNodeValue(child);
+					if("MESSAGE".equals(child.getNodeName())) message = getFirstChildNodeValue(child);
+					child = child.getNextSibling();
+				}
 
-                //System.out.println("success="+success);
-                //System.out.println("guid="+guid);
-                //System.out.println("message="+message);
-            }
+				//System.out.println("success="+success);
+				//System.out.println("guid="+guid);
+				//System.out.println("message="+message);
+			}
 
-            if(!"true".equals(success)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardExpiration.notSuccessful");
-            if("UNABLE TO LOCATE".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardExpiration.unableToLocate");
-            if(!"SUCCESS".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardExpiration.unexpectedResponse", message);
-        } catch(ServiceException err) {
-            throw new IOException(err);
-        } catch(RemoteException err) {
-            throw new IOException(err);
-        }
-    }
+			if(!"true".equals(success)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardExpiration.notSuccessful");
+			if("UNABLE TO LOCATE".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardExpiration.unableToLocate");
+			if(!"SUCCESS".equals(message)) throw new LocalizedIOException(accessor, "MerchantServicesProvider.updateCreditCardExpiration.unexpectedResponse", message);
+		} catch(ServiceException err) {
+			throw new IOException(err);
+		} catch(RemoteException err) {
+			throw new IOException(err);
+		}
+	}
 
-    @Override
-    public void deleteCreditCard(CreditCard creditCard) throws IOException {
-        try {
-            boolean success = new WsVaultLocator().getwsVaultSoap().DELETE_DATA(
-                emptyStringIfNull(merchantId),
-                emptyStringIfNull(merchantKey),
-                emptyStringIfNull(creditCard.getProviderUniqueId())
-            );
-            if(!success) throw new LocalizedIOException(accessor, "MerchantServicesProvider.deleteCreditCard.notSuccessful");
-        } catch(ServiceException err) {
-            throw new IOException(err);
-        } catch(RemoteException err) {
-            throw new IOException(err);
-        }
-    }
+	@Override
+	public void deleteCreditCard(CreditCard creditCard) throws IOException {
+		try {
+			boolean success = new WsVaultLocator().getwsVaultSoap().DELETE_DATA(
+				emptyStringIfNull(merchantId),
+				emptyStringIfNull(merchantKey),
+				emptyStringIfNull(creditCard.getProviderUniqueId())
+			);
+			if(!success) throw new LocalizedIOException(accessor, "MerchantServicesProvider.deleteCreditCard.notSuccessful");
+		} catch(ServiceException err) {
+			throw new IOException(err);
+		} catch(RemoteException err) {
+			throw new IOException(err);
+		}
+	}
 
-    /*
-    public static void main(String[] args) {
-        try {
-            // Test expiration date update
-            CreditCard creditCard = new CreditCard();
-            creditCard.setProviderUniqueId("d7e61c0226014cd3a7eb911ca5545b5d");
-            sagePayments.updateCreditCardExpiration(creditCard, (byte)2, (byte)9);
+	/*
+	public static void main(String[] args) {
+		try {
+			// Test expiration date update
+			CreditCard creditCard = new CreditCard();
+			creditCard.setProviderUniqueId("d7e61c0226014cd3a7eb911ca5545b5d");
+			sagePayments.updateCreditCardExpiration(creditCard, (byte)2, (byte)9);
 
-            // Test number and expiration date update
-            CreditCard creditCard = new CreditCard();
-            creditCard.setProviderUniqueId("d7e61c0226014cd3a7eb911ca5545b5d");
-            creditCard.setPersistenceUniqueId("10");
-            sagePayments.updateCreditCardNumberAndExpiration(principal, creditCard, "5212345678901234", (byte)2, (byte)9);
-        } catch(Exception err) {
-            err.printStackTrace();
-        }
-    }
-     */
+			// Test number and expiration date update
+			CreditCard creditCard = new CreditCard();
+			creditCard.setProviderUniqueId("d7e61c0226014cd3a7eb911ca5545b5d");
+			creditCard.setPersistenceUniqueId("10");
+			sagePayments.updateCreditCardNumberAndExpiration(principal, creditCard, "5212345678901234", (byte)2, (byte)9);
+		} catch(Exception err) {
+			err.printStackTrace();
+		}
+	}
+	 */
 }

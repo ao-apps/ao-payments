@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2013  AO Industries, Inc.
+ * Copyright (C) 2013, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -27,18 +27,18 @@ package com.aoindustries.creditcards;
  */
 public final class ApplicationResourcesAccessor {
 
-    /**
-     * Make no instances.
-     */
-    private ApplicationResourcesAccessor() {
-    }
+	/**
+	 * Make no instances.
+	 */
+	private ApplicationResourcesAccessor() {
+	}
 
-    public static final com.aoindustries.util.i18n.ApplicationResourcesAccessor accessor;
-    static {
-        // Use correct package after any potential obfuscation
-        String classname = ApplicationResourcesAccessor.class.getName();
-        accessor = com.aoindustries.util.i18n.ApplicationResourcesAccessor.getInstance(
-            classname.substring(0, classname.lastIndexOf('.') + 1) + "ApplicationResources"
-        );
-    }
+	public static final com.aoindustries.util.i18n.ApplicationResourcesAccessor accessor;
+	static {
+		// Use correct package after any potential obfuscation
+		String classname = ApplicationResourcesAccessor.class.getName();
+		accessor = com.aoindustries.util.i18n.ApplicationResourcesAccessor.getInstance(
+			classname.substring(0, classname.lastIndexOf('.') + 1) + "ApplicationResources"
+		);
+	}
 }

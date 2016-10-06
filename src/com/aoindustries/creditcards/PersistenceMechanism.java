@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -33,20 +33,20 @@ import java.sql.SQLException;
  */
 public interface PersistenceMechanism {
 
-    /**
-     * Stores a credit card and returns its persistenceUniqueId.
-     */
-    String storeCreditCard(Principal principal, CreditCard creditCard) throws SQLException;
+	/**
+	 * Stores a credit card and returns its persistenceUniqueId.
+	 */
+	String storeCreditCard(Principal principal, CreditCard creditCard) throws SQLException;
 
 	/**
-     * Updates the stored credit card details, all except the card number and expiration, for a credit card.
-     */
-    void updateCreditCard(Principal principal, CreditCard creditCard) throws SQLException;
+	 * Updates the stored credit card details, all except the card number and expiration, for a credit card.
+	 */
+	void updateCreditCard(Principal principal, CreditCard creditCard) throws SQLException;
 
 	/**
-     * Updates the stored card number and expiration for a credit card.
-     */
-    void updateCardNumber(
+	 * Updates the stored card number and expiration for a credit card.
+	 */
+	void updateCardNumber(
 		Principal principal,
 		CreditCard creditCard,
 		String cardNumber,
@@ -54,54 +54,54 @@ public interface PersistenceMechanism {
 		short expirationYear
 	) throws SQLException;
 
-    /**
-     * Optionally updates the expiration for a credit card.
-     */
-    void updateExpiration(
+	/**
+	 * Optionally updates the expiration for a credit card.
+	 */
+	void updateExpiration(
 		Principal principal,
 		CreditCard creditCard,
 		byte expirationMonth,
 		short expirationYear
 	) throws SQLException;
 
-    /**
-     * Deletes the credit card from the credit card list.
-     */
-    void deleteCreditCard(Principal principal, CreditCard creditCard) throws SQLException;
-    
-    /**
-     * Inserts a new transaction into the database and returns its persistenceUniqueId.
-     *
-     * @param  principal  <code>null</code> is acceptable
-     * @param  group      <code>null</code> is acceptable
-     */
-    String insertTransaction(Principal principal, Group group, Transaction transaction) throws SQLException;
+	/**
+	 * Deletes the credit card from the credit card list.
+	 */
+	void deleteCreditCard(Principal principal, CreditCard creditCard) throws SQLException;
 
-    /**
-     * Updates a transaction in the database after the sale has completed.  The following transaction fields have been updated
-     * and must be stored:
-     * <ol>
-     *   <li>authorizationResult</li>
-     *   <li>captureTime</li>
-     *   <li>capturePrincipalName</li>
-     *   <li>captureResult</li>
-     *   <li>status</li>
-     * </ol>
-     */
-    void saleCompleted(Principal principal, Transaction transaction) throws SQLException;
+	/**
+	 * Inserts a new transaction into the database and returns its persistenceUniqueId.
+	 *
+	 * @param  principal  <code>null</code> is acceptable
+	 * @param  group      <code>null</code> is acceptable
+	 */
+	String insertTransaction(Principal principal, Group group, Transaction transaction) throws SQLException;
 
-    /**
-     * Updates a transaction in the database after the authorize has completed.  The following transaction fields have been updated
-     * and must be stored:
-     * <ol>
-     *   <li>authorizationResult</li>
-     *   <li>status</li>
-     * </ol>
-     */
-    void authorizeCompleted(Principal principal, Transaction transaction) throws SQLException;
+	/**
+	 * Updates a transaction in the database after the sale has completed.  The following transaction fields have been updated
+	 * and must be stored:
+	 * <ol>
+	 *   <li>authorizationResult</li>
+	 *   <li>captureTime</li>
+	 *   <li>capturePrincipalName</li>
+	 *   <li>captureResult</li>
+	 *   <li>status</li>
+	 * </ol>
+	 */
+	void saleCompleted(Principal principal, Transaction transaction) throws SQLException;
 
-    /**
-     * Updates a transaction in the database after the void has completed.
-     */
-    void voidCompleted(Principal principal, Transaction transaction) throws SQLException;
+	/**
+	 * Updates a transaction in the database after the authorize has completed.  The following transaction fields have been updated
+	 * and must be stored:
+	 * <ol>
+	 *   <li>authorizationResult</li>
+	 *   <li>status</li>
+	 * </ol>
+	 */
+	void authorizeCompleted(Principal principal, Transaction transaction) throws SQLException;
+
+	/**
+	 * Updates a transaction in the database after the void has completed.
+	 */
+	void voidCompleted(Principal principal, Transaction transaction) throws SQLException;
 }

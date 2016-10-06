@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -31,222 +31,222 @@ import static com.aoindustries.creditcards.ApplicationResourcesAccessor.accessor
  */
 public class Transaction {
 
-    public enum Status {
-        PROCESSING,
-        LOCAL_ERROR,
-        IO_ERROR,
-        GATEWAY_ERROR,
-        AUTHORIZED,
-        CAPTURED,
-        DECLINED,
-        HOLD,
-        VOID,
-        CHARGEBACK
-        ;
+	public enum Status {
+		PROCESSING,
+		LOCAL_ERROR,
+		IO_ERROR,
+		GATEWAY_ERROR,
+		AUTHORIZED,
+		CAPTURED,
+		DECLINED,
+		HOLD,
+		VOID,
+		CHARGEBACK
+		;
 
-        @Override
-        public String toString() {
-            return accessor.getMessage("Transaction.Status."+name());
-        }
-    }
+		@Override
+		public String toString() {
+			return accessor.getMessage("Transaction.Status."+name());
+		}
+	}
 
-    private String providerId;
-    private String persistenceUniqueId;
-    private String groupName;
-    private TransactionRequest transactionRequest;
-    private CreditCard creditCard;
-    private long authorizationTime;
-    private String authorizationPrincipalName;
-    private AuthorizationResult authorizationResult;
-    private long captureTime;
-    private String capturePrincipalName;
-    private CaptureResult captureResult;
-    private long voidTime;
-    private String voidPrincipalName;
-    private VoidResult voidResult;
-    private Status status;
+	private String providerId;
+	private String persistenceUniqueId;
+	private String groupName;
+	private TransactionRequest transactionRequest;
+	private CreditCard creditCard;
+	private long authorizationTime;
+	private String authorizationPrincipalName;
+	private AuthorizationResult authorizationResult;
+	private long captureTime;
+	private String capturePrincipalName;
+	private CaptureResult captureResult;
+	private long voidTime;
+	private String voidPrincipalName;
+	private VoidResult voidResult;
+	private Status status;
 
-    /**
-     * Creates an empty Transaction.  The values should be set using the appropriate setter methods.
-     */
-    public Transaction() {
-    }
-    
-    /**
-     * Creates a Transaction providing all of the details.
-     */
-    public Transaction(
-        String providerId,
-        String persistenceUniqueId,
-        String groupName,
-        TransactionRequest transactionRequest,
-        CreditCard creditCard,
-        long authorizationTime,
-        String authorizationPrincipalName,
-        AuthorizationResult authorizationResult,
-        long captureTime,
-        String capturePrincipalName,
-        CaptureResult captureResult,
-        long voidTime,
-        String voidPrincipalName,
-        VoidResult voidResult,
-        Status status
-    ) {
-        setProviderId(providerId);
-        setPersistenceUniqueId(persistenceUniqueId);
-        setGroupName(groupName);
-        setTransactionRequest(transactionRequest);
-        setCreditCard(creditCard);
-        setAuthorizationTime(authorizationTime);
-        setAuthorizationPrincipalName(authorizationPrincipalName);
-        setAuthorizationResult(authorizationResult);
-        setCaptureTime(captureTime);
-        setCapturePrincipalName(capturePrincipalName);
-        setCaptureResult(captureResult);
-        setVoidTime(voidTime);
-        setVoidPrincipalName(voidPrincipalName);
-        setVoidResult(voidResult);
-        setStatus(status);
-    }
+	/**
+	 * Creates an empty Transaction.  The values should be set using the appropriate setter methods.
+	 */
+	public Transaction() {
+	}
 
-    @Override
-    public Transaction clone() {
-        return new Transaction(
-            providerId,
-            persistenceUniqueId,
-            groupName,
-            transactionRequest==null ? null : transactionRequest.clone(),
-            creditCard==null ? null : creditCard.clone(),
-            authorizationTime,
-            authorizationPrincipalName,
-            authorizationResult==null ? null : authorizationResult.clone(),
-            captureTime,
-            capturePrincipalName,
-            captureResult==null ? null : captureResult.clone(),
-            voidTime,
-            voidPrincipalName,
-            voidResult==null ? null : voidResult.clone(),
-            status
-        );
-    }
+	/**
+	 * Creates a Transaction providing all of the details.
+	 */
+	public Transaction(
+		String providerId,
+		String persistenceUniqueId,
+		String groupName,
+		TransactionRequest transactionRequest,
+		CreditCard creditCard,
+		long authorizationTime,
+		String authorizationPrincipalName,
+		AuthorizationResult authorizationResult,
+		long captureTime,
+		String capturePrincipalName,
+		CaptureResult captureResult,
+		long voidTime,
+		String voidPrincipalName,
+		VoidResult voidResult,
+		Status status
+	) {
+		setProviderId(providerId);
+		setPersistenceUniqueId(persistenceUniqueId);
+		setGroupName(groupName);
+		setTransactionRequest(transactionRequest);
+		setCreditCard(creditCard);
+		setAuthorizationTime(authorizationTime);
+		setAuthorizationPrincipalName(authorizationPrincipalName);
+		setAuthorizationResult(authorizationResult);
+		setCaptureTime(captureTime);
+		setCapturePrincipalName(capturePrincipalName);
+		setCaptureResult(captureResult);
+		setVoidTime(voidTime);
+		setVoidPrincipalName(voidPrincipalName);
+		setVoidResult(voidResult);
+		setStatus(status);
+	}
 
-    public String getProviderId() {
-        return providerId;
-    }
-    
-    public void setProviderId(String providerId) {
-        this.providerId = providerId;
-    }
+	@Override
+	public Transaction clone() {
+		return new Transaction(
+			providerId,
+			persistenceUniqueId,
+			groupName,
+			transactionRequest==null ? null : transactionRequest.clone(),
+			creditCard==null ? null : creditCard.clone(),
+			authorizationTime,
+			authorizationPrincipalName,
+			authorizationResult==null ? null : authorizationResult.clone(),
+			captureTime,
+			capturePrincipalName,
+			captureResult==null ? null : captureResult.clone(),
+			voidTime,
+			voidPrincipalName,
+			voidResult==null ? null : voidResult.clone(),
+			status
+		);
+	}
 
-    public String getPersistenceUniqueId() {
-        return persistenceUniqueId;
-    }
+	public String getProviderId() {
+		return providerId;
+	}
 
-    public void setPersistenceUniqueId(String persistenceUniqueId) {
-        this.persistenceUniqueId = persistenceUniqueId;
-    }
+	public void setProviderId(String providerId) {
+		this.providerId = providerId;
+	}
 
-    public String getGroupName() {
-        return groupName;
-    }
+	public String getPersistenceUniqueId() {
+		return persistenceUniqueId;
+	}
 
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
+	public void setPersistenceUniqueId(String persistenceUniqueId) {
+		this.persistenceUniqueId = persistenceUniqueId;
+	}
 
-    public TransactionRequest getTransactionRequest() {
-        return transactionRequest;
-    }
+	public String getGroupName() {
+		return groupName;
+	}
 
-    public void setTransactionRequest(TransactionRequest transactionRequest) {
-        this.transactionRequest = transactionRequest;
-    }
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
 
-    public CreditCard getCreditCard() {
-        return creditCard;
-    }
+	public TransactionRequest getTransactionRequest() {
+		return transactionRequest;
+	}
 
-    public void setCreditCard(CreditCard creditCard) {
-        this.creditCard = creditCard;
-    }
+	public void setTransactionRequest(TransactionRequest transactionRequest) {
+		this.transactionRequest = transactionRequest;
+	}
 
-    public long getAuthorizationTime() {
-        return authorizationTime;
-    }
-    
-    public void setAuthorizationTime(long authorizationTime) {
-        this.authorizationTime = authorizationTime;
-    }
+	public CreditCard getCreditCard() {
+		return creditCard;
+	}
 
-    public String getAuthorizationPrincipalName() {
-        return authorizationPrincipalName;
-    }
+	public void setCreditCard(CreditCard creditCard) {
+		this.creditCard = creditCard;
+	}
 
-    public void setAuthorizationPrincipalName(String authorizationPrincipalName) {
-        this.authorizationPrincipalName = authorizationPrincipalName;
-    }
+	public long getAuthorizationTime() {
+		return authorizationTime;
+	}
 
-    public AuthorizationResult getAuthorizationResult() {
-        return authorizationResult;
-    }
+	public void setAuthorizationTime(long authorizationTime) {
+		this.authorizationTime = authorizationTime;
+	}
 
-    public void setAuthorizationResult(AuthorizationResult authorizationResult) {
-        this.authorizationResult = authorizationResult;
-    }
-    
-    public long getCaptureTime() {
-        return captureTime;
-    }
-    
-    public void setCaptureTime(long captureTime) {
-        this.captureTime = captureTime;
-    }
+	public String getAuthorizationPrincipalName() {
+		return authorizationPrincipalName;
+	}
 
-    public String getCapturePrincipalName() {
-        return capturePrincipalName;
-    }
+	public void setAuthorizationPrincipalName(String authorizationPrincipalName) {
+		this.authorizationPrincipalName = authorizationPrincipalName;
+	}
 
-    public void setCapturePrincipalName(String capturePrincipalName) {
-        this.capturePrincipalName = capturePrincipalName;
-    }
+	public AuthorizationResult getAuthorizationResult() {
+		return authorizationResult;
+	}
 
-    public CaptureResult getCaptureResult() {
-        return captureResult;
-    }
+	public void setAuthorizationResult(AuthorizationResult authorizationResult) {
+		this.authorizationResult = authorizationResult;
+	}
 
-    public void setCaptureResult(CaptureResult captureResult) {
-        this.captureResult = captureResult;
-    }
+	public long getCaptureTime() {
+		return captureTime;
+	}
 
-    public long getVoidTime() {
-        return voidTime;
-    }
-    
-    public void setVoidTime(long voidTime) {
-        this.voidTime = voidTime;
-    }
+	public void setCaptureTime(long captureTime) {
+		this.captureTime = captureTime;
+	}
 
-    public String getVoidPrincipalName() {
-        return voidPrincipalName;
-    }
+	public String getCapturePrincipalName() {
+		return capturePrincipalName;
+	}
 
-    public void setVoidPrincipalName(String voidPrincipalName) {
-        this.voidPrincipalName = voidPrincipalName;
-    }
+	public void setCapturePrincipalName(String capturePrincipalName) {
+		this.capturePrincipalName = capturePrincipalName;
+	}
 
-    public VoidResult getVoidResult() {
-        return voidResult;
-    }
-    
-    public void setVoidResult(VoidResult voidResult) {
-        this.voidResult = voidResult;
-    }
+	public CaptureResult getCaptureResult() {
+		return captureResult;
+	}
 
-    public Status getStatus() {
-        return status;
-    }
-    
-    public void setStatus(Status status) {
-        this.status = status;
-    }
+	public void setCaptureResult(CaptureResult captureResult) {
+		this.captureResult = captureResult;
+	}
+
+	public long getVoidTime() {
+		return voidTime;
+	}
+
+	public void setVoidTime(long voidTime) {
+		this.voidTime = voidTime;
+	}
+
+	public String getVoidPrincipalName() {
+		return voidPrincipalName;
+	}
+
+	public void setVoidPrincipalName(String voidPrincipalName) {
+		this.voidPrincipalName = voidPrincipalName;
+	}
+
+	public VoidResult getVoidResult() {
+		return voidResult;
+	}
+
+	public void setVoidResult(VoidResult voidResult) {
+		this.voidResult = voidResult;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
 }

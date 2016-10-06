@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -31,22 +31,22 @@ package com.aoindustries.creditcards;
  */
 public class SaleResult {
 
-    private AuthorizationResult authorizationResult;
-    private CaptureResult captureResult;
+	private final AuthorizationResult authorizationResult;
+	private final CaptureResult captureResult;
 
-    public SaleResult(
-        AuthorizationResult authorizationResult,
-        CaptureResult captureResult
-    ) {
-        this.authorizationResult = authorizationResult;
-        this.captureResult = captureResult;
-    }
+	public SaleResult(
+		AuthorizationResult authorizationResult,
+		CaptureResult captureResult
+	) {
+		this.authorizationResult = authorizationResult;
+		this.captureResult = captureResult;
+	}
 
-    public AuthorizationResult getAuthorizationResult() {
-        return authorizationResult;
-    }
-    
-    public CaptureResult getCaptureResult() {
-        return captureResult;
-    }
+	public AuthorizationResult getAuthorizationResult() {
+		return authorizationResult;
+	}
+
+	public CaptureResult getCaptureResult() {
+		return captureResult;
+	}
 }

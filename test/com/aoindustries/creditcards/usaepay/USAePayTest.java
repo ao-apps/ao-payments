@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -51,275 +51,275 @@ import junit.framework.TestSuite;
  * @author  AO Industries, Inc.
  */
 public class USAePayTest extends TestCase {
-    
-    private static Properties config;
-    synchronized private static String getConfig(String name) throws IOException {
-        if(config==null) config = PropertiesUtils.loadFromResource(USAePayTest.class, "USAePayTest.properties");
-        return config.getProperty(name);
-    }
 
-    private CreditCardProcessor processor;
-    private Principal principal;
-    private Group group;
-    private List<CreditCard> testGoodCreditCards;
+	private static Properties config;
+	synchronized private static String getConfig(String name) throws IOException {
+		if(config==null) config = PropertiesUtils.loadFromResource(USAePayTest.class, "USAePayTest.properties");
+		return config.getProperty(name);
+	}
 
-    public USAePayTest(String testName) {
-        super(testName);
-    }
+	private CreditCardProcessor processor;
+	private Principal principal;
+	private Group group;
+	private List<CreditCard> testGoodCreditCards;
 
-    @Override
-    protected void setUp() throws Exception {
-        processor = new CreditCardProcessor(
-            new USAePay(
-                "USAePayTest",
-                getConfig("postUrl"),
-                getConfig("key"),
-                getConfig("pin")
-            ),
-            PropertiesPersistenceMechanism.getInstance(getConfig("persistencePath"))
-        );
+	public USAePayTest(String testName) {
+		super(testName);
+	}
 
-        principal = new Principal() {
-            @Override
-            public String getName() {
-                return "TestPrincipal";
-            }
-            @Override
-            public int hashCode() {
-                return getName().hashCode();
-            }
-            @Override
-            public boolean equals(Object O) {
-                return super.equals(O);
-            }
-            @Override
-            public String toString() {
-                return getName();
-            }
-        };
-        group = new Group() {
-            @Override
-            public boolean addMember(Principal user) {
-                throw new RuntimeException("Unimplemented");
-            }
-            @Override
-            public String getName() {
-                return "TestGroup";
-            }
-            @Override
-            public boolean isMember(Principal member) {
-                return member.getName().equals("TestPrincipal");
-            }
-            @Override
-            public Enumeration<? extends Principal> members() {
-                throw new RuntimeException("Unimplemented");
-            }
-            @Override
-            public boolean removeMember(Principal user) {
-                throw new RuntimeException("Unimplemented");
-            }
-        };
+	@Override
+	protected void setUp() throws Exception {
+		processor = new CreditCardProcessor(
+			new USAePay(
+				"USAePayTest",
+				getConfig("postUrl"),
+				getConfig("key"),
+				getConfig("pin")
+			),
+			PropertiesPersistenceMechanism.getInstance(getConfig("persistencePath"))
+		);
 
-        testGoodCreditCards = new ArrayList<CreditCard>();
-        testGoodCreditCards.add(
-            new CreditCard(
-                null,
-                principal.getName(),
-                group.getName(),
-                null,
-                null,
-                "371122223332225",
-                null,
-                (byte)9,
-                (short)2009,
-                "123",
-                "First",
-                "Last",
-                "Company = Inc.",     // Contains = to test special characters in protocol
-                "signup@aoindustries.com",
-                "(251)607-9556",
-                "(251)382-1197",
-                "AOINDUSTRIES",
-                "123-45-6789",
-                "7262 Bull Pen & Cir",  // Contains & to test special characters in protocol
-                null,
-                "Mobile",
-                "AL",
-                "36695",
-                "US",
-                "Test AmEx card"
-            )
-        );
-        testGoodCreditCards.add(
-            new CreditCard(
-                null,
-                principal.getName(),
-                group.getName(),
-                null,
-                null,
-                "6011222233332224",
-                null,
-                (byte)9,
-                (short)2009,
-                null,
-                "D First",
-                "D Last",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "Test Discover card"
-            )
-        );
-        testGoodCreditCards.add(
-            new CreditCard(
-                null,
-                null,
-                null,
-                null,
-                null,
-                "5555444433332226",
-                null,
-                (byte)9,
-                (short)2009,
-                "123",
-                "First",
-                "Last",
-                "AO Inc",
-                "accounting@aoindustries.com",
-                "(251)607-9556",
-                "(251)382-1197",
-                null,
-                null,
-                "7262 Bull Pen Cir",
-                null,
-                "Mobile",
-                "AL",
-                "36695",
-                "US",
-                "Test MasterCard card"
-            )
-        );
-        testGoodCreditCards.add(
-            new CreditCard(
-                null,
-                null,
-                null,
-                null,
-                null,
-                "4000100011112224",
-                null,
-                (byte)9,
-                (short)2009,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "Test Visa card"
-            )
-        );
-    }
+		principal = new Principal() {
+			@Override
+			public String getName() {
+				return "TestPrincipal";
+			}
+			@Override
+			public int hashCode() {
+				return getName().hashCode();
+			}
+			@Override
+			public boolean equals(Object O) {
+				return super.equals(O);
+			}
+			@Override
+			public String toString() {
+				return getName();
+			}
+		};
+		group = new Group() {
+			@Override
+			public boolean addMember(Principal user) {
+				throw new RuntimeException("Unimplemented");
+			}
+			@Override
+			public String getName() {
+				return "TestGroup";
+			}
+			@Override
+			public boolean isMember(Principal member) {
+				return member.getName().equals("TestPrincipal");
+			}
+			@Override
+			public Enumeration<? extends Principal> members() {
+				throw new RuntimeException("Unimplemented");
+			}
+			@Override
+			public boolean removeMember(Principal user) {
+				throw new RuntimeException("Unimplemented");
+			}
+		};
 
-    @Override
-    protected void tearDown() throws Exception {
-        processor = null;
-        principal = null;
-        group = null;
-        testGoodCreditCards = null;
-    }
+		testGoodCreditCards = new ArrayList<CreditCard>();
+		testGoodCreditCards.add(
+			new CreditCard(
+				null,
+				principal.getName(),
+				group.getName(),
+				null,
+				null,
+				"371122223332225",
+				null,
+				(byte)9,
+				(short)2009,
+				"123",
+				"First",
+				"Last",
+				"Company = Inc.",     // Contains = to test special characters in protocol
+				"signup@aoindustries.com",
+				"(251)607-9556",
+				"(251)382-1197",
+				"AOINDUSTRIES",
+				"123-45-6789",
+				"7262 Bull Pen & Cir",  // Contains & to test special characters in protocol
+				null,
+				"Mobile",
+				"AL",
+				"36695",
+				"US",
+				"Test AmEx card"
+			)
+		);
+		testGoodCreditCards.add(
+			new CreditCard(
+				null,
+				principal.getName(),
+				group.getName(),
+				null,
+				null,
+				"6011222233332224",
+				null,
+				(byte)9,
+				(short)2009,
+				null,
+				"D First",
+				"D Last",
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				"Test Discover card"
+			)
+		);
+		testGoodCreditCards.add(
+			new CreditCard(
+				null,
+				null,
+				null,
+				null,
+				null,
+				"5555444433332226",
+				null,
+				(byte)9,
+				(short)2009,
+				"123",
+				"First",
+				"Last",
+				"AO Inc",
+				"accounting@aoindustries.com",
+				"(251)607-9556",
+				"(251)382-1197",
+				null,
+				null,
+				"7262 Bull Pen Cir",
+				null,
+				"Mobile",
+				"AL",
+				"36695",
+				"US",
+				"Test MasterCard card"
+			)
+		);
+		testGoodCreditCards.add(
+			new CreditCard(
+				null,
+				null,
+				null,
+				null,
+				null,
+				"4000100011112224",
+				null,
+				(byte)9,
+				(short)2009,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				"Test Visa card"
+			)
+		);
+	}
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite(USAePayTest.class);
-        return suite;
-    }
+	@Override
+	protected void tearDown() throws Exception {
+		processor = null;
+		principal = null;
+		group = null;
+		testGoodCreditCards = null;
+	}
 
-    /**
-     * Tests canStoreCreditCards.
-     */
-    public void testCanStoreCreditCards() throws IOException {
-        // Test canStoreCreditCards, expecting false
-        assertEquals(
-            "Expecting to not be allowed to store credit cards",
-            false,
-            processor.canStoreCreditCards()
-        );
-    }
+	public static Test suite() {
+		TestSuite suite = new TestSuite(USAePayTest.class);
+		return suite;
+	}
 
-    /**
-     * Test a sale with a new card.
-     */
-    public void testNewCardSaleApproved() throws IOException, SQLException {
-        for(CreditCard testGoodCreditCard : testGoodCreditCards) {
-            Transaction transaction = processor.sale(
-                principal,
-                group,
-                new TransactionRequest(
-                    false,
-                    InetAddress.getLocalHost().getHostAddress(),
-                    120,
-                    "1",
-                    Currency.getInstance("USD"),
-                    new BigDecimal("1.00"),
-                    null,
-                    false,
-                    null,
-                    null,
-                    "Daniel",
-                    "Armstrong",
-                    "AO Industries, Inc.",
-                    "7262 Bull Pen Cir",
-                    null,
-                    "Mobile",
-                    "AL",
-                    "36695",
-                    "US",
-                    false,
-                    "accounting@aoindustries.com",
-                    null,
-                    null,
-                    "Test transaction"
-                ),
-                testGoodCreditCard
-            );
-            assertEquals(
-                "Transaction authorization communication result should be SUCCESS",
-                TransactionResult.CommunicationResult.SUCCESS,
-                transaction.getAuthorizationResult().getCommunicationResult()
-            );
-            assertEquals(
-                "Transaction capture communication result should be SUCCESS",
-                TransactionResult.CommunicationResult.SUCCESS,
-                transaction.getCaptureResult().getCommunicationResult()
-            );
-            assertEquals(
-                "Transaction should be approved",
-                AuthorizationResult.ApprovalResult.APPROVED,
-                transaction.getAuthorizationResult().getApprovalResult()
-            );
-            assertEquals(
-                "transaction.status should be CAPTURED",
-                Transaction.Status.CAPTURED,
-                transaction.getStatus()
-            );
-        }
-    }
+	/**
+	 * Tests canStoreCreditCards.
+	 */
+	public void testCanStoreCreditCards() throws IOException {
+		// Test canStoreCreditCards, expecting false
+		assertEquals(
+			"Expecting to not be allowed to store credit cards",
+			false,
+			processor.canStoreCreditCards()
+		);
+	}
+
+	/**
+	 * Test a sale with a new card.
+	 */
+	public void testNewCardSaleApproved() throws IOException, SQLException {
+		for(CreditCard testGoodCreditCard : testGoodCreditCards) {
+			Transaction transaction = processor.sale(
+				principal,
+				group,
+				new TransactionRequest(
+					false,
+					InetAddress.getLocalHost().getHostAddress(),
+					120,
+					"1",
+					Currency.getInstance("USD"),
+					new BigDecimal("1.00"),
+					null,
+					false,
+					null,
+					null,
+					"Daniel",
+					"Armstrong",
+					"AO Industries, Inc.",
+					"7262 Bull Pen Cir",
+					null,
+					"Mobile",
+					"AL",
+					"36695",
+					"US",
+					false,
+					"accounting@aoindustries.com",
+					null,
+					null,
+					"Test transaction"
+				),
+				testGoodCreditCard
+			);
+			assertEquals(
+				"Transaction authorization communication result should be SUCCESS",
+				TransactionResult.CommunicationResult.SUCCESS,
+				transaction.getAuthorizationResult().getCommunicationResult()
+			);
+			assertEquals(
+				"Transaction capture communication result should be SUCCESS",
+				TransactionResult.CommunicationResult.SUCCESS,
+				transaction.getCaptureResult().getCommunicationResult()
+			);
+			assertEquals(
+				"Transaction should be approved",
+				AuthorizationResult.ApprovalResult.APPROVED,
+				transaction.getAuthorizationResult().getApprovalResult()
+			);
+			assertEquals(
+				"transaction.status should be CAPTURED",
+				Transaction.Status.CAPTURED,
+				transaction.getStatus()
+			);
+		}
+	}
 }

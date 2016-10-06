@@ -1,6 +1,6 @@
 /*
  * ao-credit-cards - Credit card processing API supporting multiple payment gateways.
- * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013  AO Industries, Inc.
+ * Copyright (C) 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -31,30 +31,30 @@ package com.aoindustries.creditcards;
  */
 public class CaptureResult extends TransactionResult implements Cloneable {
 
-    public CaptureResult(
-        String providerId,
-        CommunicationResult communicationResult,
-        String providerErrorCode,
-        ErrorCode errorCode,
-        String providerErrorMessage,
-        String providerUniqueId
-    ) {
-        super(
-            providerId,
-            communicationResult,
-            providerErrorCode,
-            errorCode,
-            providerErrorMessage,
-            providerUniqueId
-        );
-    }
+	public CaptureResult(
+		String providerId,
+		CommunicationResult communicationResult,
+		String providerErrorCode,
+		ErrorCode errorCode,
+		String providerErrorMessage,
+		String providerUniqueId
+	) {
+		super(
+			providerId,
+			communicationResult,
+			providerErrorCode,
+			errorCode,
+			providerErrorMessage,
+			providerUniqueId
+		);
+	}
 
-    @Override
-    public CaptureResult clone() {
-        try {
-            return (CaptureResult)super.clone();
-        } catch(CloneNotSupportedException err) {
-            throw new RuntimeException(err);
-        }
-    }
+	@Override
+	public CaptureResult clone() {
+		try {
+			return (CaptureResult)super.clone();
+		} catch(CloneNotSupportedException err) {
+			throw new RuntimeException(err);
+		}
+	}
 }

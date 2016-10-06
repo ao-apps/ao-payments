@@ -89,33 +89,33 @@ public class Stripe implements MerchantServicesProvider {
 	private static final String STATEMENT_DESCRIPTOR_PREFIX = "AO#";
 
 	private final String providerId;
-    private final String apiKey;
+	private final String apiKey;
 
 	private final RequestOptions options;
 
-    public Stripe(String providerId, String apiKey) {
-        this.providerId = providerId;
-        this.apiKey = apiKey;
+	public Stripe(String providerId, String apiKey) {
+		this.providerId = providerId;
+		this.apiKey = apiKey;
 		this.options = RequestOptions
 			.builder()
 			.setApiKey(apiKey)
 			.setStripeVersion(STRIPE_API_VERSION)
 			.build();
-    }
+	}
 
-    @Override
-    public String getProviderId() {
-        return providerId;
-    }
+	@Override
+	public String getProviderId() {
+		return providerId;
+	}
 
-    /**
-     * Gets the API secret key.
-     */
-    public String getApiKey() {
-        return apiKey;
-    }
+	/**
+	 * Gets the API secret key.
+	 */
+	public String getApiKey() {
+		return apiKey;
+	}
 
-    // <editor-fold defaultstate="collapsed" desc="API parameters">
+	// <editor-fold defaultstate="collapsed" desc="API parameters">
 	private static void addParam(boolean update, Map<String,Object> params, String name, String value) {
 		if(value != null) {
 			value = value.trim();
@@ -280,31 +280,31 @@ public class Stripe implements MerchantServicesProvider {
 		// Unused: tracking_number
 		return shippingParams;
 	}
-    // </editor-fold>
-	
-    // <editor-fold defaultstate="collapsed" desc="Error code conversion">
-    private static class ConvertedError {
-        
-        private final TransactionResult.CommunicationResult communicationResult;
-		private final String providerErrorCode;
-        private final TransactionResult.ErrorCode errorCode;
-		private final String providerErrorMessage;
-        private final AuthorizationResult.DeclineReason declineReason;
+	// </editor-fold>
 
-        private ConvertedError(
-            TransactionResult.CommunicationResult communicationResult,
+	// <editor-fold defaultstate="collapsed" desc="Error code conversion">
+	private static class ConvertedError {
+
+		private final TransactionResult.CommunicationResult communicationResult;
+		private final String providerErrorCode;
+		private final TransactionResult.ErrorCode errorCode;
+		private final String providerErrorMessage;
+		private final AuthorizationResult.DeclineReason declineReason;
+
+		private ConvertedError(
+			TransactionResult.CommunicationResult communicationResult,
 			String providerErrorCode,
-            TransactionResult.ErrorCode errorCode,
+			TransactionResult.ErrorCode errorCode,
 			String providerErrorMessage,
-            AuthorizationResult.DeclineReason declineReason
-        ) {
-            this.communicationResult = communicationResult;
+			AuthorizationResult.DeclineReason declineReason
+		) {
+			this.communicationResult = communicationResult;
 			this.providerErrorCode = providerErrorCode;
-            this.errorCode = errorCode;
+			this.errorCode = errorCode;
 			this.providerErrorMessage = providerErrorMessage;
-            this.declineReason = declineReason;
-        }
-    }
+			this.declineReason = declineReason;
+		}
+	}
 
 	/**
 	 * Gets an exception message.
@@ -435,30 +435,30 @@ public class Stripe implements MerchantServicesProvider {
 			null
 		);
 	}
-    // </editor-fold>
+	// </editor-fold>
 
 	@Override
-    public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
-        AuthorizationResult authorizationResult = saleOrAuthorize(transactionRequest, creditCard, true);
-        return new SaleResult(
-            authorizationResult,
-            new CaptureResult(
-                authorizationResult.getProviderId(),
-                authorizationResult.getCommunicationResult(),
-                authorizationResult.getProviderErrorCode(),
-                authorizationResult.getErrorCode(),
-                authorizationResult.getProviderErrorMessage(),
-                authorizationResult.getProviderUniqueId()
-            )
-        );
-    }
+	public SaleResult sale(TransactionRequest transactionRequest, CreditCard creditCard) {
+		AuthorizationResult authorizationResult = saleOrAuthorize(transactionRequest, creditCard, true);
+		return new SaleResult(
+			authorizationResult,
+			new CaptureResult(
+				authorizationResult.getProviderId(),
+				authorizationResult.getCommunicationResult(),
+				authorizationResult.getProviderErrorCode(),
+				authorizationResult.getErrorCode(),
+				authorizationResult.getProviderErrorMessage(),
+				authorizationResult.getProviderUniqueId()
+			)
+		);
+	}
 
-    @Override
-    public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
-        return saleOrAuthorize(transactionRequest, creditCard, false);
-    }
+	@Override
+	public AuthorizationResult authorize(TransactionRequest transactionRequest, CreditCard creditCard) {
+		return saleOrAuthorize(transactionRequest, creditCard, false);
+	}
 
-    private AuthorizationResult saleOrAuthorize(TransactionRequest transactionRequest, CreditCard creditCard, boolean capture) {
+	private AuthorizationResult saleOrAuthorize(TransactionRequest transactionRequest, CreditCard creditCard, boolean capture) {
 		// Test mode not currently supported
 		if(transactionRequest.getTestMode()) {
 			throw new UnsupportedOperationException("Test mode not currently supported");
@@ -576,7 +576,7 @@ public class Stripe implements MerchantServicesProvider {
 			// <editor-fold defaultstate="collapsed" desc="CVC conversion">
 			if(providerCvvResult == null) {
 				cvvResult = AuthorizationResult.CvvResult.CVV2_NOT_PROVIDED_BY_MERCHANT;
- 			} else {
+			} else {
 				if("pass".equals(providerCvvResult)) {
 					cvvResult = AuthorizationResult.CvvResult.MATCH;
 				} else if("fail".equals(providerCvvResult)) {
@@ -661,7 +661,7 @@ public class Stripe implements MerchantServicesProvider {
 	}
 
 	@Override
-    public CaptureResult capture(AuthorizationResult authorizationResult) {
+	public CaptureResult capture(AuthorizationResult authorizationResult) {
 		String id = authorizationResult.getProviderUniqueId();
 		try {
 			authorizationResult.getProviderUniqueId();
@@ -686,25 +686,25 @@ public class Stripe implements MerchantServicesProvider {
 				id
 			);
 		}
-    }
-
-    @Override
-    public VoidResult voidTransaction(Transaction transaction) {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public boolean canStoreCreditCards() {
-        return true;
-    }
+	}
 
 	@Override
-    public String storeCreditCard(CreditCard creditCard) throws IOException {
+	public VoidResult voidTransaction(Transaction transaction) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public CreditResult credit(TransactionRequest transactionRequest, CreditCard creditCard) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public boolean canStoreCreditCards() {
+		return true;
+	}
+
+	@Override
+	public String storeCreditCard(CreditCard creditCard) throws IOException {
 		// Create the Customer
 		Map<String,Object> customerParams = new HashMap<String,Object>();
 		addParam(false, customerParams, "card", makeCardParams(creditCard, false));
@@ -718,7 +718,7 @@ public class Stripe implements MerchantServicesProvider {
 			// TODO: Throw ErrorCodeException to provide more details
 			throw new LocalizedIOException(e, accessor, "MerchantServicesProvider.storeCreditCard.notSuccessful");
 		}
-    }
+	}
 
 	@Override
 	public void updateCreditCard(CreditCard creditCard) throws IOException {
@@ -742,8 +742,8 @@ public class Stripe implements MerchantServicesProvider {
 
 	}
 
-    @Override
-    public void updateCreditCardNumberAndExpiration(
+	@Override
+	public void updateCreditCardNumberAndExpiration(
 		CreditCard creditCard,
 		String cardNumber,
 		byte expirationMonth,
@@ -769,10 +769,10 @@ public class Stripe implements MerchantServicesProvider {
 			// TODO: Throw ErrorCodeException to provide more details
 			throw new LocalizedIOException(e, accessor, "MerchantServicesProvider.updateCreditCardNumberAndExpiration.notSuccessful");
 		}
-    }
+	}
 
-    @Override
-    public void updateCreditCardExpiration(
+	@Override
+	public void updateCreditCardExpiration(
 		CreditCard creditCard,
 		byte expirationMonth,
 		short expirationYear
@@ -791,10 +791,10 @@ public class Stripe implements MerchantServicesProvider {
 			// TODO: Throw ErrorCodeException to provide more details
 			throw new LocalizedIOException(e, accessor, "MerchantServicesProvider.updateCreditCardExpiration.notSuccessful");
 		}
-    }
+	}
 
-    @Override
-    public void deleteCreditCard(CreditCard creditCard) throws IOException {
+	@Override
+	public void deleteCreditCard(CreditCard creditCard) throws IOException {
 		try {
 			Customer customer = Customer.retrieve(creditCard.getProviderUniqueId(), options);
 			if(customer.getDeleted() == null || !customer.getDeleted()) {
@@ -805,5 +805,5 @@ public class Stripe implements MerchantServicesProvider {
 			// TODO: Throw ErrorCodeException to provide more details
 			throw new LocalizedIOException(e, accessor, "MerchantServicesProvider.deleteCreditCard.notSuccessful");
 		}
-    }
+	}
 }
