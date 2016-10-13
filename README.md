@@ -16,6 +16,9 @@ Parent POM for credit card processing API supporting multiple payment gateways.
 * [AO Credit Cards Test](https://www.aoindustries.com/ao-credit-cards/test/)
 * [AO Credit Cards USAePay](https://www.aoindustries.com/ao-credit-cards/usaepay/)
 
+## Related Projects
+* [AOServ Credit Cards](https://www.aoindustries.com/aoserv/credit-cards/)
+
 ## Contact Us
 For questions or support, please [contact us](https://www.aoindustries.com/contact):
 
