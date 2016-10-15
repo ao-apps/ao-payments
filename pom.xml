@@ -212,7 +212,8 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>2.10.4</version>
 						<configuration>
-							<header><![CDATA[<a href="${project.url}">${project.name}<a>]]></header>
+							<packagesheader><![CDATA[<a target="_top" href="${project.url}">${project.name} ${project.version}</a>]]></packagesheader>
+							<header><![CDATA[<a target="_top" href="${project.url}">${project.name} ${project.version}</a>]]></header>
 							<keywords>true</keywords><!-- Help internal search systems -->
 							<quiet>true</quiet>
 						</configuration>
