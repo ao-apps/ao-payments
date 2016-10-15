@@ -217,6 +217,10 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 							<keywords>true</keywords><!-- Help internal search systems -->
 							<quiet>true</quiet>
 							<docfilessubdirs>true</docfilessubdirs>
+							<detectJavaApiLink>false</detectJavaApiLink>
+							<links>
+								<link>https://docs.oracle.com/javase/6/docs/api/</link>
+							</links>
 						</configuration>
 						<executions>
 							<execution>
