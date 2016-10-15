@@ -3,7 +3,7 @@ Parent POM for credit card processing API supporting multiple payment gateways.
 
 ## Project Links
 * [Project Home](https://www.aoindustries.com/ao-credit-cards/)
-* [Maven Central Repository](http://search.maven.org/#search|gav|1|g:%22com.aoindustries%22%20AND%20a:%22ao-ao-credit-cards%22)
+* [Maven Central Repository](https://search.maven.org/#search|gav|1|g:%22com.aoindustries%22%20AND%20a:%22ao-ao-credit-cards%22)
 * [GitHub](https://github.com/aoindustries/ao-ao-credit-cards)
 
 ## Modules
