@@ -54,6 +54,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<developer>
 			<name>AO Industries, Inc.</name>
 			<email>support@aoindustries.com</email>
+			<url>https://www.aoindustries.com/</url>
 			<organization>AO Industries, Inc.</organization>
 			<organizationUrl>https://www.aoindustries.com/</organizationUrl>
 		</developer>
@@ -62,7 +63,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	<scm>
 		<connection>scm:git:git://github.com/aoindustries/ao-credit-cards.git</connection>
 		<developerConnection>scm:git:git@github.com:aoindustries/ao-credit-cards.git</developerConnection>
-		<url>http://github.com/aoindustries/ao-credit-cards</url>
+		<url>https://github.com/aoindustries/ao-credit-cards</url>
 		<tag>HEAD</tag>
 	</scm>
 
