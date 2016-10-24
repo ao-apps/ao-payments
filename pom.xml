@@ -58,12 +58,6 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>2.10.4</version>
-						<configuration>
-							<links>
-								<!-- All modules are java 1.6, link added here in parent -->
-								<link>https://docs.oracle.com/javase/6/docs/api/</link>
-							</links>
-						</configuration>
 					</plugin>
 				</plugins>
 			</build>
