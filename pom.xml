@@ -49,21 +49,6 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<tag>HEAD</tag>
 	</scm>
 
-	<profiles>
-		<profile>
-			<id>release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>2.10.4</version>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 	<modules>
 		<module>ao-credit-cards-all</module>
 		<module>ao-credit-cards-api</module>
