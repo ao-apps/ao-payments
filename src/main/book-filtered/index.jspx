@@ -1,0 +1,72 @@
+<!--
+ao-credit-cards - Parent POM for credit card processing API supporting multiple payment gateways.
+Copyright (C) 2016  AO Industries, Inc.
+    support@aoindustries.com
+    7262 Bull Pen Cir
+    Mobile, AL 36695
+
+This file is part of ao-credit-cards.
+
+ao-credit-cards is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ao-credit-cards is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
+-->
+<jsp:root
+	xmlns:ao="http://aoindustries.com/ao-taglib"
+	xmlns:core="https://semanticcms.com/core/taglib/"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:section="https://semanticcms.com/section/taglib/"
+	version="2.1"
+>
+	<jsp:directive.page language="java" pageEncoding="UTF-8" session="false" />
+	<core:page
+		title="@{project.name}"
+		description="@{project.description}"
+		datePublished="2016-10-16T21:44:00-0500"
+	>
+		<core:child book="/ao-credit-cards/all" page="/index.jspx" />
+		<core:child book="/ao-credit-cards/api" page="/index.jspx" />
+		<core:child book="/ao-credit-cards/authorizeNet" page="/index.jspx" />
+		<core:child book="/ao-credit-cards/payflowPro" page="/index.jspx" />
+		<core:child book="/ao-credit-cards/sagePayments" page="/index.jspx" />
+		<core:child book="/ao-credit-cards/stripe" page="/index.jspx" />
+		<core:child book="/ao-credit-cards/test" page="/index.jspx" />
+		<core:child book="/ao-credit-cards/usaepay" page="/index.jspx" />
+		<p>
+			@{description.html}
+		</p>
+		<section:section label="Project Links">
+			<ul>
+				<li><core:link page="index.jspx">Project Home</core:link></li>
+				<li><ao:a href="https://search.maven.org/#search%7Cgav%7C1%7Cg:%22@{project.groupId}%22%20AND%20a:%22@{project.artifactId}%22">Maven Central Repository</ao:a></li>
+				<li><ao:a href="@{project.scm.url}">GitHub</ao:a></li>
+			</ul>
+		</section:section>
+		<section:section label="Modules">
+			<ul>
+				<li><core:link book="/ao-credit-cards/all" page="/index.jspx" /></li>
+				<li><core:link book="/ao-credit-cards/api" page="/index.jspx" /></li>
+				<li><core:link book="/ao-credit-cards/authorizeNet" page="/index.jspx" /></li>
+				<li><core:link book="/ao-credit-cards/payflowPro" page="/index.jspx" /></li>
+				<li><core:link book="/ao-credit-cards/sagePayments" page="/index.jspx" /></li>
+				<li><core:link book="/ao-credit-cards/stripe" page="/index.jspx" /></li>
+				<li><core:link book="/ao-credit-cards/test" page="/index.jspx" /></li>
+				<li><core:link book="/ao-credit-cards/usaepay" page="/index.jspx" /></li>
+			</ul>
+		</section:section>
+		<section:section label="Related Projects">
+			<ul>
+				<li><core:link book="/aoserv/credit-cards" page="/index.jspx" /></li>
+			</ul>
+		</section:section>
+	</core:page>
+</jsp:root>
