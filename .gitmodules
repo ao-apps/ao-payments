@@ -22,3 +22,27 @@
 [submodule "ao-credit-cards-usaepay"]
 	path = ao-credit-cards-usaepay
 	url = git@github.com:aoindustries/ao-credit-cards-usaepay.git
+[submodule "all"]
+	path = all
+	url = git@github.com:aoindustries/ao-credit-cards-all.git
+[submodule "api"]
+	path = api
+	url = git@github.com:aoindustries/ao-credit-cards-api.git
+[submodule "authorizeNet"]
+	path = authorizeNet
+	url = git@github.com:aoindustries/ao-credit-cards-authorizeNet.git
+[submodule "payflowPro"]
+	path = payflowPro
+	url = git@github.com:aoindustries/ao-credit-cards-payflowPro.git
+[submodule "sagePayments"]
+	path = sagePayments
+	url = git@github.com:aoindustries/ao-credit-cards-sagePayments.git
+[submodule "stripe"]
+	path = stripe
+	url = git@github.com:aoindustries/ao-credit-cards-stripe.git
+[submodule "test"]
+	path = test
+	url = git@github.com:aoindustries/ao-credit-cards-test.git
+[submodule "usaepay"]
+	path = usaepay
+	url = git@github.com:aoindustries/ao-credit-cards-usaepay.git

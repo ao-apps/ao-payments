@@ -55,13 +55,13 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	</scm>
 
 	<modules>
-		<module>ao-credit-cards-all</module>
-		<module>ao-credit-cards-api</module>
-		<module>ao-credit-cards-authorizeNet</module>
-		<module>ao-credit-cards-payflowPro</module>
-		<module>ao-credit-cards-sagePayments</module>
-		<module>ao-credit-cards-stripe</module>
-		<module>ao-credit-cards-test</module>
-		<module>ao-credit-cards-usaepay</module>
+		<module>all</module>
+		<module>api</module>
+		<module>authorizeNet</module>
+		<module>payflowPro</module>
+		<module>sagePayments</module>
+		<module>stripe</module>
+		<module>test</module>
+		<module>usaepay</module>
 	</modules>
 </project>
