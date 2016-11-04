@@ -42,7 +42,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	</properties>
 
 	<name>AO Credit Cards</name>
-	<url>https://www.aoindustries.com${bookPath}/</url><!-- Can't inherit due to multi-module -->
+	<url>https://aoindustries.com${bookPath}/</url><!-- Can't inherit due to multi-module -->
 	<description>Parent POM for credit card processing API supporting multiple payment gateways.</description>
 	<inceptionYear>2007</inceptionYear>
 
