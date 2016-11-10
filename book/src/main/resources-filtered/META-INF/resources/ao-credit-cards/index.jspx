@@ -44,7 +44,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<core:child book="/ao-credit-cards/test" page="/index.jspx" />
 		<core:child book="/ao-credit-cards/usaepay" page="/index.jspx" />
 		<p>
-			@{description.html}
+			@{documented.description}
 		</p>
 		<section:section label="Project Links">
 			<ul>
