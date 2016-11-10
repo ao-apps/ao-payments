@@ -42,7 +42,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	</properties>
 
 	<name>AO Credit Cards</name>
-	<url>https://aoindustries.com${bookPath}/</url><!-- Can't inherit due to multi-module -->
+	<url>https://aoindustries.com/${project.artifactId}/</url>
 	<description>Parent POM for credit card processing API supporting multiple payment gateways.</description>
 	<inceptionYear>2007</inceptionYear>
 
@@ -55,13 +55,22 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	</scm>
 
 	<modules>
+		<module>book</module>
 		<module>all</module>
+		<module>all/book</module>
 		<module>api</module>
+		<module>api/book</module>
 		<module>authorizeNet</module>
+		<module>authorizeNet/book</module>
 		<module>payflowPro</module>
+		<module>payflowPro/book</module>
 		<module>sagePayments</module>
+		<module>sagePayments/book</module>
 		<module>stripe</module>
+		<module>stripe/book</module>
 		<module>test</module>
+		<module>test/book</module>
 		<module>usaepay</module>
+		<module>usaepay/book</module>
 	</modules>
 </project>
