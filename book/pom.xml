@@ -68,22 +68,23 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<profile>
 			<id>release</id>
 			<build>
-				<!-- TODO: <pluginManagement> here and others like in SemanticCMS? -->
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<configuration>
-							<links>
-								<link>https://docs.oracle.com/javaee/6/api/</link>
-								<link>https://aoindustries.com/ao-taglib/apidocs/</link>
-								<link>https://semanticcms.com/changelog/taglib/apidocs/</link>
-								<link>https://semanticcms.com/core/taglib/apidocs/</link>
-								<link>https://semanticcms.com/section/taglib/apidocs/</link>
-							</links>
-						</configuration>
-					</plugin>
-				</plugins>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<configuration>
+								<links>
+									<link>https://docs.oracle.com/javaee/6/api/</link>
+									<link>https://aoindustries.com/ao-taglib/apidocs/</link>
+									<link>https://semanticcms.com/changelog/taglib/apidocs/</link>
+									<link>https://semanticcms.com/core/taglib/apidocs/</link>
+									<link>https://semanticcms.com/section/taglib/apidocs/</link>
+								</links>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
 			</build>
 		</profile>
 	</profiles>
