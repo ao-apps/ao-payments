@@ -1,5 +1,5 @@
 # [<img src="ao-logo.png" alt="AO Logo" width="35" height="40">](https://aoindustries.com/) [AO Credit Cards](https://aoindustries.com/ao-credit-cards/)
-Parent POM for credit card processing API supporting multiple payment gateways.
+Aggregator POM for credit card processing API supporting multiple payment gateways.
 
 ## Project Links
 * [Project Home](https://aoindustries.com/ao-credit-cards/)
