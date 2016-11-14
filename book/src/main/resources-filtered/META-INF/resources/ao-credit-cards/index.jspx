@@ -1,5 +1,5 @@
 <!--
-ao-credit-cards - Parent POM for credit card processing API supporting multiple payment gateways.
+ao-credit-cards - Aggregator POM for credit card processing API supporting multiple payment gateways.
 Copyright (C) 2016  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
@@ -32,7 +32,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		title="@{documented.name}"
 		description="@{documented.description}"
 		datePublished="2016-10-16T21:44:00-0500"
-		dateModified="2016-10-28T00:11:09-0500"
+		dateModified="2016-11-13T23:56:09-0600"
 	>
 		<core:child page="changelog.jspx" />
 		<core:child book="/ao-credit-cards/all" page="/index.jspx" />

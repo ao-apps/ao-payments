@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-ao-credit-cards - Parent POM for credit card processing API supporting multiple payment gateways.
+ao-credit-cards - Aggregator POM for credit card processing API supporting multiple payment gateways.
 Copyright (C) 2016  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
@@ -40,12 +40,10 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<!-- These values are copied from the project being documented -->
 		<documented.groupId>com.aoindustries</documented.groupId>
 		<documented.artifactId>ao-credit-cards</documented.artifactId>
-
 		<documented.name>AO Credit Cards</documented.name>
 		<documented.url>https://aoindustries.com/${documented.artifactId}/</documented.url>
-		<documented.description>Parent POM for credit card processing API supporting multiple payment gateways.</documented.description>
+		<documented.description>Aggregator POM for credit card processing API supporting multiple payment gateways.</documented.description>
 		<documented.inceptionYear>2007</documented.inceptionYear>
-
 		<documented.scm.url>https://github.com/aoindustries/${documented.artifactId}</documented.scm.url>
 
 		<description.html><![CDATA[Documentation for <a target="_top" href="${documented.url}">${documented.name}</a> in <a target="_top" href="https://semanticcms.com/">SemanticCMS</a> format.]]></description.html>
@@ -63,31 +61,6 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<url>${documented.scm.url}</url>
 		<tag>HEAD</tag>
 	</scm>
-
-	<profiles>
-		<profile>
-			<id>release</id>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.apache.maven.plugins</groupId>
-							<artifactId>maven-javadoc-plugin</artifactId>
-							<configuration>
-								<links>
-									<link>https://docs.oracle.com/javaee/6/api/</link>
-									<link>https://aoindustries.com/ao-taglib/apidocs/</link>
-									<link>https://semanticcms.com/changelog/taglib/apidocs/</link>
-									<link>https://semanticcms.com/core/taglib/apidocs/</link>
-									<link>https://semanticcms.com/section/taglib/apidocs/</link>
-								</links>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
-		</profile>
-	</profiles>
 
 	<dependencies>
 		<dependency>
@@ -146,6 +119,15 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 			<groupId>com.semanticcms</groupId>
 			<artifactId>semanticcms-section-taglib</artifactId>
 			<version>1.4.2-SNAPSHOT</version>
+		</dependency>
+		<!-- Dependency for dependencyversion-maven-plugin only -->
+		<dependency>
+			<groupId>com.aoindustries</groupId>
+			<artifactId>ao-credit-cards</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
+			<type>pom</type>
+			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 </project>
