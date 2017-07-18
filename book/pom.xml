@@ -40,6 +40,8 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<!-- These values are copied from the project being documented -->
 		<documented.groupId>com.aoindustries</documented.groupId>
 		<documented.artifactId>ao-credit-cards</documented.artifactId>
+		<documented.javaVersion>1.6</documented.javaVersion>
+		<documented.javac.link.javaApi>${javac.link.javaApi.jdk16}</documented.javac.link.javaApi>
 		<documented.name>AO Credit Cards</documented.name>
 		<documented.url>https://aoindustries.com/${documented.artifactId}/</documented.url>
 		<documented.description>Aggregator POM for credit card processing API supporting multiple payment gateways.</documented.description>
@@ -99,6 +101,11 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 					<artifactId>jstl-api</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.aoindustries</groupId>
+			<artifactId>ao-badges</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aoindustries</groupId>

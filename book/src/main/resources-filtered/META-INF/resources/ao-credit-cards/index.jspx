@@ -1,6 +1,6 @@
 <!--
 ao-credit-cards - Aggregator POM for credit card processing API supporting multiple payment gateways.
-Copyright (C) 2016  AO Industries, Inc.
+Copyright (C) 2016, 2017  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -32,7 +32,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		title="@{documented.name}"
 		description="@{documented.description}"
 		datePublished="2016-10-16T21:44:00-0500"
-		dateModified="2016-11-13T23:56:09-0600"
+		dateModified="2017-07-18T08:01:30-0500"
 	>
 		<core:child page="changelog.jspx" />
 		<core:child book="/ao-credit-cards/all" page="/index.jspx" />
@@ -43,6 +43,15 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<core:child book="/ao-credit-cards/stripe" page="/index.jspx" />
 		<core:child book="/ao-credit-cards/test" page="/index.jspx" />
 		<core:child book="/ao-credit-cards/usaepay" page="/index.jspx" />
+		<ao:include
+			page="/ao-badges/badges.inc.jspx"
+			arg.projectStatus="${currentPage.property.projectStatus}"
+			arg.managementStatus="${currentPage.property.managementStatus}"
+			arg.packagingStatus="${currentPage.property.packagingStatus}"
+			arg.javaVersion="${currentPage.property.javaVersion}"
+			arg.semanticVersioning="${currentPage.property.semanticVersioning}"
+			arg.license="${currentPage.property.license}"
+		/>
 		<p>
 			@{documented.description}
 		</p>
