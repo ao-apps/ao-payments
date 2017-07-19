@@ -27,7 +27,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	<parent>
 		<groupId>com.aoindustries</groupId>
 		<artifactId>ao-oss-parent</artifactId>
-		<version>1.0.2-SNAPSHOT</version>
+		<version>1.0.2</version>
 		<relativePath>../ao-oss-parent/pom.xml</relativePath>
 	</parent>
 
