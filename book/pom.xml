@@ -33,7 +33,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 
 	<groupId>com.aoindustries</groupId>
 	<artifactId>ao-credit-cards-book</artifactId>
-	<version>1.0.3-SNAPSHOT</version>
+	<version>1.0.3</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -59,7 +59,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<connection>scm:git:git://github.com/aoindustries/${documented.artifactId}.git</connection>
 		<developerConnection>scm:git:git@github.com:aoindustries/${documented.artifactId}.git</developerConnection>
 		<url>${documented.scm.url}</url>
-		<tag>HEAD</tag>
+		<tag>ao-credit-cards-book-1.0.3</tag>
 	</scm>
 
 	<dependencies>
