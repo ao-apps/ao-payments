@@ -1,27 +1,3 @@
-[submodule "ao-credit-cards-api"]
-	path = ao-credit-cards-api
-	url = git@github.com:aoindustries/ao-credit-cards-api.git
-[submodule "ao-credit-cards-all"]
-	path = ao-credit-cards-all
-	url = git@github.com:aoindustries/ao-credit-cards-all.git
-[submodule "ao-credit-cards-authorizeNet"]
-	path = ao-credit-cards-authorizeNet
-	url = git@github.com:aoindustries/ao-credit-cards-authorizeNet.git
-[submodule "ao-credit-cards-payflowPro"]
-	path = ao-credit-cards-payflowPro
-	url = git@github.com:aoindustries/ao-credit-cards-payflowPro.git
-[submodule "ao-credit-cards-sagePayments"]
-	path = ao-credit-cards-sagePayments
-	url = git@github.com:aoindustries/ao-credit-cards-sagePayments.git
-[submodule "ao-credit-cards-stripe"]
-	path = ao-credit-cards-stripe
-	url = git@github.com:aoindustries/ao-credit-cards-stripe.git
-[submodule "ao-credit-cards-test"]
-	path = ao-credit-cards-test
-	url = git@github.com:aoindustries/ao-credit-cards-test.git
-[submodule "ao-credit-cards-usaepay"]
-	path = ao-credit-cards-usaepay
-	url = git@github.com:aoindustries/ao-credit-cards-usaepay.git
 [submodule "all"]
 	path = all
 	url = git@github.com:aoindustries/ao-credit-cards-all.git
