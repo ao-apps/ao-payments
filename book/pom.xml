@@ -33,7 +33,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 
 	<groupId>com.aoindustries</groupId>
 	<artifactId>ao-credit-cards-book</artifactId>
-	<version>1.0.4-SNAPSHOT</version>
+	<version>1.0.4-validation-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -103,7 +103,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<dependency>
 			<groupId>com.aoindustries</groupId>
 			<artifactId>ao-badges</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1-validation-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aoindustries</groupId>
@@ -129,7 +129,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<dependency>
 			<groupId>com.aoindustries</groupId>
 			<artifactId>ao-credit-cards</artifactId>
-			<version>1.0.4-SNAPSHOT</version>
+			<version>1.0.4-validation-SNAPSHOT</version>
 			<type>pom</type>
 			<scope>provided</scope>
 			<optional>true</optional>
