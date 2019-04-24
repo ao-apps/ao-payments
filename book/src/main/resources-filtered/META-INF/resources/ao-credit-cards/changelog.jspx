@@ -37,7 +37,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		shortTitle="Changelog"
 		tocLevels="1"
 		datePublished="2016-10-29T18:02:14-0500"
-		dateModified="2018-08-05T18:45:36-0500"
+		dateModified="2019-04-24T01:57:32-0500"
 	>
 		<!-- The current snapshot, unreleased version -->
 		<c:set var="version" value="@{com.aoindustries:ao-credit-cards:pom.version}" />
@@ -54,7 +54,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 				scmUrl="@{documented.scm.url}"
 			>
 				<ul>
-					<li>Updated version of <core:link book="/ao-credit-cards/authorizeNet" page="/index.jspx" />.</li>
+					<li>Updated version of <core:link book="/ao-oss-parent" page="/index.jspx" />.</li>
 				</ul>
 			</changelog:release>
 		</c:if>
