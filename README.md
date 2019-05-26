@@ -41,6 +41,7 @@ Aggregator POM for credit card processing API supporting multiple payment gatewa
 
 ## Related Projects
 * [AOServ Credit Cards](https://github.com/aoindustries/aoserv-credit-cards)
+* [NMW Payment Taglib](https://github.com/newmediaworks/nmw-payment-taglib)
 
 ## Contact Us
 For questions or support, please [contact us](https://aoindustries.com/contact):
