@@ -30,6 +30,7 @@ Aggregator POM for credit card processing API supporting multiple payment gatewa
 * [GitHub](https://github.com/aoindustries/ao-credit-cards)
 
 ## Modules
+* [AO Credit Cards BOM](https://github.com/aoindustries/ao-credit-cards-bom)
 * [AO Credit Cards All](https://github.com/aoindustries/ao-credit-cards-all)
 * [AO Credit Cards API](https://github.com/aoindustries/ao-credit-cards-api)
 * [AO Credit Cards Authorize.Net](https://github.com/aoindustries/ao-credit-cards-authorizeNet)

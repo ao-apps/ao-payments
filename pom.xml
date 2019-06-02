@@ -47,6 +47,8 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 
 	<modules>
 		<module>book</module>
+		<module>bom</module>
+		<module>bom/book</module>
 		<module>all</module>
 		<module>all/book</module>
 		<module>api</module>
