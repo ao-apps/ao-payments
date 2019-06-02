@@ -22,3 +22,6 @@
 [submodule "usaepay"]
 	path = usaepay
 	url = git@github.com:aoindustries/ao-credit-cards-usaepay.git
+[submodule "bom"]
+	path = bom
+	url = git@aoindustries.github.com:aoindustries/ao-credit-cards-bom.git
