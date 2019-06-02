@@ -33,7 +33,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		title="@{documented.name}"
 		description="@{documented.description}"
 		datePublished="2016-10-16T21:44:00-0500"
-		dateModified="2019-06-01T00:46:53-0500"
+		dateModified="2019-06-01T18:51:51-0500"
 	>
 		<core:child page="changelog.jspx" />
 		<core:child book="/ao-credit-cards/all" page="/index.jspx" />
@@ -57,14 +57,14 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<p>
 			@{documented.description}
 		</p>
-		<section:section label="Project Links">
+		<section:nav label="Project Links">
 			<ul>
 				<li><core:link page="index.jspx">Project Home</core:link></li>
 				<li><core:link page="changelog.jspx">Changelog</core:link></li>
 				<li><ao:a href="https://search.maven.org/#search%7Cgav%7C1%7Cg:%22@{documented.groupId}%22%20AND%20a:%22@{documented.artifactId}%22">Maven Central Repository</ao:a></li>
 				<li><ao:a href="@{documented.scm.url}">GitHub</ao:a></li>
 			</ul>
-		</section:section>
+		</section:nav>
 		<section:section label="Modules">
 			<ul>
 				<li><core:link book="/ao-credit-cards/all" page="/index.jspx" /></li>
@@ -77,11 +77,11 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 				<li><core:link book="/ao-credit-cards/usaepay" page="/index.jspx" /></li>
 			</ul>
 		</section:section>
-		<section:section label="Related Projects">
+		<section:aside label="Related Projects">
 			<ul>
 				<li><core:link book="/aoserv/credit-cards" page="/index.jspx" /></li>
 				<li><ao:a href="https://oss.newmediaworks.com/payment-taglib/">NMW Payment Taglib</ao:a></li>
 			</ul>
-		</section:section>
+		</section:aside>
 	</core:page>
 </jsp:root>
