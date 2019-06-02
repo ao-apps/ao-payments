@@ -33,9 +33,10 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		title="@{documented.name}"
 		description="@{documented.description}"
 		datePublished="2016-10-16T21:44:00-0500"
-		dateModified="2019-06-01T18:51:51-0500"
+		dateModified="2019-06-02T15:12:04-0500"
 	>
 		<core:child page="changelog.jspx" />
+		<core:child book="/ao-credit-cards/bom" page="/index.jspx" />
 		<core:child book="/ao-credit-cards/all" page="/index.jspx" />
 		<core:child book="/ao-credit-cards/api" page="/index.jspx" />
 		<core:child book="/ao-credit-cards/authorizeNet" page="/index.jspx" />
@@ -67,6 +68,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		</section:nav>
 		<section:section label="Modules">
 			<ul>
+				<li><core:link book="/ao-credit-cards/bom" page="/index.jspx" /></li>
 				<li><core:link book="/ao-credit-cards/all" page="/index.jspx" /></li>
 				<li><core:link book="/ao-credit-cards/api" page="/index.jspx" /></li>
 				<li><core:link book="/ao-credit-cards/authorizeNet" page="/index.jspx" /></li>
