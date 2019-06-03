@@ -37,7 +37,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		shortTitle="Changelog"
 		tocLevels="1"
 		datePublished="2016-10-29T18:02:14-0500"
-		dateModified="2019-05-19T22:58:30-0500"
+		dateModified="2019-06-03T13:24:45-0500"
 	>
 		<!-- The current snapshot, unreleased version -->
 		<c:set var="version" value="@{com.aoindustries:ao-credit-cards:pom.version}" />
@@ -55,6 +55,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 			>
 				<ul>
 					<li>Updated version of <core:link book="/ao-oss-parent" page="/index.jspx" />.</li>
+					<li>New project <core:link book="/ao-credit-cards/bom" page="/index.jspx" /> for managed dependencies.</li>
 					<li>Please note: the next major release of this project will be renamed to <code>ao-payment</code>.</li>
 				</ul>
 			</changelog:release>
