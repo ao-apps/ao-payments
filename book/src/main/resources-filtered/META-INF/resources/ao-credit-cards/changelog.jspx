@@ -31,7 +31,6 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	version="2.1"
 >
 	<jsp:directive.page language="java" pageEncoding="UTF-8" session="false" />
-	<!-- TODO: https://schema.org/TechArticle on this page -->
 	<core:page
 		title="@{documented.name} Changelog"
 		shortTitle="Changelog"
