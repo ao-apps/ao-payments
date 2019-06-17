@@ -48,11 +48,11 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<header>
 			<ao:include
 				page="/ao-badges/badges.inc.jspx"
-				arg.projectStatus="${currentPage.property.projectStatus}"
-				arg.managementStatus="${currentPage.property.managementStatus}"
-				arg.packagingStatus="${currentPage.property.packagingStatus}"
-				arg.semanticVersioning="${currentPage.property.semanticVersioning}"
-				arg.license="${currentPage.property.license}"
+				arg.projectStatus="current-stable"
+				arg.managementStatus="production"
+				arg.packagingStatus="active"
+				arg.semanticVersioning="2.0.0"
+				arg.license="lgpl-3.0"
 			/>
 		</header>
 		<p>
