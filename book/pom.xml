@@ -86,7 +86,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		</dependency>
 		<!-- Direct -->
 		<dependency>
-			<groupId>com.aoindustries</groupId><artifactId>ao-badges</artifactId><version>1.1.1-SNAPSHOT</version>
+			<groupId>com.aoindustries</groupId><artifactId>ao-badges</artifactId><version>1.1.1-validation-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.aoindustries</groupId><artifactId>ao-taglib</artifactId><version>3.0.1-validation-SNAPSHOT</version>
