@@ -44,7 +44,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 			test="${!fn:startsWith(version, '@')}"
 			message="Version not substituted: #{version}"
 		/>
-		<c:if test="${fn:endsWith(version, '-SNAPSHOT') and !fn:endsWith(version, '-validation-SNAPSHOT')}">
+		<c:if test="${fn:endsWith(version, '-SNAPSHOT') and !fn:endsWith(version, '-POST-SNAPSHOT')}">
 			<changelog:release
 				projectName="@{documented.name}"
 				version="#{version}"
