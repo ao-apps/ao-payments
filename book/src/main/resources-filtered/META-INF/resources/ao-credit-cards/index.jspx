@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-credit-cards - Aggregator POM for credit card processing API supporting multiple payment gateways.
-Copyright (C) 2016, 2017, 2019  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2019, 2020  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -28,7 +28,8 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	xmlns:section="https://semanticcms.com/section/taglib/"
 	version="2.1"
 >
-	<jsp:directive.page language="java" pageEncoding="UTF-8" session="false" />
+	<jsp:directive.page language="java" pageEncoding="UTF-8" />
+	<jsp:directive.page session="false" />
 	<core:page
 		title="@{documented.name}"
 		description="@{documented.description}"
