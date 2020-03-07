@@ -63,8 +63,8 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 			<ul>
 				<li><core:link page="index.jspx">Project Home</core:link></li>
 				<li><core:link page="changelog.jspx">Changelog</core:link></li>
-				<li><ao:a href="https://search.maven.org/#search%7Cgav%7C1%7Cg:%22@{documented.groupId}%22%20AND%20a:%22@{documented.artifactId}%22">Maven Central Repository</ao:a></li>
-				<li><ao:a href="@{documented.scm.url}">GitHub</ao:a></li>
+				<li><ao:a href="https://search.maven.org/#search%7Cgav%7C1%7Cg:%22@{project.groupId}%22%20AND%20a:%22@{documented.artifactId}%22">Maven Central Repository</ao:a></li>
+				<li><ao:a href="@{project.scm.url}">GitHub</ao:a></li>
 			</ul>
 		</section:nav>
 		<section:section label="Modules">
