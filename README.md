@@ -26,7 +26,7 @@ Aggregator POM for credit card processing API supporting multiple payment gatewa
 ## Project Links
 * [Project Home](https://aoindustries.com/ao-credit-cards/)
 * [Changelog](https://aoindustries.com/ao-credit-cards/changelog)
-* [Maven Central Repository](https://search.maven.org/#search%7Cgav%7C1%7Cg:%22com.aoindustries%22%20AND%20a:%22ao-credit-cards%22)
+* [Maven Central Repository](https://search.maven.org/artifact/com.aoindustries/ao-credit-cards)
 * [GitHub](https://github.com/aoindustries/ao-credit-cards)
 
 ## Modules
