@@ -45,6 +45,11 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<tag>HEAD</tag>
 	</scm>
 
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/aoindustries/ao-credit-cards/issues</url>
+	</issueManagement>
+
 	<modules>
 		<module>book</module>
 		<module>bom</module>
