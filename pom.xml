@@ -38,7 +38,6 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	<inceptionYear>2007</inceptionYear>
 
 	<scm>
-		<!-- Can't inherit due to multi-module -->
 		<connection>scm:git:git://github.com/aoindustries/ao-credit-cards.git</connection>
 		<developerConnection>scm:git:git@github.com:aoindustries/ao-credit-cards.git</developerConnection>
 		<url>https://github.com/aoindustries/ao-credit-cards</url>
