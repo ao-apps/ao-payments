@@ -1,3 +1,7 @@
+[submodule "bom"]
+	path = bom
+	url = git@github.com:aoindustries/ao-credit-cards-bom.git
+	branch = .
 [submodule "all"]
 	path = all
 	url = git@github.com:aoindustries/ao-credit-cards-all.git
@@ -29,8 +33,4 @@
 [submodule "usaepay"]
 	path = usaepay
 	url = git@github.com:aoindustries/ao-credit-cards-usaepay.git
-	branch = .
-[submodule "bom"]
-	path = bom
-	url = git@aoindustries.github.com:aoindustries/ao-credit-cards-bom.git
 	branch = .
