@@ -25,7 +25,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.aoindustries</groupId><artifactId>ao-oss-parent</artifactId><version>1.7.2-POST-SNAPSHOT</version>
+		<groupId>com.aoindustries</groupId><artifactId>ao-oss-parent</artifactId><version>1.8.0-SNAPSHOT</version>
 		<relativePath>../../ao-oss-parent/pom.xml</relativePath>
 	</parent>
 
@@ -38,7 +38,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<documented.name>AO Credit Cards</documented.name>
 		<documented.description>Aggregator POM for credit card processing API supporting multiple payment gateways.</documented.description>
 
-		<description.html><![CDATA[Documentation for <a target="_top" href="${project.url}">${documented.name}</a> in <a target="_top" href="https://semanticcms.com/">SemanticCMS</a> format.]]></description.html>
+		<description.html><![CDATA[Documentation for <a target="${javadoc.target}" href="${project.url}">${documented.name}</a> in <a target="${javadoc.target}" href="https://semanticcms.com/">SemanticCMS</a> format.]]></description.html>
 	</properties>
 
 	<name>AO Credit Cards Book</name>
