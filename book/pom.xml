@@ -25,7 +25,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.aoindustries</groupId><artifactId>ao-oss-parent</artifactId><version>1.10.0-POST-SNAPSHOT</version>
+		<groupId>com.aoindustries</groupId><artifactId>ao-oss-parent</artifactId><version>1.10.0<!-- -POST-SNAPSHOT --></version>
 		<relativePath>../../ao-oss-parent/pom.xml</relativePath>
 	</parent>
 
@@ -62,7 +62,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<dependencies>
 			<!-- BOM -->
 			<dependency>
-				<groupId>com.aoindustries</groupId><artifactId>javaee-web-api-bom</artifactId><version>6.0.1${POST-SNAPSHOT}</version>
+				<groupId>com.aoindustries</groupId><artifactId>javaee-web-api-bom</artifactId><version>6.0.1<!-- ${POST-SNAPSHOT} --></version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -72,11 +72,11 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	<dependencies>
 		<!-- Runtime Direct -->
 		<dependency>
-			<groupId>com.aoindustries</groupId><artifactId>ao-badges</artifactId><version>1.3.0${POST-SNAPSHOT}</version>
+			<groupId>com.aoindustries</groupId><artifactId>ao-badges</artifactId><version>1.3.0<!-- ${POST-SNAPSHOT} --></version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.aoindustries</groupId><artifactId>ao-taglib</artifactId><version>5.0.1${POST-SNAPSHOT}</version>
+			<groupId>com.aoindustries</groupId><artifactId>ao-taglib</artifactId><version>5.0.1<!-- ${POST-SNAPSHOT} --></version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -88,20 +88,20 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.semanticcms</groupId><artifactId>semanticcms-changelog-taglib</artifactId><version>1.2.1${POST-SNAPSHOT}</version>
+			<groupId>com.semanticcms</groupId><artifactId>semanticcms-changelog-taglib</artifactId><version>1.2.1<!-- ${POST-SNAPSHOT} --></version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.semanticcms</groupId><artifactId>semanticcms-core-taglib</artifactId><version>1.12.0${POST-SNAPSHOT}</version>
+			<groupId>com.semanticcms</groupId><artifactId>semanticcms-core-taglib</artifactId><version>1.12.0<!-- ${POST-SNAPSHOT} --></version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.semanticcms</groupId><artifactId>semanticcms-section-taglib</artifactId><version>1.7.0${POST-SNAPSHOT}</version>
+			<groupId>com.semanticcms</groupId><artifactId>semanticcms-section-taglib</artifactId><version>1.7.0<!-- ${POST-SNAPSHOT} --></version>
 			<scope>runtime</scope>
 		</dependency>
 		<!-- Dependency for dependencyversion-maven-plugin only -->
 		<dependency>
-			<groupId>com.aoindustries</groupId><artifactId>ao-credit-cards</artifactId><version>1.1.3-SNAPSHOT</version>
+			<groupId>com.aoindustries</groupId><artifactId>ao-credit-cards</artifactId><version>1.1.3<!-- -POST-SNAPSHOT --></version>
 			<type>pom</type>
 			<scope>provided</scope>
 			<optional>true</optional>
