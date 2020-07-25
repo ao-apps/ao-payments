@@ -76,7 +76,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.aoindustries</groupId><artifactId>ao-taglib</artifactId><version>5.0.2${POST-SNAPSHOT}</version>
+			<groupId>com.aoindustries</groupId><artifactId>ao-taglib</artifactId><version>5.0.3-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
