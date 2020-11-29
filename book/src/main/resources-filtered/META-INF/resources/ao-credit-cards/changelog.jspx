@@ -37,7 +37,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		shortTitle="Changelog"
 		tocLevels="1"
 		datePublished="2016-10-29T18:02:14-0500"
-		dateModified="2020-09-02T21:43:58-05:00"
+		dateModified="2020-11-29T07:43:02-06:00"
 	>
 		<!-- The current snapshot, unreleased version -->
 		<c:set var="version" value="@{com.aoindustries:ao-credit-cards:pom.version}" />
@@ -57,6 +57,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 					<li>Updated version of <core:link book="/ao-credit-cards/bom" page="/index.jspx" />.</li>
 					<li>Updated version of <core:link book="/ao-credit-cards/all" page="/index.jspx" />.</li>
 					<li>Updated version of <core:link book="/ao-credit-cards/payflowPro" page="/index.jspx" />.</li>
+					<li>Deprecated <core:link book="/ao-credit-cards/sagePayments" page="/index.jspx" />.</li>
 					<li>Updated version of <core:link book="/ao-credit-cards/stripe" page="/index.jspx" />.</li>
 				</ul>
 			</changelog:release>
