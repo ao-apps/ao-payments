@@ -39,16 +39,10 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		datePublished="2016-10-29T18:02:14-0500"
 		dateModified="2020-12-01T12:29:36-06:00"
 	>
-		<!-- The current snapshot, unreleased version -->
-		<c:set var="version" value="@{com.aoindustries:ao-credit-cards:pom.version}" />
-		<ao:assert
-			test="${!fn:startsWith(version, '@')}"
-			message="Version not substituted: #{version}"
-		/>
-		<c:if test="${fn:endsWith(version, '-SNAPSHOT') and !fn:endsWith(version, '-POST-SNAPSHOT')}">
+		<c:if test="${fn:endsWith('@{project.version}', '-SNAPSHOT') and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')}">
 			<changelog:release
 				projectName="@{documented.name}"
-				version="#{version}"
+				version="@{project.version}"
 				groupId="@{project.groupId}"
 				artifactId="@{documented.artifactId}"
 				scmUrl="@{project.scm.url}"
