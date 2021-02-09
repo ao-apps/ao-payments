@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-credit-cards - Aggregator POM for credit card processing API supporting multiple payment gateways.
-Copyright (C) 2016, 2017, 2018, 2019, 2020  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -37,7 +37,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		shortTitle="Changelog"
 		tocLevels="1"
 		datePublished="2016-10-29T18:02:14-0500"
-		dateModified="2020-12-11T12:47:03-06:00"
+		dateModified="2021-02-09T10:15:51-06:00"
 	>
 		<c:if test="${fn:endsWith('@{project.version}', '-SNAPSHOT') and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')}">
 			<changelog:release
@@ -48,6 +48,22 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 				scmUrl="@{project.scm.url}"
 			/>
 		</c:if>
+
+		<changelog:release
+			projectName="@{documented.name}"
+			version="1.3.1"
+			datePublished="2021-02-09T10:15:51-06:00"
+			groupId="@{project.groupId}"
+			artifactId="@{documented.artifactId}"
+			scmUrl="@{project.scm.url}"
+		>
+			<ul>
+				<li>Updated version of <core:link book="/ao-credit-cards/bom" page="/index.jspx" />.</li>
+				<li>Updated version of <core:link book="/ao-credit-cards/all" page="/index.jspx" />.</li>
+				<li>Updated version of <core:link book="/ao-credit-cards/api" page="/index.jspx" />.</li>
+				<li>Updated version of <core:link book="/ao-credit-cards/stripe" page="/index.jspx" />.</li>
+			</ul>
+		</changelog:release>
 
 		<changelog:release
 			projectName="@{documented.name}"
