@@ -36,7 +36,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		title="@{documented.name} Changelog"
 		shortTitle="Changelog"
 		tocLevels="1"
-		datePublished="2016-10-29T18:02:14-0500"
+		datePublished="2016-10-29T18:02:14-05:00"
 		dateModified="2021-02-09T10:20:08-06:00"
 	>
 		<c:if test="${fn:endsWith('@{project.version}', '-SNAPSHOT') and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')}">
@@ -137,7 +137,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<changelog:release
 			projectName="@{documented.name}"
 			version="1.1.1"
-			datePublished="2019-10-05T18:19:29-0500"
+			datePublished="2019-10-05T18:19:29-05:00"
 			groupId="@{project.groupId}"
 			artifactId="@{documented.artifactId}"
 			scmUrl="@{project.scm.url}"
@@ -154,7 +154,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<changelog:release
 			projectName="@{documented.name}"
 			version="1.1.0"
-			datePublished="2019-06-21T01:52:56-0500"
+			datePublished="2019-06-21T01:52:56-05:00"
 			groupId="@{project.groupId}"
 			artifactId="@{documented.artifactId}"
 			scmUrl="@{project.scm.url}"
@@ -169,7 +169,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<changelog:release
 			projectName="@{documented.name}"
 			version="1.0.3"
-			datePublished="2017-07-20T02:20:06-0500"
+			datePublished="2017-07-20T02:20:06-05:00"
 			groupId="@{project.groupId}"
 			artifactId="@{documented.artifactId}"
 			scmUrl="@{project.scm.url}"
@@ -182,7 +182,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<changelog:release
 			projectName="@{documented.name}"
 			version="1.0.2"
-			datePublished="2016-11-15T23:33:39-0600"
+			datePublished="2016-11-15T23:33:39-06:00"
 			groupId="@{project.groupId}"
 			artifactId="@{documented.artifactId}"
 			scmUrl="@{project.scm.url}"
@@ -197,7 +197,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<changelog:release
 			projectName="@{documented.name}"
 			version="1.0.1"
-			datePublished="2016-10-20T18:15:00-0500"
+			datePublished="2016-10-20T18:15:00-05:00"
 			groupId="@{project.groupId}"
 			artifactId="@{documented.artifactId}"
 			scmUrl="@{project.scm.url}"
@@ -211,7 +211,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<changelog:release
 			projectName="@{documented.name}"
 			version="1.0.0"
-			datePublished="2016-10-06T12:31:00-0500"
+			datePublished="2016-10-06T12:31:00-05:00"
 			groupId="@{project.groupId}"
 			artifactId="@{documented.artifactId}"
 			scmUrl="@{project.scm.url}"

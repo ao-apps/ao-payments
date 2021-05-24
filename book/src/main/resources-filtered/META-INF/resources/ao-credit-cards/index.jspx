@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-credit-cards - Aggregator POM for credit card processing API supporting multiple payment gateways.
-Copyright (C) 2016, 2017, 2019, 2020  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2019, 2020, 2021  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -33,7 +33,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 	<core:page
 		title="@{documented.name}"
 		description="@{documented.description}"
-		datePublished="2016-10-16T21:44:00-0500"
+		datePublished="2016-10-16T21:44:00-05:00"
 		dateModified="2020-03-24T14:01:33-05:00"
 	>
 		<core:child page="changelog.jspx" />
