@@ -37,7 +37,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		shortTitle="Changelog"
 		tocLevels="1"
 		datePublished="2016-10-29T18:02:14-05:00"
-		dateModified="2021-05-25T18:54:28-05:00"
+		dateModified="2021-05-26T06:36:49-05:00"
 	>
 		<c:if test="${fn:endsWith('@{project.version}', '-SNAPSHOT') and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')}">
 			<changelog:release
@@ -48,7 +48,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 				scmUrl="@{project.scm.url}"
 			>
 				<ul>
-					<li>Updated dependencies.</li>
+					<li>Minimum Java version changed from 1.8 to 11.</li>
 				</ul>
 			</changelog:release>
 		</c:if>

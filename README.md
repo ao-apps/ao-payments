@@ -10,8 +10,8 @@
 		<img src="https://aoindustries.com/ao-badges/packaging-active.svg" alt="packaging: active" />
 	</a>
 	<br />
-	<a href="https://docs.oracle.com/javase/8/docs/api/">
-		<img src="https://aoindustries.com/ao-badges/java-8.svg" alt="java: &gt;= 8" />
+	<a href="https://docs.oracle.com/en/java/javase/11/docs/api/">
+		<img src="https://aoindustries.com/ao-badges/java-11.svg" alt="java: &gt;= 11" />
 	</a>
 	<a href="http://semver.org/spec/v2.0.0.html">
 		<img src="https://aoindustries.com/ao-badges/semver-2.0.0.svg" alt="semantic versioning: 2.0.0" />

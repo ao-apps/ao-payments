@@ -29,7 +29,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<relativePath>../ao-oss-parent/pom.xml</relativePath>
 	</parent>
 
-	<groupId>com.aoindustries</groupId><artifactId>ao-credit-cards</artifactId><version>1.3.2-SNAPSHOT</version>
+	<groupId>com.aoindustries</groupId><artifactId>ao-credit-cards</artifactId><version>1.4.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>AO Credit Cards</name>
