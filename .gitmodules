@@ -18,10 +18,6 @@
 	path = payflowPro
 	url = git@github.com:aoindustries/ao-credit-cards-payflowPro.git
 	branch = .
-[submodule "sagePayments"]
-	path = sagePayments
-	url = git@github.com:aoindustries/ao-credit-cards-sagePayments.git
-	branch = .
 [submodule "stripe"]
 	path = stripe
 	url = git@github.com:aoindustries/ao-credit-cards-stripe.git

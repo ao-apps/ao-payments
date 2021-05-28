@@ -35,7 +35,6 @@ Aggregator POM for credit card processing API supporting multiple payment gatewa
 * [AO Credit Cards API](https://github.com/aoindustries/ao-credit-cards-api)
 * [AO Credit Cards Authorize.Net](https://github.com/aoindustries/ao-credit-cards-authorizeNet)
 * [AO Credit Cards Payflow Pro XMLPay](https://github.com/aoindustries/ao-credit-cards-payflowPro)
-* [AO Credit Cards Sage Payment Solutions](https://github.com/aoindustries/ao-credit-cards-sagePayments)
 * [AO Credit Cards Stripe](https://github.com/aoindustries/ao-credit-cards-stripe)
 * [AO Credit Cards Test](https://github.com/aoindustries/ao-credit-cards-test)
 * [AO Credit Cards USAePay](https://github.com/aoindustries/ao-credit-cards-usaepay)

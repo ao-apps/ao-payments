@@ -85,8 +85,6 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		<module>authorizeNet/book</module>
 		<module>payflowPro</module>
 		<module>payflowPro/book</module>
-		<module>sagePayments</module>
-		<module>sagePayments/book</module>
 		<module>stripe</module>
 		<module>stripe/book</module>
 		<module>test</module>

@@ -37,7 +37,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		shortTitle="Changelog"
 		tocLevels="1"
 		datePublished="2016-10-29T18:02:14-05:00"
-		dateModified="2021-05-26T06:36:49-05:00"
+		dateModified="2021-05-27T21:59:03-05:00"
 	>
 		<c:if test="${fn:endsWith('@{project.version}', '-SNAPSHOT') and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')}">
 			<changelog:release
@@ -49,6 +49,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 			>
 				<ul>
 					<li>Minimum Java version changed from 1.8 to 11.</li>
+					<li><ao:a href="https://github.com/aoindustries/ao-credit-cards-sagePayments">AO Credit Cards Sage Payment Solutions</ao:a> is end-of-life.</li>
 				</ul>
 			</changelog:release>
 		</c:if>
@@ -83,7 +84,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 				<li>Updated version of <core:link book="/ao-credit-cards/api" page="/index.jspx" />.</li>
 				<li>Updated version of <core:link book="/ao-credit-cards/authorizeNet" page="/index.jspx" />.</li>
 				<li>Updated version of <core:link book="/ao-credit-cards/payflowPro" page="/index.jspx" />.</li>
-				<li>Updated version of <core:link book="/ao-credit-cards/sagePayments" page="/index.jspx" />.</li>
+				<li>Updated version of <ao:a href="https://github.com/aoindustries/ao-credit-cards-sagePayments">AO Credit Cards Sage Payment Solutions</ao:a>.</li>
 				<li>Updated version of <core:link book="/ao-credit-cards/stripe" page="/index.jspx" />.</li>
 				<li>Updated version of <core:link book="/ao-credit-cards/test" page="/index.jspx" />.</li>
 				<li>Updated version of <core:link book="/ao-credit-cards/usaepay" page="/index.jspx" />.</li>
@@ -102,7 +103,7 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 				<li>Updated version of <core:link book="/ao-credit-cards/bom" page="/index.jspx" />.</li>
 				<li>Updated version of <core:link book="/ao-credit-cards/all" page="/index.jspx" />.</li>
 				<li>Updated version of <core:link book="/ao-credit-cards/payflowPro" page="/index.jspx" />.</li>
-				<li>Deprecated <core:link book="/ao-credit-cards/sagePayments" page="/index.jspx" />.</li>
+				<li>Deprecated <ao:a href="https://github.com/aoindustries/ao-credit-cards-sagePayments">AO Credit Cards Sage Payment Solutions</ao:a>.</li>
 				<li>Updated version of <core:link book="/ao-credit-cards/stripe" page="/index.jspx" />.</li>
 			</ul>
 		</changelog:release>
