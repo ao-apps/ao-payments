@@ -1,43 +1,43 @@
-# [<img src="ao-logo.png" alt="AO Logo" width="35" height="40">](https://github.com/aoindustries) [AO Credit Cards](https://github.com/aoindustries/ao-credit-cards)
+# [<img src="ao-logo.png" alt="AO Logo" width="35" height="40">](https://github.com/aoindustries) [AO OSS](https://github.com/aoindustries/ao-oss) / [Payments](https://github.com/aoindustries/ao-payments)
 <p>
 	<a href="https://aoindustries.com/life-cycle#project-current-stable">
-		<img src="https://aoindustries.com/ao-badges/project-current-stable.svg" alt="project: current stable" />
+		<img src="https://oss.aoapps.com/ao-badges/project-current-stable.svg" alt="project: current stable" />
 	</a>
 	<a href="https://aoindustries.com/life-cycle#management-production">
-		<img src="https://aoindustries.com/ao-badges/management-production.svg" alt="management: production" />
+		<img src="https://oss.aoapps.com/ao-badges/management-production.svg" alt="management: production" />
 	</a>
 	<a href="https://aoindustries.com/life-cycle#packaging-active">
-		<img src="https://aoindustries.com/ao-badges/packaging-active.svg" alt="packaging: active" />
+		<img src="https://oss.aoapps.com/ao-badges/packaging-active.svg" alt="packaging: active" />
 	</a>
 	<br />
 	<a href="https://docs.oracle.com/en/java/javase/11/docs/api/">
-		<img src="https://aoindustries.com/ao-badges/java-11.svg" alt="java: &gt;= 11" />
+		<img src="https://oss.aoapps.com/ao-badges/java-11.svg" alt="java: &gt;= 11" />
 	</a>
 	<a href="http://semver.org/spec/v2.0.0.html">
-		<img src="https://aoindustries.com/ao-badges/semver-2.0.0.svg" alt="semantic versioning: 2.0.0" />
+		<img src="https://oss.aoapps.com/ao-badges/semver-2.0.0.svg" alt="semantic versioning: 2.0.0" />
 	</a>
 	<a href="https://www.gnu.org/licenses/lgpl-3.0">
-		<img src="https://aoindustries.com/ao-badges/license-lgpl-3.0.svg" alt="license: LGPL v3" />
+		<img src="https://oss.aoapps.com/ao-badges/license-lgpl-3.0.svg" alt="license: LGPL v3" />
 	</a>
 </p>
 
-Aggregator POM for credit card processing API supporting multiple payment gateways.
+Aggregator POM for payment processing API supporting multiple payment gateways.
 
 ## Project Links
-* [Project Home](https://aoindustries.com/ao-credit-cards/)
-* [Changelog](https://aoindustries.com/ao-credit-cards/changelog)
-* [Maven Central Repository](https://search.maven.org/artifact/com.aoindustries/ao-credit-cards)
-* [GitHub](https://github.com/aoindustries/ao-credit-cards)
+* [Project Home](https://oss.aoapps.com/payments/)
+* [Changelog](https://oss.aoapps.com/payments/changelog)
+* [Maven Central Repository](https://search.maven.org/artifact/com.aoapps/ao-payments)
+* [GitHub](https://github.com/aoindustries/ao-payments)
 
 ## Modules
-* [AO Credit Cards BOM](https://github.com/aoindustries/ao-credit-cards-bom)
-* [AO Credit Cards All](https://github.com/aoindustries/ao-credit-cards-all)
-* [AO Credit Cards API](https://github.com/aoindustries/ao-credit-cards-api)
-* [AO Credit Cards Authorize.Net](https://github.com/aoindustries/ao-credit-cards-authorizeNet)
-* [AO Credit Cards Payflow Pro XMLPay](https://github.com/aoindustries/ao-credit-cards-payflowPro)
-* [AO Credit Cards Stripe](https://github.com/aoindustries/ao-credit-cards-stripe)
-* [AO Credit Cards Test](https://github.com/aoindustries/ao-credit-cards-test)
-* [AO Credit Cards USAePay](https://github.com/aoindustries/ao-credit-cards-usaepay)
+* [AO Payments BOM](https://github.com/aoindustries/ao-payments-bom)
+* [AO Payments All](https://github.com/aoindustries/ao-payments-all)
+* [AO Payments API](https://github.com/aoindustries/ao-payments-api)
+* [AO Payments Authorize.Net](https://github.com/aoindustries/ao-payments-authorizeNet)
+* [AO Payments Payflow Pro XMLPay](https://github.com/aoindustries/ao-payments-payflowPro)
+* [AO Payments Stripe](https://github.com/aoindustries/ao-payments-stripe)
+* [AO Payments Test](https://github.com/aoindustries/ao-payments-test)
+* [AO Payments USAePay](https://github.com/aoindustries/ao-payments-usaepay)
 
 ## Related Projects
 * [AOServ Credit Cards](https://github.com/aoindustries/aoserv-credit-cards)

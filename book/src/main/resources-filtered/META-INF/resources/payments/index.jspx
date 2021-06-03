@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-ao-credit-cards - Aggregator POM for credit card processing API supporting multiple payment gateways.
+ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
 Copyright (C) 2016, 2017, 2019, 2020, 2021  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
 
-This file is part of ao-credit-cards.
+This file is part of ao-payments.
 
-ao-credit-cards is free software: you can redistribute it and/or modify
+ao-payments is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-ao-credit-cards is distributed in the hope that it will be useful,
+ao-payments is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
-along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
+along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 -->
 <jsp:root
-	xmlns:ao="https://aoindustries.com/ao-taglib/"
+	xmlns:ao="https://oss.aoapps.com/taglib/"
 	xmlns:core="https://semanticcms.com/core/taglib/"
 	xmlns:jsp="http://java.sun.com/JSP/Page"
 	xmlns:section="https://semanticcms.com/section/taglib/"
@@ -34,17 +34,17 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		title="@{documented.name}"
 		description="@{documented.description}"
 		datePublished="2016-10-16T21:44:00-05:00"
-		dateModified="2021-05-27T21:59:03-05:00"
+		dateModified="2021-05-31T01:25:50-05:00"
 	>
 		<core:child page="changelog.jspx" />
-		<core:child book="/ao-credit-cards/bom" page="/index.jspx" />
-		<core:child book="/ao-credit-cards/all" page="/index.jspx" />
-		<core:child book="/ao-credit-cards/api" page="/index.jspx" />
-		<core:child book="/ao-credit-cards/authorizeNet" page="/index.jspx" />
-		<core:child book="/ao-credit-cards/payflowPro" page="/index.jspx" />
-		<core:child book="/ao-credit-cards/stripe" page="/index.jspx" />
-		<core:child book="/ao-credit-cards/test" page="/index.jspx" />
-		<core:child book="/ao-credit-cards/usaepay" page="/index.jspx" />
+		<core:child book="/payments/bom" page="/index.jspx" />
+		<core:child book="/payments/all" page="/index.jspx" />
+		<core:child book="/payments/api" page="/index.jspx" />
+		<core:child book="/payments/authorizeNet" page="/index.jspx" />
+		<core:child book="/payments/payflowPro" page="/index.jspx" />
+		<core:child book="/payments/stripe" page="/index.jspx" />
+		<core:child book="/payments/test" page="/index.jspx" />
+		<core:child book="/payments/usaepay" page="/index.jspx" />
 		<header>
 			<ao:include
 				page="/ao-badges/badges.inc.jspx"
@@ -68,19 +68,19 @@ along with ao-credit-cards.  If not, see <http://www.gnu.org/licenses />.
 		</section:nav>
 		<section:section label="Modules">
 			<ul>
-				<li><core:link book="/ao-credit-cards/bom" page="/index.jspx" /></li>
-				<li><core:link book="/ao-credit-cards/all" page="/index.jspx" /></li>
-				<li><core:link book="/ao-credit-cards/api" page="/index.jspx" /></li>
-				<li><core:link book="/ao-credit-cards/authorizeNet" page="/index.jspx" /></li>
-				<li><core:link book="/ao-credit-cards/payflowPro" page="/index.jspx" /></li>
-				<li><core:link book="/ao-credit-cards/stripe" page="/index.jspx" /></li>
-				<li><core:link book="/ao-credit-cards/test" page="/index.jspx" /></li>
-				<li><core:link book="/ao-credit-cards/usaepay" page="/index.jspx" /></li>
+				<li><core:link book="/payments/bom" page="/index.jspx" /></li>
+				<li><core:link book="/payments/all" page="/index.jspx" /></li>
+				<li><core:link book="/payments/api" page="/index.jspx" /></li>
+				<li><core:link book="/payments/authorizeNet" page="/index.jspx" /></li>
+				<li><core:link book="/payments/payflowPro" page="/index.jspx" /></li>
+				<li><core:link book="/payments/stripe" page="/index.jspx" /></li>
+				<li><core:link book="/payments/test" page="/index.jspx" /></li>
+				<li><core:link book="/payments/usaepay" page="/index.jspx" /></li>
 			</ul>
 		</section:section>
 		<section:aside label="Related Projects">
 			<ul>
-				<li><core:link book="/aoserv/credit-cards" page="/index.jspx" /></li>
+				<li><ao:a href="https://aoindustries.com/aoserv/credit-cards/">AOServ Credit Cards</ao:a></li>
 				<li><ao:a href="https://oss.newmediaworks.com/payment-taglib/">NMW Payment Taglib</ao:a></li>
 			</ul>
 		</section:aside>

@@ -1,32 +1,32 @@
-[submodule "bom"]
-	path = bom
-	url = git@github.com:aoindustries/ao-credit-cards-bom.git
-	branch = .
 [submodule "all"]
 	path = all
-	url = git@github.com:aoindustries/ao-credit-cards-all.git
+	url = git@github.com:aoindustries/ao-payments-all.git
 	branch = .
 [submodule "api"]
 	path = api
-	url = git@github.com:aoindustries/ao-credit-cards-api.git
+	url = git@github.com:aoindustries/ao-payments-api.git
 	branch = .
 [submodule "authorizeNet"]
 	path = authorizeNet
-	url = git@github.com:aoindustries/ao-credit-cards-authorizeNet.git
+	url = git@github.com:aoindustries/ao-payments-authorizeNet.git
+	branch = .
+[submodule "bom"]
+	path = bom
+	url = git@github.com:aoindustries/ao-payments-bom.git
 	branch = .
 [submodule "payflowPro"]
 	path = payflowPro
-	url = git@github.com:aoindustries/ao-credit-cards-payflowPro.git
+	url = git@github.com:aoindustries/ao-payments-payflowPro.git
 	branch = .
 [submodule "stripe"]
 	path = stripe
-	url = git@github.com:aoindustries/ao-credit-cards-stripe.git
+	url = git@github.com:aoindustries/ao-payments-stripe.git
 	branch = .
 [submodule "test"]
 	path = test
-	url = git@github.com:aoindustries/ao-credit-cards-test.git
+	url = git@github.com:aoindustries/ao-payments-test.git
 	branch = .
 [submodule "usaepay"]
 	path = usaepay
-	url = git@github.com:aoindustries/ao-credit-cards-usaepay.git
+	url = git@github.com:aoindustries/ao-payments-usaepay.git
 	branch = .
