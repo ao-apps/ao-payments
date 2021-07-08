@@ -72,6 +72,21 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 		<url>https://github.com/aoindustries/ao-payments/issues</url>
 	</issueManagement>
 
+	<repositories>
+		<!-- Repository required here, too, so can find parent -->
+		<repository>
+			<id>sonatype-nexus-snapshots-s01</id>
+			<name>Sonatype Nexus Snapshots S01</name>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<modules>
 		<module>book</module>
 		<module>bom</module>
