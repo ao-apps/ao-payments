@@ -34,7 +34,7 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 		title="@{documented.name}"
 		description="@{documented.description}"
 		datePublished="2016-10-16T21:44:00-05:00"
-		dateModified="2021-05-31T01:25:50-05:00"
+		dateModified="2021-07-12T13:25:42-05:00"
 	>
 		<core:child page="changelog.jspx" />
 		<core:child book="/payments/bom" page="/index.jspx" />
@@ -53,6 +53,8 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 				arg.packagingStatus="active"
 				arg.semanticVersioning="2.0.0"
 				arg.license="lgpl-3.0"
+				arg.scmUrl="@{project.scm.url}"
+				arg.githubBuildWorkflow="Build"
 			/>
 		</header>
 		<p>
