@@ -82,6 +82,11 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 		<url>https://github.com/aoindustries/ao-payments/issues</url>
 	</issueManagement>
 
+	<ciManagement>
+		<system>GitHub Actions</system>
+		<url>https://github.com/aoindustries/ao-payments/actions</url>
+	</ciManagement>
+
 	<repositories>
 		<!-- Repository required here, too, so can find parent -->
 		<repository>
