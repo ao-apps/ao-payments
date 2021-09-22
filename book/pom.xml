@@ -25,7 +25,7 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.aoapps</groupId><artifactId>ao-oss-parent</artifactId><version>1.17.2-SNAPSHOT</version>
+		<groupId>com.aoapps</groupId><artifactId>ao-oss-parent</artifactId><version>1.17.2-POST-SNAPSHOT</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 
@@ -157,7 +157,7 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 				<groupId>com.aoapps</groupId><artifactId>ao-badges</artifactId><version>1.7.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId><version>7.0.1-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
+				<groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId><version>7.0.1${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.semanticcms</groupId><artifactId>semanticcms-changelog-taglib</artifactId><version>1.5.0${POST-SNAPSHOT}</version>
@@ -189,7 +189,7 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 				<groupId>com.aoapps</groupId><artifactId>ao-fluent-html</artifactId><version>0.5.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.aoapps</groupId><artifactId>ao-fluent-html-any</artifactId><version>0.5.3-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
+				<groupId>com.aoapps</groupId><artifactId>ao-fluent-html-any</artifactId><version>0.5.3${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.aoapps</groupId><artifactId>ao-fluent-html-servlet</artifactId><version>0.5.0${POST-SNAPSHOT}</version>
@@ -201,7 +201,7 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 				<groupId>com.aoapps</groupId><artifactId>ao-io-buffer</artifactId><version>4.0.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.aoapps</groupId><artifactId>ao-lang</artifactId><version>5.0.1-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
+				<groupId>com.aoapps</groupId><artifactId>ao-lang</artifactId><version>5.0.1${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.aoapps</groupId><artifactId>ao-net-types</artifactId><version>2.0.0${POST-SNAPSHOT}</version>
