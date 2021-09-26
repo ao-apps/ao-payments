@@ -157,7 +157,7 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 				<groupId>com.aoapps</groupId><artifactId>ao-badges</artifactId><version>1.7.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId><version>7.0.1${POST-SNAPSHOT}</version>
+				<groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId><version>7.1.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.semanticcms</groupId><artifactId>semanticcms-changelog-taglib</artifactId><version>1.5.0${POST-SNAPSHOT}</version>
@@ -177,13 +177,13 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 				<groupId>com.aoapps</groupId><artifactId>ao-concurrent</artifactId><version>4.0.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.aoapps</groupId><artifactId>ao-encoding</artifactId><version>5.0.2${POST-SNAPSHOT}</version>
+				<groupId>com.aoapps</groupId><artifactId>ao-encoding</artifactId><version>6.0.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.aoapps</groupId><artifactId>ao-encoding-servlet</artifactId><version>4.0.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.aoapps</groupId><artifactId>ao-encoding-taglib</artifactId><version>2.0.0${POST-SNAPSHOT}</version>
+				<groupId>com.aoapps</groupId><artifactId>ao-encoding-taglib</artifactId><version>3.0.0${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.aoapps</groupId><artifactId>ao-fluent-html</artifactId><version>0.5.0${POST-SNAPSHOT}</version>
@@ -204,7 +204,7 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 				<groupId>com.aoapps</groupId><artifactId>ao-lang</artifactId><version>5.0.1${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.aoapps</groupId><artifactId>ao-net-types</artifactId><version>2.0.0${POST-SNAPSHOT}</version>
+				<groupId>com.aoapps</groupId><artifactId>ao-net-types</artifactId><version>2.0.1${POST-SNAPSHOT}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.aoapps</groupId><artifactId>ao-servlet-filter</artifactId><version>3.0.0${POST-SNAPSHOT}</version>
