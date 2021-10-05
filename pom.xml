@@ -35,7 +35,7 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 	<properties>
 		<!-- SonarQube -->
 		<sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
-		<sonar.organization>aoindustries</sonar.organization>
+		<sonar.organization>ao-apps</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 
@@ -68,20 +68,20 @@ along with ao-payments.  If not, see <http://www.gnu.org/licenses />.
 	</developers>
 
 	<scm>
-		<connection>scm:git:git://github.com/aoindustries/ao-payments.git</connection>
-		<developerConnection>scm:git:git@github.com:aoindustries/ao-payments.git</developerConnection>
-		<url>https://github.com/aoindustries/ao-payments</url>
+		<connection>scm:git:git://github.com/ao-apps/ao-payments.git</connection>
+		<developerConnection>scm:git:git@github.com:ao-apps/ao-payments.git</developerConnection>
+		<url>https://github.com/ao-apps/ao-payments</url>
 		<tag>HEAD</tag>
 	</scm>
 
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/aoindustries/ao-payments/issues</url>
+		<url>https://github.com/ao-apps/ao-payments/issues</url>
 	</issueManagement>
 
 	<ciManagement>
 		<system>GitHub Actions</system>
-		<url>https://github.com/aoindustries/ao-payments/actions</url>
+		<url>https://github.com/ao-apps/ao-payments/actions</url>
 	</ciManagement>
 
 	<repositories>
