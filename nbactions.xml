@@ -77,4 +77,14 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
 			<activatedProfile>development</activatedProfile>
 		</activatedProfiles>
 	</action>
+	<action>
+		<actionName>javadoc</actionName>
+		<packagings>
+			<packaging>*</packaging>
+		</packagings>
+		<goals>
+			<goal>prepare-package</goal>
+			<goal>javadoc:javadoc</goal>
+		</goals>
+	</action>
 </actions>
