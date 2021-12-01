@@ -505,6 +505,16 @@ pipeline {
 				sh "${niceCmd}git verify-commit HEAD"
 				sh "${niceCmd}git reset --hard"
 				sh "${niceCmd}git clean -fdx -e ${(projectDir == '.') ? '/.m2' : ('/' + projectDir + '/.m2')}"
+				// Make sure working tree not modified after checkout
+				sh """#!/bin/bash
+s="\$(${niceCmd}git status --short)"
+if [ "\$s" != "" ]
+then
+  echo "Working tree modified after checkout:"
+  echo "\$s"
+  exit 1
+fi
+"""
 			}
 		}
 		stage('Builds') {
@@ -588,9 +598,24 @@ pipeline {
 		}
 		stage('Deploy') {
 			steps {
+				// Make sure working tree not modified by build or test
+				sh """#!/bin/bash
+s="\$(${niceCmd}git status --short)"
+if [ "\$s" != "" ]
+then
+  echo "Working tree modified during build or test:"
+  echo "\$s"
+  exit 1
+fi
+"""
 				dir(projectDir) {
 					// Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
-					sh "if [ -d target/jdk-$deployJdk/surefire-reports ]; then mv target/jdk-$deployJdk/surefire-reports target/jdk-$deployJdk/surefire-reports.do-not-report-twice; fi"
+					sh """#!/bin/bash
+if [ -d target/jdk-$deployJdk/surefire-reports ]
+then
+  mv target/jdk-$deployJdk/surefire-reports target/jdk-$deployJdk/surefire-reports.do-not-report-twice
+fi
+"""
 					withMaven(
 						maven: maven,
 						mavenOpts: mavenOpts,
@@ -600,8 +625,23 @@ pipeline {
 						sh "${niceCmd}$MVN_CMD $mvnCommon -Pjenkins-deploy -Dalt.build.dir=target/jdk-$deployJdk deploy"
 					}
 					// Restore surefire-reports
-					sh "if [ -d target/jdk-$deployJdk/surefire-reports.do-not-report-twice ]; then mv target/jdk-$deployJdk/surefire-reports.do-not-report-twice target/jdk-$deployJdk/surefire-reports; fi"
+					sh """#!/bin/bash
+if [ -d target/jdk-$deployJdk/surefire-reports.do-not-report-twice ]
+then
+  mv target/jdk-$deployJdk/surefire-reports.do-not-report-twice target/jdk-$deployJdk/surefire-reports
+fi
+"""
 				}
+				// Make sure working tree not modified by deploy
+				sh """#!/bin/bash
+s="\$(${niceCmd}git status --short)"
+if [ "\$s" != "" ]
+then
+  echo "Working tree modified during deploy:"
+  echo "\$s"
+  exit 1
+fi
+"""
 			}
 		}
 	}
