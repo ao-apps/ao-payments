@@ -436,7 +436,7 @@ if (!binding.hasVariable('failureEmailTo')) {
 }
 
 // Common settings
-def mvnCommon   = "-Dstyle.color=always -N -DaltDeploymentRepository=local-private-distribution::default::file:///var/maven2 -Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
+def mvnCommon   = "-Dstyle.color=always -N -Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
 def buildPhases = 'clean process-test-classes'
 
 // Determine nice command prefix or empty string for none
@@ -612,7 +612,7 @@ fi
 						mavenLocalRepo: '.m2/repository',
 						jdk: "jdk-$deployJdk"
 					) {
-						sh "${niceCmd}$MVN_CMD $mvnCommon -Pjenkins-deploy -Dalt.build.dir=target/jdk-$deployJdk deploy"
+						sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy -Dalt.build.dir=target/jdk-$deployJdk deploy"
 					}
 					// Restore surefire-reports
 					sh """#!/bin/bash
