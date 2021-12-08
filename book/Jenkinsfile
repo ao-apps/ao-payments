@@ -623,7 +623,7 @@ fi
 						mavenLocalRepo: '.m2/repository',
 						jdk: "jdk-$deployJdk"
 					) {
-						sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy -Dalt.build.dir=target/jdk-$deployJdk deploy"
+						sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish -Dalt.build.dir=target/jdk-$deployJdk deploy"
 					}
 					// Restore surefire-reports
 					sh """#!/bin/bash
