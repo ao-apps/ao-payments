@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 /*
  * ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
- * Copyright (C) 2021  AO Industries, Inc.
+ * Copyright (C) 2021, 2022  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -123,6 +123,13 @@ def upstreamProjects = [
  *                                                                                        *
  * testWhenExpression   A closure determining when to run tests.                          *
  *                      Defaults to {return fileExists(projectDir + '/src/test')}         *
+ *                                                                                        *
+ * sonarqubeWhenExpression  A closure determining when to perform SonarQube analysis.     *
+ *                          Defaults to {                                                 *
+ *                            return !fileExists(                                         *
+ *                              projectDir + '/.github/workflows/build.yml'               *
+ *                            )                                                           *
+ *                          }                                                             *
  *                                                                                        *
  * failureEmailTo       The recipient of build failure emails.                            *
  *                      Defaults to 'support@aoindustries.com'                            *
@@ -441,6 +448,11 @@ if (!binding.hasVariable('testWhenExpression')) {
 		{return fileExists(projectDir + '/src/test')}
 	)
 }
+if (!binding.hasVariable('sonarqubeWhenExpression')) {
+	binding.setVariable('sonarqubeWhenExpression',
+		{return !fileExists(projectDir + '/.github/workflows/build.yml')}
+	)
+}
 if (!binding.hasVariable('failureEmailTo')) {
 	binding.setVariable('failureEmailTo', 'support@aoindustries.com')
 }
@@ -643,6 +655,40 @@ then
   exit 1
 fi
 """
+			}
+		}
+		stage('SonarQube analysis') {
+			when {
+				expression {
+					return sonarqubeWhenExpression.call()
+				}
+			}
+			steps {
+				sh "${niceCmd}git fetch --unshallow || true" // SonarQube does not currently support shallow fetch
+				dir(projectDir) {
+					withSonarQubeEnv(installationName: 'AO SonarQube') {
+						withMaven(
+							maven: maven,
+							mavenOpts: mavenOpts,
+							mavenLocalRepo: '.m2/repository',
+							jdk: "jdk-$deployJdk"
+						) {
+							sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=target/jdk-$deployJdk -Dsonar.coverage.jacoco.xmlReportPaths=target/jdk-$deployJdk/site/jacoco/jacoco.xml sonar:sonar"
+						}
+					}
+				}
+			}
+		}
+		stage('Quality Gate') {
+			when {
+				expression {
+					return sonarqubeWhenExpression.call()
+				}
+			}
+			steps {
+				timeout(time: 1, unit: 'HOURS') {
+					waitForQualityGate(webhookSecretId: 'SONAR_WEBHOOK', abortPipeline: false)
+				}
 			}
 		}
 	}
