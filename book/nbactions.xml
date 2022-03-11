@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
-Copyright (C) 2021  AO Industries, Inc.
+Copyright (C) 2021, 2022  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -84,7 +84,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
 		</packagings>
 		<goals>
 			<goal>prepare-package</goal>
-			<goal>javadoc:javadoc</goal>
+			<goal>javadoc:javadoc-no-fork</goal>
 		</goals>
 	</action>
 </actions>
