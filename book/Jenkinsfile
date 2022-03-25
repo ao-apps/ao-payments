@@ -74,6 +74,10 @@ def upstreamProjects = [
  *                          'book/Jenkinsfile'  -> 'book'                                 *
  *                          'devel/Jenkinsfile' -> 'devel'                                *
  *                                                                                        *
+ * abortOnUnreadyDependency  Aborts the build when any dependency is queued, building,    *
+ *                           or unsuccessful.                                             *
+ *                           Defaults to true                                             *
+ *                                                                                        *
  * disableSubmodules    Disables checkout of Git submodules.                              *
  *                      Defaults to true                                                  *
  *                                                                                        *
@@ -173,6 +177,9 @@ if (!binding.hasVariable('projectDir')) {
 		throw new Exception("Unexpected value for 'scriptPath': '$scriptPath'")
 	}
 	binding.setVariable('projectDir', projectDir)
+}
+if (!binding.hasVariable('abortOnUnreadyDependency')) {
+	binding.setVariable('abortOnUnreadyDependency', true)
 }
 if (!binding.hasVariable('disableSubmodules')) {
 	binding.setVariable('disableSubmodules', true)
@@ -484,7 +491,76 @@ pipeline {
 		)
 	}
 	stages {
+		stage('Check Ready') {
+			when {
+				expression {
+					return abortOnUnreadyDependency
+				}
+			}
+			steps {
+				catchError(message: 'Aborted due to dependencies not ready', buildResult: 'ABORTED', stageResult: 'ABORTED') {
+					script {
+						// See https://javadoc.jenkins.io/jenkins/model/Jenkins.html
+						// See https://javadoc.jenkins.io/hudson/model/Job.html
+						// See https://javadoc.jenkins.io/hudson/model/Run.html
+						// See https://javadoc.jenkins.io/hudson/model/Result.html
+						def jenkins = Jenkins.get();
+						// Get the mapping of all active dependencies and their current status
+						def upstreamProjectsCache = [:]
+						def allUpstreamProjectsCache = [:]
+						// Find the current project
+						def currentWorkflowJob = currentBuild.rawBuild.parent
+						if(!(currentWorkflowJob instanceof org.jenkinsci.plugins.workflow.job.WorkflowJob)) {
+							throw new Exception("currentWorkflowJob is not a WorkflowJob: ${currentWorkflowJob.fullName}")
+						}
+						// Get all upstream projects (and the current)
+						def allUpstreamProjects = getAllUpstreamProjects(
+							jenkins,
+							upstreamProjectsCache,
+							allUpstreamProjectsCache,
+							currentWorkflowJob
+						)
+						// Remove current project
+						if(!allUpstreamProjects.removeElement(currentWorkflowJob.fullName)) {
+							throw new Exception("currentWorkflowJob is not in allUpstreamProjects: ${currentWorkflowJob.fullName}")
+						}
+						// Check queue and get statuses, stop searching on first found unready
+						if(allUpstreamProjects.size() > 0) {
+							allUpstreamProjects.each {upstreamProject ->
+								def upstreamWorkflowJob = jenkins.getItemByFullName(upstreamProject)
+								if(upstreamWorkflowJob == null) {
+									throw new Exception("${currentWorkflowJob.fullName}: upstreamWorkflowJob not found: '$upstreamProject'")
+								}
+								if(!(upstreamWorkflowJob instanceof org.jenkinsci.plugins.workflow.job.WorkflowJob)) {
+									throw new Exception("${currentWorkflowJob.fullName}: $upstreamProject: upstreamWorkflowJob is not a WorkflowJob: $upstreamWorkflowJob")
+								}
+								def lastBuild = upstreamWorkflowJob.getLastBuild();
+								if(lastBuild == null) {
+									error("${currentWorkflowJob.fullName}: Aborting due to dependency never built: ${upstreamWorkflowJob.fullName}")
+								}
+								if(lastBuild.isBuilding()) {
+									error("${currentWorkflowJob.fullName}: Aborting due to dependency currently building: ${upstreamWorkflowJob.fullName} #${lastBuild.number}")
+								}
+								def result = lastBuild.result;
+								if(result != hudson.model.Result.SUCCESS) {
+									error("${currentWorkflowJob.fullName}: Aborting due to dependency last build not successful: ${upstreamWorkflowJob.fullName} #${lastBuild.number} is ${result}")
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		stage('Checkout SCM') {
+			when {
+				expression {
+					return (
+						currentBuild.result == null
+						|| currentBuild.result == hudson.model.Result.SUCCESS
+						|| currentBuild.result == hudson.model.Result.UNSTABLE
+					)
+				}
+			}
 			steps {
 				// See https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/#checkout-check-out-from-version-control
 				// See https://stackoverflow.com/questions/43293334/sparsecheckout-in-jenkinsfile-pipeline
@@ -578,6 +654,15 @@ fi
 		}
 		stage('Builds') {
 			matrix {
+				when {
+					expression {
+						return (
+							currentBuild.result == null
+							|| currentBuild.result == hudson.model.Result.SUCCESS
+							|| currentBuild.result == hudson.model.Result.UNSTABLE
+						)
+					}
+				}
 				axes {
 					axis {
 						name 'jdk'
@@ -618,7 +703,11 @@ fi
 			matrix {
 				when {
 					expression {
-						return testWhenExpression.call()
+						return (
+							currentBuild.result == null
+							|| currentBuild.result == hudson.model.Result.SUCCESS
+							|| currentBuild.result == hudson.model.Result.UNSTABLE
+						) && testWhenExpression.call()
 					}
 				}
 				axes {
@@ -656,6 +745,15 @@ fi
 			}
 		}
 		stage('Deploy') {
+			when {
+				expression {
+					return (
+						currentBuild.result == null
+						|| currentBuild.result == hudson.model.Result.SUCCESS
+						|| currentBuild.result == hudson.model.Result.UNSTABLE
+					)
+				}
+			}
 			steps {
 				// Make sure working tree not modified by build or test
 				sh """#!/bin/bash
@@ -706,7 +804,11 @@ fi
 		stage('SonarQube analysis') {
 			when {
 				expression {
-					return sonarqubeWhenExpression.call()
+					return (
+						currentBuild.result == null
+						|| currentBuild.result == hudson.model.Result.SUCCESS
+						|| currentBuild.result == hudson.model.Result.UNSTABLE
+					) && sonarqubeWhenExpression.call()
 				}
 			}
 			steps {
@@ -728,7 +830,11 @@ fi
 		stage('Quality Gate') {
 			when {
 				expression {
-					return sonarqubeWhenExpression.call()
+					return (
+						currentBuild.result == null
+						|| currentBuild.result == hudson.model.Result.SUCCESS
+						|| currentBuild.result == hudson.model.Result.UNSTABLE
+					) && sonarqubeWhenExpression.call()
 				}
 			}
 			steps {
