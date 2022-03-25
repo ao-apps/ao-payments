@@ -525,26 +525,24 @@ pipeline {
 							throw new Exception("currentWorkflowJob is not in allUpstreamProjects: ${currentWorkflowJob.fullName}")
 						}
 						// Check queue and get statuses, stop searching on first found unready
-						if(allUpstreamProjects.size() > 0) {
-							allUpstreamProjects.each {upstreamProject ->
-								def upstreamWorkflowJob = jenkins.getItemByFullName(upstreamProject)
-								if(upstreamWorkflowJob == null) {
-									throw new Exception("${currentWorkflowJob.fullName}: upstreamWorkflowJob not found: '$upstreamProject'")
-								}
-								if(!(upstreamWorkflowJob instanceof org.jenkinsci.plugins.workflow.job.WorkflowJob)) {
-									throw new Exception("${currentWorkflowJob.fullName}: $upstreamProject: upstreamWorkflowJob is not a WorkflowJob: $upstreamWorkflowJob")
-								}
-								def lastBuild = upstreamWorkflowJob.getLastBuild();
-								if(lastBuild == null) {
-									error("${currentWorkflowJob.fullName}: Aborting due to dependency never built: ${upstreamWorkflowJob.fullName}")
-								}
-								if(lastBuild.isBuilding()) {
-									error("${currentWorkflowJob.fullName}: Aborting due to dependency currently building: ${upstreamWorkflowJob.fullName} #${lastBuild.number}")
-								}
-								def result = lastBuild.result;
-								if(result != hudson.model.Result.SUCCESS) {
-									error("${currentWorkflowJob.fullName}: Aborting due to dependency last build not successful: ${upstreamWorkflowJob.fullName} #${lastBuild.number} is ${result}")
-								}
+						allUpstreamProjects.each {upstreamProject ->
+							def upstreamWorkflowJob = jenkins.getItemByFullName(upstreamProject)
+							if(upstreamWorkflowJob == null) {
+								throw new Exception("${currentWorkflowJob.fullName}: upstreamWorkflowJob not found: '$upstreamProject'")
+							}
+							if(!(upstreamWorkflowJob instanceof org.jenkinsci.plugins.workflow.job.WorkflowJob)) {
+								throw new Exception("${currentWorkflowJob.fullName}: $upstreamProject: upstreamWorkflowJob is not a WorkflowJob: $upstreamWorkflowJob")
+							}
+							def lastBuild = upstreamWorkflowJob.getLastBuild();
+							if(lastBuild == null) {
+								error("${currentWorkflowJob.fullName}: Aborting due to dependency never built: ${upstreamWorkflowJob.fullName}")
+							}
+							if(lastBuild.isBuilding()) {
+								error("${currentWorkflowJob.fullName}: Aborting due to dependency currently building: ${upstreamWorkflowJob.fullName} #${lastBuild.number}")
+							}
+							def result = lastBuild.result;
+							if(result != hudson.model.Result.SUCCESS) {
+								error("${currentWorkflowJob.fullName}: Aborting due to dependency last build not successful: ${upstreamWorkflowJob.fullName} #${lastBuild.number} is ${result}")
 							}
 						}
 					}
