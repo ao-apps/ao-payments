@@ -549,14 +549,14 @@ pipeline {
 				}
 			}
 		}
-		stage('Checkout SCM') {
+		stage('Workaround Git #27287') {
 			when {
 				expression {
 					return (
 						currentBuild.result == null
 						|| currentBuild.result == hudson.model.Result.SUCCESS
 						|| currentBuild.result == hudson.model.Result.UNSTABLE
-					)
+					) && fileExists('.gitmodules')
 				}
 			}
 			steps {
@@ -602,12 +602,20 @@ pipeline {
 						]
 					]
 				}
-				/*
-				 * Just always redo Git fetch until issue above is resolved.  Yes, this is overhead, but Git fetch is
-				 * a small part of the overall build time.
-				 *
-				 * TODO: Remove once on Git >= 2.35.1
-				 */
+			}
+		}
+		stage('Checkout SCM') {
+			when {
+				expression {
+					return (
+						currentBuild.result == null
+						|| currentBuild.result == hudson.model.Result.SUCCESS
+						|| currentBuild.result == hudson.model.Result.UNSTABLE
+						
+					)
+				}
+			}
+			steps {
 				checkout scm: [$class: 'GitSCM',
 					userRemoteConfigs: [[
 						url: scmUrl,
