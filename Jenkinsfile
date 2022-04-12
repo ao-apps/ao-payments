@@ -23,8 +23,8 @@
  */
 
 // JDK versions
-def buildJdks = ['1.8', '11', '17'] // Changes must be copied to matrix axes!
-def testJdks  = ['1.8', '11', '17'] // Changes must be copied to matrix axes!
+def buildJdks = ['1.8', '11', '17', '18'] // Changes must be copied to matrix axes!
+def testJdks  = ['1.8', '11', '17', '18'] // Changes must be copied to matrix axes!
 
 // Parent, Extensions, Plugins, Direct and BOM Dependencies
 def upstreamProjects = [
@@ -48,11 +48,11 @@ def upstreamProjects = [
  *                      Defaults to '11'                                                  *
  *                                                                                        *
  * buildJdks            The array of JDK versions that will build.                        *
- *                      Defaults to ['11', '17']                                          *
+ *                      Defaults to ['11', '17', '18']                                    *
  *                      Changes must be copied to matrix axes!                            *
  *                                                                                        *
  * testJdks             The array of JDK versions that will test against every build JDK. *
- *                      Defaults to ['11', '17']                                          *
+ *                      Defaults to ['11', '17', '18']                                    *
  *                      Changes must be copied to matrix axes!                            *
  *                                                                                        *
  * upstreamProjects     The array of relative paths to upstream projects.                 *
@@ -144,13 +144,13 @@ if (!binding.hasVariable('deployJdk')) {
 if (!binding.hasVariable('buildJdks')) {
 	binding.setVariable(
 		'buildJdks',
-		['11', '17'] // Changes must be copied to matrix axes!
+		['11', '17', '18'] // Changes must be copied to matrix axes!
 	)
 }
 if (!binding.hasVariable('testJdks')) {
 	binding.setVariable(
 		'testJdks',
-		['11', '17'] // Changes must be copied to matrix axes!
+		['11', '17', '18'] // Changes must be copied to matrix axes!
 	)
 }
 if (!binding.hasVariable('upstreamProjects')) {
@@ -665,7 +665,7 @@ fi
 				axes {
 					axis {
 						name 'jdk'
-						values '1.8', '11', '17' // buildJdks
+						values '1.8', '11', '17', '18' // buildJdks
 					}
 				}
 				stages {
@@ -712,11 +712,11 @@ fi
 				axes {
 					axis {
 						name 'jdk'
-						values '1.8', '11', '17' // buildJdks
+						values '1.8', '11', '17', '18' // buildJdks
 					}
 					axis {
 						name 'testJdk'
-						values '1.8', '11', '17' // testJdks
+						values '1.8', '11', '17', '18' // testJdks
 					}
 				}
 				stages {
