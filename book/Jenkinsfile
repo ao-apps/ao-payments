@@ -693,12 +693,14 @@ fi
 								) {
 									sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=target/jdk-$jdk $buildPhases"
 								}
-								script {
-									// Create a separate copy for full test matrix
+							}
+							script {
+								// Create a separate copy for full test matrix
+								if(testWhenExpression.call()) {
 									testJdks.each() {testJdk ->
 										if (testJdk != jdk) {
-											sh "${niceCmd}rm target/jdk-$jdk-$testJdk -rf"
-											sh "${niceCmd}cp -al target/jdk-$jdk target/jdk-$jdk-$testJdk"
+											sh "${niceCmd}rm $projectDir/target/jdk-$jdk-$testJdk -rf"
+											sh "${niceCmd}cp -al $projectDir/target/jdk-$jdk $projectDir/target/jdk-$jdk-$testJdk"
 										}
 									}
 								}
