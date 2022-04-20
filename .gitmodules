@@ -1,32 +1,32 @@
 [submodule "all"]
-	path = all
-	url = git@github.com:ao-apps/ao-payments-all.git
-	branch = .
+  path = all
+  url = git@github.com:ao-apps/ao-payments-all.git
+  branch = .
 [submodule "api"]
-	path = api
-	url = git@github.com:ao-apps/ao-payments-api.git
-	branch = .
+  path = api
+  url = git@github.com:ao-apps/ao-payments-api.git
+  branch = .
 [submodule "authorizeNet"]
-	path = authorizeNet
-	url = git@github.com:ao-apps/ao-payments-authorizeNet.git
-	branch = .
+  path = authorizeNet
+  url = git@github.com:ao-apps/ao-payments-authorizeNet.git
+  branch = .
 [submodule "bom"]
-	path = bom
-	url = git@github.com:ao-apps/ao-payments-bom.git
-	branch = .
+  path = bom
+  url = git@github.com:ao-apps/ao-payments-bom.git
+  branch = .
 [submodule "payflowPro"]
-	path = payflowPro
-	url = git@github.com:ao-apps/ao-payments-payflowPro.git
-	branch = .
+  path = payflowPro
+  url = git@github.com:ao-apps/ao-payments-payflowPro.git
+  branch = .
 [submodule "stripe"]
-	path = stripe
-	url = git@github.com:ao-apps/ao-payments-stripe.git
-	branch = .
+  path = stripe
+  url = git@github.com:ao-apps/ao-payments-stripe.git
+  branch = .
 [submodule "test"]
-	path = test
-	url = git@github.com:ao-apps/ao-payments-test.git
-	branch = .
+  path = test
+  url = git@github.com:ao-apps/ao-payments-test.git
+  branch = .
 [submodule "usaepay"]
-	path = usaepay
-	url = git@github.com:ao-apps/ao-payments-usaepay.git
-	branch = .
+  path = usaepay
+  url = git@github.com:ao-apps/ao-payments-usaepay.git
+  branch = .

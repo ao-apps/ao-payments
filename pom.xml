@@ -22,107 +22,107 @@ You should have received a copy of the GNU Lesser General Public License
 along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.aoapps</groupId><artifactId>ao-oss-parent</artifactId><version>1.18.0-SNAPSHOT</version>
-		<relativePath>../parent/pom.xml</relativePath>
-	</parent>
+  <parent>
+    <groupId>com.aoapps</groupId><artifactId>ao-oss-parent</artifactId><version>1.18.0-SNAPSHOT</version>
+    <relativePath>../parent/pom.xml</relativePath>
+  </parent>
 
-	<groupId>com.aoapps</groupId><artifactId>ao-payments</artifactId><version>2.0.0-POST-SNAPSHOT</version>
-	<packaging>pom</packaging>
+  <groupId>com.aoapps</groupId><artifactId>ao-payments</artifactId><version>2.0.0-POST-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
-	<properties>
-		<!-- SonarQube -->
-		<sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
-		<sonar.organization>ao-apps</sonar.organization>
-		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-	</properties>
+  <properties>
+    <!-- SonarQube -->
+    <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
+    <sonar.organization>ao-apps</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+  </properties>
 
-	<name>AO Payments</name>
-	<url>https://oss.aoapps.com/payments/</url>
-	<description>Aggregator POM for payment processing API supporting multiple payment gateways.</description>
-	<inceptionYear>2007</inceptionYear>
+  <name>AO Payments</name>
+  <url>https://oss.aoapps.com/payments/</url>
+  <description>Aggregator POM for payment processing API supporting multiple payment gateways.</description>
+  <inceptionYear>2007</inceptionYear>
 
-	<licenses>
-		<license>
-			<name>GNU General Lesser Public License (LGPL) version 3.0</name>
-			<url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+  <licenses>
+    <license>
+      <name>GNU General Lesser Public License (LGPL) version 3.0</name>
+      <url>https://www.gnu.org/licenses/lgpl-3.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
-	<organization>
-		<name>AO Industries, Inc.</name>
-		<url>https://aoindustries.com/</url>
-	</organization>
+  <organization>
+    <name>AO Industries, Inc.</name>
+    <url>https://aoindustries.com/</url>
+  </organization>
 
-	<developers>
-		<developer>
-			<name>AO Industries, Inc.</name>
-			<email>support@aoindustries.com</email>
-			<url>https://aoindustries.com/</url>
-			<organization>AO Industries, Inc.</organization>
-			<organizationUrl>https://aoindustries.com/</organizationUrl>
-		</developer>
-	</developers>
+  <developers>
+    <developer>
+      <name>AO Industries, Inc.</name>
+      <email>support@aoindustries.com</email>
+      <url>https://aoindustries.com/</url>
+      <organization>AO Industries, Inc.</organization>
+      <organizationUrl>https://aoindustries.com/</organizationUrl>
+    </developer>
+  </developers>
 
-	<scm>
-		<connection>scm:git:git://github.com/ao-apps/ao-payments.git</connection>
-		<developerConnection>scm:git:git@github.com:ao-apps/ao-payments.git</developerConnection>
-		<url>https://github.com/ao-apps/ao-payments</url>
-		<tag>HEAD</tag>
-	</scm>
+  <scm>
+    <connection>scm:git:git://github.com/ao-apps/ao-payments.git</connection>
+    <developerConnection>scm:git:git@github.com:ao-apps/ao-payments.git</developerConnection>
+    <url>https://github.com/ao-apps/ao-payments</url>
+    <tag>HEAD</tag>
+  </scm>
 
-	<issueManagement>
-		<system>GitHub Issues</system>
-		<url>https://github.com/ao-apps/ao-payments/issues</url>
-	</issueManagement>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/ao-apps/ao-payments/issues</url>
+  </issueManagement>
 
-	<ciManagement>
-		<system>Jenkins</system>
-		<url>https://jenkins.aoindustries.com/job/ao/job/oss/job/payments/job/index/</url>
-	</ciManagement>
-	<!-- Only one allowed in POM:
-	<ciManagement>
-		<system>GitHub Actions</system>
-		<url>https://github.com/ao-apps/ao-payments/actions</url>
-	</ciManagement>
-	-->
+  <ciManagement>
+    <system>Jenkins</system>
+    <url>https://jenkins.aoindustries.com/job/ao/job/oss/job/payments/job/index/</url>
+  </ciManagement>
+  <!-- Only one allowed in POM:
+  <ciManagement>
+    <system>GitHub Actions</system>
+    <url>https://github.com/ao-apps/ao-payments/actions</url>
+  </ciManagement>
+  -->
 
-	<repositories>
-		<!-- Repository required here, too, so can find parent -->
-		<repository>
-			<id>sonatype-nexus-snapshots-s01</id>
-			<name>Sonatype Nexus Snapshots S01</name>
-			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</repository>
-	</repositories>
+  <repositories>
+    <!-- Repository required here, too, so can find parent -->
+    <repository>
+      <id>sonatype-nexus-snapshots-s01</id>
+      <name>Sonatype Nexus Snapshots S01</name>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+    </repository>
+  </repositories>
 
-	<modules>
-		<module>book</module>
-		<module>bom</module>
-		<module>bom/book</module>
-		<module>all</module>
-		<module>all/book</module>
-		<module>api</module>
-		<module>api/book</module>
-		<module>api/devel</module>
-		<module>authorizeNet</module>
-		<module>authorizeNet/book</module>
-		<module>payflowPro</module>
-		<module>payflowPro/book</module>
-		<module>stripe</module>
-		<module>stripe/book</module>
-		<module>test</module>
-		<module>test/book</module>
-		<module>usaepay</module>
-		<module>usaepay/book</module>
-	</modules>
+  <modules>
+    <module>book</module>
+    <module>bom</module>
+    <module>bom/book</module>
+    <module>all</module>
+    <module>all/book</module>
+    <module>api</module>
+    <module>api/book</module>
+    <module>api/devel</module>
+    <module>authorizeNet</module>
+    <module>authorizeNet/book</module>
+    <module>payflowPro</module>
+    <module>payflowPro/book</module>
+    <module>stripe</module>
+    <module>stripe/book</module>
+    <module>test</module>
+    <module>test/book</module>
+    <module>usaepay</module>
+    <module>usaepay/book</module>
+  </modules>
 </project>
