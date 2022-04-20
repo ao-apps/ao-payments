@@ -1,2 +1,8 @@
 # Significant manual code formatting clean-up…
 69b46943c24dcc480f393b5894711aa78b0d35b2
+# Removed extraneous space at end of line.
+5c94411227a3d12287665eadb6b16c26458b5311
+# Removed extraneous space at end of line.
+734cbac2074d9c33c62670d502389c7ff0ef5a04
+# Objects compared in stringutils before.
+4ae948467fb3e1fbf2b4c23663d4dde25aa216a1
