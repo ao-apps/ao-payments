@@ -11,3 +11,5 @@ buildNumber.properties
 .mvn/timing.properties
 .LCKpom.xml~
 .directory
+# Use per-workspace rewrite cache
+.rewrite-cache/
