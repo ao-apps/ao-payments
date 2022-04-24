@@ -481,6 +481,69 @@ def buildPhases = 'clean process-test-classes'
 // Determine nice command prefix or empty string for none
 def niceCmd = (nice == 0) ? '' : "nice -n${nice} "
 
+//
+// Scripts pulled out of pipeline due to "General error during class generation: Method too large"
+//
+
+// Make sure working tree not modified after checkout
+def checkTreeUnmodifiedScriptCheckout(niceCmd) {
+  return """#!/bin/bash
+s="\$(${niceCmd}git status --short)"
+if [ "\$s" != "" ]
+then
+  echo "Working tree modified after checkout:"
+  echo "\$s"
+  exit 1
+fi
+"""
+}
+
+// Make sure working tree not modified by build or test
+def checkTreeUnmodifiedScriptBuild(niceCmd) {
+  return """#!/bin/bash
+s="\$(${niceCmd}git status --short)"
+if [ "\$s" != "" ]
+then
+  echo "Working tree modified during build or test:"
+  echo "\$s"
+  exit 1
+fi
+"""
+}
+
+// Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
+def moveSurefireReportsScript(deployJdk) {
+  return """#!/bin/bash
+if [ -d target/jdk-$deployJdk/surefire-reports ]
+then
+  mv target/jdk-$deployJdk/surefire-reports target/jdk-$deployJdk/surefire-reports.do-not-report-twice
+fi
+"""
+}
+
+// Restore surefire-reports
+def restoreSurefireReportsScript(deployJdk) {
+  return """#!/bin/bash
+if [ -d target/jdk-$deployJdk/surefire-reports.do-not-report-twice ]
+then
+  mv target/jdk-$deployJdk/surefire-reports.do-not-report-twice target/jdk-$deployJdk/surefire-reports
+fi
+"""
+}
+
+// Make sure working tree not modified by deploy
+def checkTreeUnmodifiedScriptDeploy(niceCmd) {
+  return """#!/bin/bash
+s="\$(${niceCmd}git status --short)"
+if [ "\$s" != "" ]
+then
+  echo "Working tree modified during deploy:"
+  echo "\$s"
+  exit 1
+fi
+"""
+}
+
 pipeline {
   agent any
   options {
@@ -656,15 +719,7 @@ pipeline {
         // git clean -fdx was iterating all of /.m2 despite being ignored
         sh "${niceCmd}git clean -fx -e ${(projectDir == '.') ? '/.m2' : ('/' + projectDir + '/.m2')}"
         // Make sure working tree not modified after checkout
-        sh """#!/bin/bash
-s="\$(${niceCmd}git status --short)"
-if [ "\$s" != "" ]
-then
-  echo "Working tree modified after checkout:"
-  echo "\$s"
-  exit 1
-fi
-"""
+        sh checkTreeUnmodifiedScriptCheckout(niceCmd)
       }
     }
     stage('Builds') {
@@ -773,23 +828,10 @@ fi
       }
       steps {
         // Make sure working tree not modified by build or test
-        sh """#!/bin/bash
-s="\$(${niceCmd}git status --short)"
-if [ "\$s" != "" ]
-then
-  echo "Working tree modified during build or test:"
-  echo "\$s"
-  exit 1
-fi
-"""
+        sh checkTreeUnmodifiedScriptBuild(niceCmd)
         dir(projectDir) {
           // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
-          sh """#!/bin/bash
-if [ -d target/jdk-$deployJdk/surefire-reports ]
-then
-  mv target/jdk-$deployJdk/surefire-reports target/jdk-$deployJdk/surefire-reports.do-not-report-twice
-fi
-"""
+          sh moveSurefireReportsScript(deployJdk)
           withMaven(
             maven: maven,
             mavenOpts: "${(deployJdk == '1.8' || deployJdk == '11') ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
@@ -799,23 +841,10 @@ fi
             sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish -Dalt.build.dir=target/jdk-$deployJdk deploy"
           }
           // Restore surefire-reports
-          sh """#!/bin/bash
-if [ -d target/jdk-$deployJdk/surefire-reports.do-not-report-twice ]
-then
-  mv target/jdk-$deployJdk/surefire-reports.do-not-report-twice target/jdk-$deployJdk/surefire-reports
-fi
-"""
+          sh restoreSurefireReportsScript(deployJdk)
         }
         // Make sure working tree not modified by deploy
-        sh """#!/bin/bash
-s="\$(${niceCmd}git status --short)"
-if [ "\$s" != "" ]
-then
-  echo "Working tree modified during deploy:"
-  echo "\$s"
-  exit 1
-fi
-"""
+        sh checkTreeUnmodifiedScriptDeploy(niceCmd)
       }
     }
     stage('SonarQube analysis') {
