@@ -654,7 +654,7 @@ pipeline {
         sh "${niceCmd}git verify-commit HEAD"
         sh "${niceCmd}git reset --hard"
         // git clean -fdx was iterating all of /.m2 despite being ignored
-        sh "${niceCmd}git clean -fx -e ${(projectDir == '.') ? '/.m2' : ('/' + projectDir + '/.m2')} -e ${(projectDir == '.') ? '/.rewrite-cache' : ('/' + projectDir + '/.rewrite-cache')}"
+        sh "${niceCmd}git clean -fx -e ${(projectDir == '.') ? '/.m2' : ('/' + projectDir + '/.m2')}"
         // Make sure working tree not modified after checkout
         sh """#!/bin/bash
 s="\$(${niceCmd}git status --short)"
