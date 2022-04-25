@@ -19,3 +19,6 @@
 
 # Objects compared in stringutils before.
 4ae948467fb3e1fbf2b4c23663d4dde25aa216a1
+
+# Performed automatic source code clean-up with rewrite-maven-plugin
+fa5396b6c99ba7980db1027cfa58e92ee6fda22d
