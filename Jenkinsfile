@@ -612,61 +612,6 @@ pipeline {
         }
       }
     }
-    stage('Workaround Git #27287') {
-      when {
-        expression {
-          return (
-            currentBuild.result == null
-            || currentBuild.result == hudson.model.Result.SUCCESS
-            || currentBuild.result == hudson.model.Result.UNSTABLE
-          ) && projectDir != '.' && fileExists('.gitmodules')
-        }
-      }
-      steps {
-        // See https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/#checkout-check-out-from-version-control
-        // See https://stackoverflow.com/questions/43293334/sparsecheckout-in-jenkinsfile-pipeline
-        /*
-         * Git version 2.34.1 is failing when fetching without submodules, which is our most common usage.
-         * It fails only on the first fetch, then succeeds on subsequent fetches.
-         * This issue is expected to be resolved in 2.35.1.
-         *
-         * To workaround this issue, we are allowing to retry the Git fetch by catching the first failure.
-         *
-         * See https://github.com/git/git/commit/c977ff440735e2ddc2ef18b18ae9a653bb8650fe
-         * See https://gitlab.com/gitlab-org/gitlab/-/issues/27287
-         *
-         * TODO: Remove once on Git >= 2.35.1
-         */
-        catchError(message: 'Git 2.34.1 first fetch fails when not fetching submodules, will retry', buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-          checkout scm: [$class: 'GitSCM',
-            userRemoteConfigs: [[
-              url: scmUrl,
-              refspec: "+refs/heads/$scmBranch:refs/remotes/origin/$scmBranch"
-            ]],
-            branches: [[name: "refs/heads/$scmBranch"]],
-            browser: scmBrowser,
-            extensions: [
-              // CleanCheckout was too aggressive and removed the workspace .m2 folder, added "sh" steps below
-              // [$class: 'CleanCheckout'],
-              [$class: 'CloneOption',
-                // See https://issues.jenkins.io/browse/JENKINS-45586
-                shallow: true,
-                depth: 20,
-                honorRefspec: true
-              ],
-              [$class: 'SparseCheckoutPaths',
-                sparseCheckoutPaths: sparseCheckoutPaths
-              ],
-              [$class: 'SubmoduleOption',
-                disableSubmodules: disableSubmodules,
-                shallow: true,
-                depth: 20
-              ]
-            ]
-          ]
-        }
-      }
-    }
     stage('Checkout SCM') {
       when {
         expression {
@@ -678,6 +623,8 @@ pipeline {
         }
       }
       steps {
+        // See https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/#checkout-check-out-from-version-control
+        // See https://stackoverflow.com/questions/43293334/sparsecheckout-in-jenkinsfile-pipeline
         checkout scm: [$class: 'GitSCM',
           userRemoteConfigs: [[
             url: scmUrl,
