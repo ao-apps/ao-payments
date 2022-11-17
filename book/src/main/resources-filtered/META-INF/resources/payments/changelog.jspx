@@ -37,7 +37,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     shortTitle="Changelog"
     tocLevels="1"
     datePublished="2016-10-29T18:02:14-05:00"
-    dateModified="2021-10-05T04:07:33-05:00"
+    dateModified="2022-11-16T20:56:11-06:00"
   >
     <c:if test="${fn:endsWith('@{project.version}', '-SNAPSHOT') and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')}">
       <changelog:release
@@ -47,7 +47,12 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
         artifactId="@{documented.artifactId}"
         repository="@{nexusUrl}content/repositories/snapshots/"
         scmUrl="@{project.scm.url}"
-      />
+      >
+        <ul>
+          <li>Updated for compatibility with <ao:a href="https://github.com/stripe/stripe-java/releases/tag/v22.0.0">stripe-java-22.0.0</ao:a>.
+          </li>
+        </ul>
+      </changelog:release>
     </c:if>
 
     <changelog:release
