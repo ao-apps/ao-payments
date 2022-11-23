@@ -29,7 +29,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     <relativePath>../../parent/pom.xml</relativePath>
   </parent>
 
-  <groupId>com.aoapps</groupId><artifactId>ao-payments-book</artifactId><version>2.1.0</version>
+  <groupId>com.aoapps</groupId><artifactId>ao-payments-book</artifactId><version>2.1.0-POST-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <properties>
@@ -74,7 +74,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     <connection>scm:git:git://github.com/ao-apps/ao-payments.git</connection>
     <developerConnection>scm:git:git@github.com:ao-apps/ao-payments.git</developerConnection>
     <url>https://github.com/ao-apps/ao-payments</url>
-    <tag>ao-payments-book-2.1.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
