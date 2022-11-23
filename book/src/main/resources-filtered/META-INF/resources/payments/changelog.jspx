@@ -49,8 +49,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
         scmUrl="@{project.scm.url}"
       >
         <ul>
-          <li>Updated for compatibility with <ao:a href="https://github.com/stripe/stripe-java/releases/tag/v22.0.0">stripe-java-22.0.0</ao:a>.
-          </li>
+          <li>Updated for compatibility with <ao:a href="https://github.com/stripe/stripe-java/releases/tag/v22.0.0">stripe-java-22.0.0</ao:a>.</li>
         </ul>
       </changelog:release>
     </c:if>
