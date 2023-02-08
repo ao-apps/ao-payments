@@ -33,6 +33,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
   <packaging>pom</packaging>
 
   <properties>
+    <project.build.outputTimestamp>2023-02-08T21:06:04Z</project.build.outputTimestamp>
     <!-- SonarQube -->
     <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
     <sonar.organization>ao-apps</sonar.organization>

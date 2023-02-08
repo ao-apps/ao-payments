@@ -33,6 +33,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
   <packaging>bundle</packaging>
 
   <properties>
+    <project.build.outputTimestamp>2023-02-08T21:06:04Z</project.build.outputTimestamp>
     <module.name>com.aoapps.payments.book</module.name>
     <!-- These values are copied from the project being documented -->
     <documented.artifactId>ao-payments</documented.artifactId>
