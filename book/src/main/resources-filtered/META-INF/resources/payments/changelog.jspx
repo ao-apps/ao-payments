@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
-Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -37,7 +37,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     shortTitle="Changelog"
     tocLevels="1"
     datePublished="2016-10-29T18:02:14-05:00"
-    dateModified="2022-11-22T23:48:13-06:00"
+    dateModified="2023-02-10T02:45:59Z"
   >
     <c:if test="${fn:endsWith('@{project.version}', '-SNAPSHOT') and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')}">
       <changelog:release
@@ -47,7 +47,14 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
         artifactId="@{documented.artifactId}"
         repository="@{nexusUrl}content/repositories/snapshots/"
         scmUrl="@{project.scm.url}"
-      />
+      >
+        <ul>
+          <li>
+            New interface <code><ao:a href="https://oss.aoapps.com/lang/apidocs/com.aoapps.lang/com/aoapps/lang/security/acl/Group.html">Group</ao:a></code>
+            for compatibility with <code>java.security.acl.Group</code> removed since Java 14.
+          </li>
+        </ul>
+      </changelog:release>
     </c:if>
 
     <changelog:release
