@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 /*
  * ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
- * Copyright (C) 2021, 2022  AO Industries, Inc.
+ * Copyright (C) 2021, 2022, 2023  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -45,7 +45,7 @@ def upstreamProjects = [
  * Variables that may be defined above this block:                                        *
  *                                                                                        *
  * deployJdk            The version of JDK that will be used for the deploy stage.        *
- *                      Defaults to '11'                                                  *
+ *                      Defaults to '17'                                                  *
  *                                                                                        *
  * buildJdks            The array of JDK versions that will build.                        *
  *                      Defaults to ['11', '17', '19']                                    *
@@ -142,7 +142,7 @@ def upstreamProjects = [
 
 // JDK versions
 if (!binding.hasVariable('deployJdk')) {
-  binding.setVariable('deployJdk', '11')
+  binding.setVariable('deployJdk', '17')
 }
 if (!binding.hasVariable('buildJdks')) {
   binding.setVariable(
@@ -731,15 +731,12 @@ pipeline {
         }
         stages {
           stage('Build') {
-            environment {
-              mavenLocalRepo = "${(jdk == deployJdk) ? '.m2/repository' : ('.m2/repository-jdk-' + jdk)}"
-            }
             steps {
               dir(projectDir) {
                 withMaven(
                   maven: maven,
                   mavenOpts: "${(jdk == '1.8' || jdk == '11') ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-                  mavenLocalRepo: mavenLocalRepo,
+                  mavenLocalRepo: ".m2/repository-jdk-${jdk}",
                   jdk: "jdk-$jdk"
                 ) {
                   sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=target/jdk-$jdk $buildPhases"
@@ -785,17 +782,16 @@ pipeline {
         stages {
           stage('Test') {
             environment {
-              mavenLocalRepo = "${(jdk == deployJdk) ? '.m2/repository' : ('.m2/repository-jdk-' + jdk)}"
-              buildDir       = "${(testJdk == jdk) ? ('target/jdk-' + jdk) : ('target/jdk-' + jdk + '-' + testJdk)}"
-              coverage       = "${(jdk == deployJdk && testJdk == deployJdk && fileExists(projectDir + '/src/main/java') && fileExists(projectDir + '/src/test')) ? '-Pcoverage' : '-P!coverage'}"
-              testGoals      = "${(coverage == '-Pcoverage') ? 'jacoco:prepare-agent surefire:test jacoco:report' : 'surefire:test'}"
+              buildDir  = "${(testJdk == jdk) ? ('target/jdk-' + jdk) : ('target/jdk-' + jdk + '-' + testJdk)}"
+              coverage  = "${(jdk == deployJdk && testJdk == deployJdk && fileExists(projectDir + '/src/main/java') && fileExists(projectDir + '/src/test')) ? '-Pcoverage' : '-P!coverage'}"
+              testGoals = "${(coverage == '-Pcoverage') ? 'jacoco:prepare-agent surefire:test jacoco:report' : 'surefire:test'}"
             }
             steps {
               dir(projectDir) {
                 withMaven(
                   maven: maven,
                   mavenOpts: "${(testJdk == '1.8' || testJdk == '11') ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-                  mavenLocalRepo: mavenLocalRepo,
+                  mavenLocalRepo: ".m2/repository-jdk-${jdk}",
                   jdk: "jdk-$testJdk"
                 ) {
                   sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=$buildDir $coverage $testGoals"
@@ -825,7 +821,7 @@ pipeline {
           withMaven(
             maven: maven,
             mavenOpts: "${(deployJdk == '1.8' || deployJdk == '11') ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-            mavenLocalRepo: '.m2/repository',
+            mavenLocalRepo: ".m2/repository-jdk-${deployJdk}",
             jdk: "jdk-$deployJdk"
           ) {
             sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish -Dalt.build.dir=target/jdk-$deployJdk deploy"
@@ -854,7 +850,7 @@ pipeline {
             withMaven(
               maven: maven,
               mavenOpts: "${(deployJdk == '1.8' || deployJdk == '11') ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-              mavenLocalRepo: '.m2/repository',
+              mavenLocalRepo: ".m2/repository-jdk-${deployJdk}",
               jdk: "jdk-$deployJdk"
             ) {
               sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=target/jdk-$deployJdk -Dsonar.coverage.jacoco.xmlReportPaths=target/jdk-$deployJdk/site/jacoco/jacoco.xml sonar:sonar"
