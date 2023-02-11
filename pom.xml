@@ -29,11 +29,11 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
 
-  <groupId>com.aoapps</groupId><artifactId>ao-payments</artifactId><version>3.0.0-SNAPSHOT</version>
+  <groupId>com.aoapps</groupId><artifactId>ao-payments</artifactId><version>3.0.0</version>
   <packaging>pom</packaging>
 
   <properties>
-    <project.build.outputTimestamp>2023-02-10T02:36:21Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2023-02-11T22:25:08Z</project.build.outputTimestamp>
     <!-- SonarQube -->
     <sonar.projectKey>${project.groupId}:${project.artifactId}</sonar.projectKey>
     <sonar.organization>ao-apps</sonar.organization>
@@ -72,7 +72,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     <connection>scm:git:git://github.com/ao-apps/ao-payments.git</connection>
     <developerConnection>scm:git:git@github.com:ao-apps/ao-payments.git</developerConnection>
     <url>https://github.com/ao-apps/ao-payments</url>
-    <tag>HEAD</tag>
+    <tag>ao-payments-3.0.0</tag>
   </scm>
 
   <issueManagement>
