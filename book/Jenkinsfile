@@ -552,7 +552,33 @@ pipeline {
     quietPeriod(quietPeriod)
     skipDefaultCheckout()
     timeout(time: 2, unit: 'HOURS')
-    buildDiscarder(logRotator(numToKeepStr:'50'))
+    // See https://plugins.jenkins.io/build-history-manager/
+    buildDiscarder(BuildHistoryManager([
+      [
+        // Keep most recent aborted build, which is useful to know what the build is waiting for
+        // and to see that the build is still pending in Active and Blinkenlichten views.
+        conditions: [BuildResult(
+          matchAborted: true
+        )],
+        matchAtMost: 1,
+        continueAfterMatch: false
+      ],
+      [
+        // Keep most recent 50 non-aborted builds
+        conditions: [BuildResult(
+          // All statuses except ABORTED from
+          // https://github.com/jenkinsci/build-history-manager-plugin/blob/master/src/main/java/pl/damianszczepanik/jenkins/buildhistorymanager/model/conditions/BuildResultCondition.java
+          matchSuccess: true,
+          matchUnstable: true,
+          matchFailure: true
+        )],
+        matchAtMost: 50,
+        continueAfterMatch: false
+      ],
+      [
+        actions: [DeleteBuild()]
+      ]
+    ]))
   }
   parameters {
     string(name: 'BuildPriority', defaultValue: "$buildPriority", description: "Specify the priority of this build.\nDefaults to project's depth in the upstream project graph")
