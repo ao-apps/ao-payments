@@ -901,6 +901,35 @@ pipeline {
         }
       }
     }
+    stage('Analysis') {
+      when {
+        expression {
+          return (
+            currentBuild.result == null
+            || currentBuild.result == hudson.model.Result.SUCCESS
+            || currentBuild.result == hudson.model.Result.UNSTABLE
+          )
+        }
+      }
+      steps {
+        recordIssues(
+          aggregatingResults: true,
+          skipPublishingChecks: true,
+          sourceCodeEncoding: 'UTF-8',
+          tools: [
+            checkStyle(),
+            java(),
+            javaDoc(),
+            // junitParser(),
+            mavenConsole(),
+            // php()
+            sonarQube(),
+            spotBugs()
+            // taskScanner()
+          ]
+        )
+      }
+    }
   }
   post {
     failure {
