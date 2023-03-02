@@ -839,24 +839,9 @@ pipeline {
         }
       }
       steps {
-        // Make sure working tree not modified by build or test
-        sh checkTreeUnmodifiedScriptBuild(niceCmd)
-        dir(projectDir) {
-          // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
-          sh moveSurefireReportsScript(deployJdk)
-          withMaven(
-            maven: maven,
-            mavenOpts: "${(deployJdk == '1.8' || deployJdk == '11') ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-            mavenLocalRepo: ".m2/repository-jdk-${deployJdk}",
-            jdk: "jdk-$deployJdk"
-          ) {
-            sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish -Dalt.build.dir=target/jdk-$deployJdk deploy"
-          }
-          // Restore surefire-reports
-          sh restoreSurefireReportsScript(deployJdk)
-        }
-        // Make sure working tree not modified by deploy
-        sh checkTreeUnmodifiedScriptDeploy(niceCmd)
+        // Steps moved to separate function to avoid "Method too large"
+        // See https://stackoverflow.com/a/47631522
+        deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk16, mvnCommon)
       }
     }
     stage('SonarQube analysis') {
@@ -870,19 +855,9 @@ pipeline {
         }
       }
       steps {
-        sh "${niceCmd}git fetch --unshallow || true" // SonarQube does not currently support shallow fetch
-        dir(projectDir) {
-          withSonarQubeEnv(installationName: 'AO SonarQube') {
-            withMaven(
-              maven: maven,
-              mavenOpts: "${(deployJdk == '1.8' || deployJdk == '11') ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-              mavenLocalRepo: ".m2/repository-jdk-${deployJdk}",
-              jdk: "jdk-$deployJdk"
-            ) {
-              sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=target/jdk-$deployJdk -Dsonar.coverage.jacoco.xmlReportPaths=target/jdk-$deployJdk/site/jacoco/jacoco.xml sonar:sonar"
-            }
-          }
-        }
+        // Steps moved to separate function to avoid "Method too large"
+        // See https://stackoverflow.com/a/47631522
+        sonarQubeAnalysisSteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk16, mvnCommon)
       }
     }
     stage('Quality Gate') {
@@ -896,9 +871,9 @@ pipeline {
         }
       }
       steps {
-        timeout(time: 1, unit: 'HOURS') {
-          waitForQualityGate(webhookSecretId: 'SONAR_WEBHOOK', abortPipeline: false)
-        }
+        // Steps moved to separate function to avoid "Method too large"
+        // See https://stackoverflow.com/a/47631522
+        qualityGateSteps()
       }
     }
     stage('Analysis') {
@@ -912,22 +887,9 @@ pipeline {
         }
       }
       steps {
-        recordIssues(
-          aggregatingResults: true,
-          skipPublishingChecks: true,
-          sourceCodeEncoding: 'UTF-8',
-          tools: [
-            checkStyle(),
-            java(),
-            javaDoc(),
-            // junitParser(),
-            mavenConsole(),
-            // php()
-            sonarQube(),
-            spotBugs()
-            // taskScanner()
-          ]
-        )
+        // Steps moved to separate function to avoid "Method too large"
+        // See https://stackoverflow.com/a/47631522
+        analysisSteps()
       }
     }
   }
@@ -938,4 +900,74 @@ pipeline {
         body: "${env.BUILD_URL}console"
     }
   }
+}
+
+// Steps moved to separate function to avoid "Method too large"
+// See https://stackoverflow.com/a/47631522
+void deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk16, mvnCommon) {
+  // Make sure working tree not modified by build or test
+  sh checkTreeUnmodifiedScriptBuild(niceCmd)
+  dir(projectDir) {
+    // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
+    sh moveSurefireReportsScript(deployJdk)
+    withMaven(
+      maven: maven,
+      mavenOpts: "${(deployJdk == '1.8' || deployJdk == '11') ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
+      mavenLocalRepo: ".m2/repository-jdk-${deployJdk}",
+      jdk: "jdk-$deployJdk"
+    ) {
+      sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish -Dalt.build.dir=target/jdk-$deployJdk deploy"
+    }
+    // Restore surefire-reports
+    sh restoreSurefireReportsScript(deployJdk)
+  }
+  // Make sure working tree not modified by deploy
+  sh checkTreeUnmodifiedScriptDeploy(niceCmd)
+}
+
+// Steps moved to separate function to avoid "Method too large"
+// See https://stackoverflow.com/a/47631522
+void sonarQubeAnalysisSteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk16, mvnCommon) {
+  sh "${niceCmd}git fetch --unshallow || true" // SonarQube does not currently support shallow fetch
+  dir(projectDir) {
+    withSonarQubeEnv(installationName: 'AO SonarQube') {
+      withMaven(
+        maven: maven,
+        mavenOpts: "${(deployJdk == '1.8' || deployJdk == '11') ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
+        mavenLocalRepo: ".m2/repository-jdk-${deployJdk}",
+        jdk: "jdk-$deployJdk"
+      ) {
+        sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=target/jdk-$deployJdk -Dsonar.coverage.jacoco.xmlReportPaths=target/jdk-$deployJdk/site/jacoco/jacoco.xml sonar:sonar"
+      }
+    }
+  }
+}
+
+// Steps moved to separate function to avoid "Method too large"
+// See https://stackoverflow.com/a/47631522
+void qualityGateSteps() {
+  timeout(time: 1, unit: 'HOURS') {
+    waitForQualityGate(webhookSecretId: 'SONAR_WEBHOOK', abortPipeline: false)
+  }
+}
+
+// Steps moved to separate function to avoid "Method too large"
+// See https://stackoverflow.com/a/47631522
+void analysisSteps() {
+  recordIssues(
+    aggregatingResults: true,
+    skipPublishingChecks: true,
+    sourceCodeEncoding: 'UTF-8',
+    tools: [
+      checkStyle(),
+      java(),
+      javaDoc(),
+      // junitParser(),
+      mavenConsole(),
+      // php()
+      sonarQube(),
+      spotBugs()
+      // taskScanner()
+    ]
+  )
 }
