@@ -475,7 +475,7 @@ if (!binding.hasVariable('failureEmailTo')) {
 }
 
 // Common settings
-def mvnCommon   = "-Dstyle.color=always -N -Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
+def mvnCommon   = "-Dstyle.color=always -N -U -Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
 def buildPhases = 'clean process-test-classes'
 
 // Determine nice command prefix or empty string for none
