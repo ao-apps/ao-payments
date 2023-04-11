@@ -44,8 +44,8 @@ def upstreamProjects = [
 
 /******************************************************************************************
  *                                                                                        *
- * Everything below this line is identical for all projects,                              *
- * except the copied matrix axes.                                                         *
+ * Everything below this line is identical for all projects, except the copied matrix     *
+ * axes and any "Begin .*custom" / "End .*custom" blocks (see filter_custom script).      *
  *                                                                                        *
  * See https://issues.jenkins.io/browse/JENKINS-61047                                     *
  * See https://issues.jenkins.io/browse/JENKINS-61280                                     *
