@@ -20,7 +20,7 @@ Aggregator POM for payment processing API supporting multiple payment gateways.
 ## Project Links
 * [Project Home](https://oss.aoapps.com/payments/)
 * [Changelog](https://oss.aoapps.com/payments/changelog)
-* [Maven Central Repository](https://central.sonatype.com/search?namespace=com.aoapps&q=a%3Aao-payments)
+* [Maven Central Repository](https://central.sonatype.com/artifact/com.aoapps/ao-payments)
 * [GitHub](https://github.com/ao-apps/ao-payments)
 
 ## Modules

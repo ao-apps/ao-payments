@@ -34,7 +34,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     title="@{documented.name}"
     description="@{documented.description}"
     datePublished="2016-10-16T21:44:00-05:00"
-    dateModified="2023-02-26T14:03:56Z"
+    dateModified="2023-04-14T16:43:04Z"
   >
     <core:child page="changelog.jspx" />
     <core:child book="/payments/bom" page="/index.jspx" />
@@ -72,7 +72,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
       <ul>
         <li><core:link page="index.jspx">Project Home</core:link></li>
         <li><core:link page="changelog.jspx">Changelog</core:link></li>
-        <li><ao:a href="https://central.sonatype.com/search?namespace=${ao:encodeURIComponent('@{project.groupId}')}&amp;q=a%3A${ao:encodeURIComponent('@{documented.artifactId}')}">Maven Central Repository</ao:a></li>
+        <li><ao:a href="https://central.sonatype.com/artifact/${ao:encodeURIComponent('@{project.groupId}')}/${ao:encodeURIComponent('@{documented.artifactId}')}">Maven Central Repository</ao:a></li>
         <li><ao:a href="@{project.scm.url}">GitHub</ao:a></li>
       </ul>
     </section:nav>
