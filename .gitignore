@@ -11,3 +11,4 @@ buildNumber.properties
 .mvn/timing.properties
 .LCKpom.xml~
 .directory
+.DS_Store
