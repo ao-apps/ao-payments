@@ -30,7 +30,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
   </parent>
 
   <groupId>com.aoapps</groupId><artifactId>ao-payments-book</artifactId><version>3.0.0-POST-SNAPSHOT</version>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
 
   <properties>
     <module.name>com.aoapps.payments.book</module.name>
@@ -149,6 +149,14 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
                 <Automatic-Module-Name>${module.name}</Automatic-Module-Name>
                 <Private-Package>!.</Private-Package>
               </instructions>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId><artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/module-info.class</exclude>
+              </excludes>
             </configuration>
           </plugin>
         </plugins>
