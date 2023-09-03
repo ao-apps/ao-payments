@@ -1,4 +1,5 @@
 target/
+target-jdk-*/
 .m2/
 *@tmp/
 pom.xml.tag

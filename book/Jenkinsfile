@@ -479,7 +479,7 @@ def mvnCommon   = "-Dstyle.color=always -N -U -Pjenkins,POST-SNAPSHOT${extraProf
 def buildPhases = 'clean process-test-classes'
 
 // Determine nice command prefix or empty string for none
-def niceCmd = (nice == 0) ? '' : "nice -n${nice} "
+def niceCmd = (nice == 0) ? '' : "nice -n$nice "
 
 //
 // Scripts pulled out of pipeline due to "General error during class generation: Method too large"
@@ -512,21 +512,21 @@ fi
 }
 
 // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
-def moveSurefireReportsScript(deployJdk) {
+def moveSurefireReportsScript() {
   return """#!/bin/bash
-if [ -d target/jdk-$deployJdk/surefire-reports ]
+if [ -d target/surefire-reports ]
 then
-  mv target/jdk-$deployJdk/surefire-reports target/jdk-$deployJdk/surefire-reports.do-not-report-twice
+  mv target/surefire-reports target/surefire-reports.do-not-report-twice
 fi
 """
 }
 
 // Restore surefire-reports
-def restoreSurefireReportsScript(deployJdk) {
+def restoreSurefireReportsScript() {
   return """#!/bin/bash
-if [ -d target/jdk-$deployJdk/surefire-reports.do-not-report-twice ]
+if [ -d target/surefire-reports.do-not-report-twice ]
 then
-  mv target/jdk-$deployJdk/surefire-reports.do-not-report-twice target/jdk-$deployJdk/surefire-reports
+  mv target/surefire-reports.do-not-report-twice target/surefire-reports
 fi
 """
 }
@@ -650,7 +650,7 @@ pipeline {
               }
               def result = lastBuild.result;
               if (result != hudson.model.Result.SUCCESS) {
-                error("${currentWorkflowJob.fullName}: Aborting due to dependency last build not successful: ${upstreamWorkflowJob.fullName} #${lastBuild.number} is ${result}")
+                error("${currentWorkflowJob.fullName}: Aborting due to dependency last build not successful: ${upstreamWorkflowJob.fullName} #${lastBuild.number} is $result")
               }
             }
           }
@@ -780,11 +780,11 @@ pipeline {
               dir(projectDir) {
                 withMaven(
                   maven: maven,
-                  mavenOpts: "${jdk == '11' ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-                  mavenLocalRepo: ".m2/repository-jdk-${jdk}",
+                  mavenOpts: "${jdk == '11' ? mavenOpts : "$mavenOpts $mavenOptsJdk16"}",
+                  mavenLocalRepo: ".m2/repository-jdk-$jdk",
                   jdk: "jdk-$jdk"
                 ) {
-                  sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=target/jdk-$jdk $buildPhases"
+                  sh "${niceCmd}$MVN_CMD $mvnCommon ${jdk == deployJdk ? '' : "-Dalt.build.dir=target-jdk-$jdk "}$buildPhases"
                 }
               }
               script {
@@ -792,8 +792,8 @@ pipeline {
                 if (testWhenExpression.call()) {
                   testJdks.each() {testJdk ->
                     if (testJdk != jdk) {
-                      sh "${niceCmd}rm $projectDir/target/jdk-$jdk-$testJdk -rf"
-                      sh "${niceCmd}cp -al $projectDir/target/jdk-$jdk $projectDir/target/jdk-$jdk-$testJdk"
+                      sh "${niceCmd}rm $projectDir/target-jdk-$jdk-$testJdk -rf"
+                      sh "${niceCmd}cp -al $projectDir/target${jdk == deployJdk ? '' : "-jdk-$jdk"} $projectDir/target-jdk-$jdk-$testJdk"
                     }
                   }
                 }
@@ -827,7 +827,7 @@ pipeline {
         stages {
           stage('Test') {
             environment {
-              buildDir  = "${(testJdk == jdk) ? ('target/jdk-' + jdk) : ('target/jdk-' + jdk + '-' + testJdk)}"
+              buildDir  = "target${(testJdk == jdk) ? (jdk == deployJdk ? '' : "-jdk-$jdk") : ("-jdk-$jdk-$testJdk")}"
               coverage  = "${(jdk == deployJdk && testJdk == deployJdk && fileExists(projectDir + '/src/main/java') && fileExists(projectDir + '/src/test')) ? '-Pcoverage' : '-P!coverage'}"
               testGoals = "${(coverage == '-Pcoverage') ? 'jacoco:prepare-agent surefire:test jacoco:report' : 'surefire:test'}"
             }
@@ -835,8 +835,8 @@ pipeline {
               dir(projectDir) {
                 withMaven(
                   maven: maven,
-                  mavenOpts: "${testJdk == '11' ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-                  mavenLocalRepo: ".m2/repository-jdk-${jdk}",
+                  mavenOpts: "${testJdk == '11' ? mavenOpts : "$mavenOpts $mavenOptsJdk16"}",
+                  mavenLocalRepo: ".m2/repository-jdk-$jdk",
                   jdk: "jdk-$testJdk"
                 ) {
                   sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=$buildDir $coverage $testGoals"
@@ -928,17 +928,17 @@ void deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk1
   sh checkTreeUnmodifiedScriptBuild(niceCmd)
   dir(projectDir) {
     // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
-    sh moveSurefireReportsScript(deployJdk)
+    sh moveSurefireReportsScript()
     withMaven(
       maven: maven,
-      mavenOpts: "${deployJdk == '11' ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-      mavenLocalRepo: ".m2/repository-jdk-${deployJdk}",
+      mavenOpts: "${deployJdk == '11' ? mavenOpts : "$mavenOpts $mavenOptsJdk16"}",
+      mavenLocalRepo: ".m2/repository-jdk-$deployJdk",
       jdk: "jdk-$deployJdk"
     ) {
-      sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish -Dalt.build.dir=target/jdk-$deployJdk deploy"
+      sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish deploy"
     }
     // Restore surefire-reports
-    sh restoreSurefireReportsScript(deployJdk)
+    sh restoreSurefireReportsScript()
   }
   // Make sure working tree not modified by deploy
   sh checkTreeUnmodifiedScriptDeploy(niceCmd)
@@ -952,11 +952,11 @@ void sonarQubeAnalysisSteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, ma
     withSonarQubeEnv(installationName: 'AO SonarQube') {
       withMaven(
         maven: maven,
-        mavenOpts: "${deployJdk == '11' ? mavenOpts : (mavenOpts + ' ' + mavenOptsJdk16)}",
-        mavenLocalRepo: ".m2/repository-jdk-${deployJdk}",
+        mavenOpts: "${deployJdk == '11' ? mavenOpts : "$mavenOpts $mavenOptsJdk16"}",
+        mavenLocalRepo: ".m2/repository-jdk-$deployJdk",
         jdk: "jdk-$deployJdk"
       ) {
-        sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=target/jdk-$deployJdk -Dsonar.coverage.jacoco.xmlReportPaths=target/jdk-$deployJdk/site/jacoco/jacoco.xml sonar:sonar"
+        sh "${niceCmd}$MVN_CMD $mvnCommon -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml sonar:sonar"
       }
     }
   }
