@@ -538,6 +538,9 @@ pipeline {
     quietPeriod(quietPeriod)
     skipDefaultCheckout()
     timeout(time: 2, unit: 'HOURS')
+    // Only allowed to copy build artifacts from self
+    // See https://plugins.jenkins.io/copyartifact/
+    copyArtifactPermission("/${JOB_NAME}")
     // See https://plugins.jenkins.io/build-history-manager/
     buildDiscarder(BuildHistoryManager([
       [
@@ -913,6 +916,17 @@ void deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk1
   // Make sure working tree not modified by build or test
   sh checkTreeUnmodifiedScriptBuild(niceCmd)
   dir(projectDir) {
+    // Download artifacts from last successful build of this job
+    // See https://plugins.jenkins.io/copyartifact/
+    // See https://www.jenkins.io/doc/pipeline/steps/copyartifact/#copyartifacts-copy-artifacts-from-another-project
+    copyArtifacts(
+      projectName: "/${JOB_NAME}",
+      selector: lastSuccessful(stable: false),
+      filter: '**/*.aar, **/*.jar, **/*.war',
+      target: 'target/last-successful-artifacts',
+      flatten: true,
+      optional: true
+    )
     // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
     sh moveSurefireReportsScript()
     withMaven(
