@@ -593,7 +593,19 @@ pipeline {
     ]))
   }
   parameters {
-    string(name: 'BuildPriority', defaultValue: "$buildPriority", description: "Specify the priority of this build.\nDefaults to project's depth in the upstream project graph")
+    string(
+      name: 'BuildPriority',
+      defaultValue: "$buildPriority",
+      description: """Specify the priority of this build.
+Defaults to project's depth in the upstream project graph."""
+    )
+    booleanParam(
+      name: 'requireLastBuild',
+      defaultValue: true,
+      description: """Is the last build required for the zip-timestamp-merge Ant task?
+Defaults to true and will typically only be false for either the first build
+or any build that adds or removes build artifacts."""
+    )
   }
   triggers {
     upstream(
@@ -936,7 +948,7 @@ void deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk1
     copyArtifacts(
       projectName: "/${JOB_NAME}",
       selector: lastSuccessful(stable: false),
-      filter: '**/*.aar, **/*.jar, **/*.war',
+      filter: '**/*.aar, **/*.jar, **/*.war, **/*.zip',
       target: 'target/last-successful-artifacts',
       flatten: true,
       optional: true
