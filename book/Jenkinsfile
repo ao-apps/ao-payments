@@ -948,7 +948,9 @@ void deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk1
     copyArtifacts(
       projectName: "/${JOB_NAME}",
       selector: lastSuccessful(stable: true),
-      filter: '**/*.aar, **/*.jar, **/*.war, **/*.zip',
+      // *.pom included so pom-only projects have something to successfully download
+      // The other extensions match the types processed by ao-ant-tasks
+      filter: '**/*.pom, **/*.aar, **/*.jar, **/*.war, **/*.zip',
       target: 'target/last-successful-artifacts',
       flatten: true,
       optional: !params.requireLastBuild
