@@ -947,11 +947,11 @@ void deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk1
     // See https://www.jenkins.io/doc/pipeline/steps/copyartifact/#copyartifacts-copy-artifacts-from-another-project
     copyArtifacts(
       projectName: "/${JOB_NAME}",
-      selector: lastSuccessful(stable: false),
+      selector: lastSuccessful(stable: true),
       filter: '**/*.aar, **/*.jar, **/*.war, **/*.zip',
       target: 'target/last-successful-artifacts',
       flatten: true,
-      optional: true
+      optional: !params.requireLastBuild
     )
     // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
     sh moveSurefireReportsScript()
