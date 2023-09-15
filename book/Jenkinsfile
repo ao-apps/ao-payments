@@ -26,6 +26,12 @@
 def upstreamProjects = [
   // Parent
   '../parent', // <groupId>com.aoapps</groupId><artifactId>ao-oss-parent</artifactId>
+  // Parent Plugin Dependencies (Avoid cyclic dependency)
+  '../pgp-keys-map', // <groupId>com.aoapps</groupId><artifactId>pgp-keys-map</artifactId>
+  '../javadoc-offline', // <groupId>com.aoapps</groupId><artifactId>ao-javadoc-offline</artifactId>
+  '../javadoc-resources', // <groupId>com.aoapps</groupId><artifactId>ao-javadoc-resources</artifactId>
+  '../ant-tasks', // <groupId>com.aoapps</groupId><artifactId>ao-ant-tasks</artifactId>
+  '../checkstyle-config', // <groupId>com.aoapps</groupId><artifactId>ao-checkstyle-config</artifactId>
 
   // Direct
   '../badges-1.x', // <groupId>com.aoapps</groupId><artifactId>ao-badges</artifactId>
