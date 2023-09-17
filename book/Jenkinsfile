@@ -969,7 +969,16 @@ void deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk1
       mavenLocalRepo: ".m2/repository-jdk-$deployJdk",
       jdk: "jdk-$deployJdk"
     ) {
-      sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish deploy"
+      // "publish" profile may not be enabled at the same time as "development" profile,
+      // disable for any project that always has "development" profile enabled.
+      sh """#!/bin/bash
+if [ -f profile.d/development ]
+then
+  ${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy deploy
+else
+  ${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish deploy
+fi
+"""
     }
     // Restore surefire-reports
     sh restoreSurefireReportsScript()
