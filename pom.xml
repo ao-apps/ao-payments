@@ -32,6 +32,11 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
   <groupId>com.aoapps</groupId><artifactId>ao-payments</artifactId><version>3.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <properties>
+    <!-- Must be set to ${git.commit.time} for snapshots or ISO 8601 timestamp for releases. -->
+    <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
+  </properties>
+
   <name>AO Payments</name>
   <url>https://oss.aoapps.com/payments/</url>
   <description>Aggregator POM for payment processing API supporting multiple payment gateways.</description>

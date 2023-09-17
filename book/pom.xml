@@ -33,6 +33,8 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
   <packaging>jar</packaging>
 
   <properties>
+    <!-- Must be set to ${git.commit.time} for snapshots or ISO 8601 timestamp for releases. -->
+    <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
     <module.name>com.aoapps.payments.book</module.name>
     <!-- These values are copied from the project being documented -->
     <documented.artifactId>ao-payments</documented.artifactId>
