@@ -39,7 +39,12 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     datePublished="2016-10-29T18:02:14-05:00"
     dateModified="2023-09-13T19:28:44Z"
   >
-    <c:if test="${fn:endsWith('@{project.version}', '-SNAPSHOT') and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')}">
+    <c:set var="latestRelease" value="3.0.0" />
+    <c:if test="${
+      fn:endsWith('@{project.version}', '-SNAPSHOT')
+      and !fn:endsWith('@{project.version}', '-POST-SNAPSHOT')
+      and '@{project.version}' != (latestRelease.concat('-SNAPSHOT'))
+    }">
       <changelog:release
         projectName="@{documented.name}"
         version="@{project.version}"
