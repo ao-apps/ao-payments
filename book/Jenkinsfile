@@ -481,7 +481,7 @@ if (!binding.hasVariable('failureEmailTo')) {
 }
 
 // Common settings
-def mvnCommon   = "-Dstyle.color=always -DrequireLastBuild=${params.requireLastBuild} -N -U -Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
+def mvnCommon   = "-Dstyle.color=always -Dmaven.gitcommitid.nativegit=true -DrequireLastBuild=${params.requireLastBuild} -N -U -Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
 def buildPhases = 'clean process-test-classes'
 
 // Determine nice command prefix or empty string for none
