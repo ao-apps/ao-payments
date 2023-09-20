@@ -80,10 +80,6 @@ def upstreamProjects = [
  *                          'book/Jenkinsfile'  -> 'book'                                 *
  *                          'devel/Jenkinsfile' -> 'devel'                                *
  *                                                                                        *
- * abortOnUnreadyDependency  Aborts the build when any dependency is queued, building,    *
- *                           or unsuccessful.                                             *
- *                           Defaults to true                                             *
- *                                                                                        *
  * disableSubmodules    Disables checkout of Git submodules.                              *
  *                      Defaults to true                                                  *
  *                                                                                        *
@@ -188,9 +184,6 @@ if (!binding.hasVariable('projectDir')) {
     throw new Exception("Unexpected value for 'scriptPath': '$scriptPath'")
   }
   binding.setVariable('projectDir', projectDir)
-}
-if (!binding.hasVariable('abortOnUnreadyDependency')) {
-  binding.setVariable('abortOnUnreadyDependency', true)
 }
 if (!binding.hasVariable('disableSubmodules')) {
   binding.setVariable('disableSubmodules', true)
@@ -606,6 +599,13 @@ pipeline {
 Defaults to project's depth in the upstream project graph."""
     )
     booleanParam(
+      name: 'abortOnUnreadyDependency',
+      defaultValue: true,
+      description: """Aborts the build when any dependency is queued, building, or unsuccessful.
+Defaults to true and will typically only be false to push a new version of a project out immediately.
+May also want to set BuildPriority to \"1\" to put at the top of the build queue."""
+    )
+    booleanParam(
       name: 'requireLastBuild',
       defaultValue: true,
       description: """Is the last build required for the zip-timestamp-merge Ant task?
@@ -623,7 +623,7 @@ or any build that adds or removes build artifacts."""
     stage('Check Ready') {
       when {
         expression {
-          return abortOnUnreadyDependency
+          return params.abortOnUnreadyDependency
         }
       }
       steps {
