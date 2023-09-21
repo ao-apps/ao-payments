@@ -806,7 +806,7 @@ or any build that adds or removes build artifacts."""
                   mavenLocalRepo: ".m2/repository-jdk-$jdk",
                   jdk: "jdk-$jdk"
                 ) {
-                  sh "${niceCmd}$MVN_CMD $mvnCommon ${jdk == deployJdk ? '' : "-Dalt.build.dir=target-jdk-$jdk "}$buildPhases"
+                  sh "${niceCmd}$MVN_CMD $mvnCommon ${jdk == deployJdk ? '' : "-Dalt.build.dir=target-jdk-$jdk -Pjenkins-build-altjdk "}$buildPhases"
                 }
               }
               script {
