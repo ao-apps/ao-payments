@@ -29,12 +29,12 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     <relativePath>../../parent/pom.xml</relativePath>
   </parent>
 
-  <groupId>com.aoapps</groupId><artifactId>ao-payments-book</artifactId><version>3.0.1</version>
+  <groupId>com.aoapps</groupId><artifactId>ao-payments-book</artifactId><version>3.0.1-POST-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
     <!-- Must be set to ${git.commit.time} for snapshots or ISO 8601 timestamp for releases. -->
-    <project.build.outputTimestamp>2023-09-25T03:30:23Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
     <module.name>com.aoapps.payments.book</module.name>
     <subproject.subpath>book/</subproject.subpath>
     <!-- These values are copied from the project being documented -->
@@ -77,7 +77,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     <connection>scm:git:git://github.com/ao-apps/ao-payments.git</connection>
     <developerConnection>scm:git:git@github.com:ao-apps/ao-payments.git</developerConnection>
     <url>https://github.com/ao-apps/ao-payments</url>
-    <tag>ao-payments-book-3.0.1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
