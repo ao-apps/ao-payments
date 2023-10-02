@@ -172,7 +172,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
         <groupId>com.aoapps</groupId><artifactId>ao-badges</artifactId><version>1.10.1${POST-SNAPSHOT}</version>
       </dependency>
       <dependency>
-        <groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId><version>7.2.2${POST-SNAPSHOT}</version>
+        <groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId><version>8.0.0-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
       </dependency>
       <dependency>
         <groupId>com.semanticcms</groupId><artifactId>semanticcms-changelog-taglib</artifactId><version>1.7.1${POST-SNAPSHOT}</version>
@@ -198,7 +198,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
         <groupId>com.aoapps</groupId><artifactId>ao-encoding-servlet</artifactId><version>4.2.0${POST-SNAPSHOT}</version>
       </dependency>
       <dependency>
-        <groupId>com.aoapps</groupId><artifactId>ao-encoding-taglib</artifactId><version>4.0.0${POST-SNAPSHOT}</version>
+        <groupId>com.aoapps</groupId><artifactId>ao-encoding-taglib</artifactId><version>5.0.0-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
       </dependency>
       <dependency>
         <groupId>com.aoapps</groupId><artifactId>ao-fluent-html</artifactId><version>0.7.0${POST-SNAPSHOT}</version>
