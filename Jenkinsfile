@@ -103,8 +103,8 @@ def upstreamProjects = [
  *                          10 + buildPriority * 2                                        *
  *                                                                                        *
  * nice                 The nice level to run the build processes or 0 for none.          *
- *                      Default depends on buildPriority:                                 *
- *                          min(19, buildPriority - 1)                                    *
+ *                      Default depends on params.BuildPriority:                          *
+ *                          min(19, params.BuildPriority - 1)                             *
  *                                                                                        *
  * maven                The Maven tool to use.                                            *
  *                      Defaults to 'maven-3'                                             *
@@ -428,8 +428,9 @@ if (!binding.hasVariable('quietPeriod')) {
   binding.setVariable('quietPeriod', 10 + buildPriority * 2)
 }
 if (!binding.hasVariable('nice')) {
-  def nice = buildPriority - 1;
-  if (nice > 19) nice = 19;
+  def nice = (params.BuildPriority as Integer) - 1;
+  if (nice < 0) nice = 0;
+  else if (nice > 19) nice = 19;
   binding.setVariable('nice', nice)
 }
 if (!binding.hasVariable('maven')) {
@@ -582,6 +583,7 @@ pipeline {
       name: 'BuildPriority',
       defaultValue: "$buildPriority",
       description: """Specify the priority of this build.
+Must be between 1 and 30, with lower values built first.
 Defaults to project's depth in the upstream project graph."""
     )
     booleanParam(
