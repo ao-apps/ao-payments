@@ -442,7 +442,7 @@ if (!binding.hasVariable('quietPeriod')) {
   binding.setVariable('quietPeriod', 10 + buildPriority * 2)
 }
 if (!binding.hasVariable('nice')) {
-  def nice = (params.BuildPriority as Integer) - 1;
+  def nice = (params.BuildPriority == null) ? 0 : ((params.BuildPriority as Integer) - 1);
   if (nice < 0) nice = 0;
   else if (nice > 19) nice = 19;
   binding.setVariable('nice', nice)
@@ -475,7 +475,7 @@ if (!binding.hasVariable('failureEmailTo')) {
 }
 
 // Common settings
-def mvnCommon   = "-Dstyle.color=always -Dmaven.gitcommitid.nativegit=true -DrequireLastBuild=${params.requireLastBuild} -Djenkins.buildNumber=${currentBuild.number} -N -U -Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
+def mvnCommon   = "-Dstyle.color=always -Dmaven.gitcommitid.nativegit=true -DrequireLastBuild=${params.requireLastBuild == null ? false : params.requireLastBuild} -Djenkins.buildNumber=${currentBuild.number} -N -U -Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
 def buildPhases = 'clean process-test-classes'
 
 // Determine nice command prefix or empty string for none
@@ -625,7 +625,7 @@ or any build that adds or removes build artifacts."""
     stage('Check Ready') {
       when {
         expression {
-          return params.abortOnUnreadyDependency
+          return (params.abortOnUnreadyDependency == null) ? true : params.abortOnUnreadyDependency
         }
       }
       steps {
@@ -962,7 +962,7 @@ void deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mavenOptsJdk1
       filter: '**/*.pom, **/*.aar, **/*.jar, **/*.war, **/*.zip',
       target: 'target/last-successful-artifacts',
       flatten: true,
-      optional: !params.requireLastBuild
+      optional: (params.requireLastBuild == null) ? true : !params.requireLastBuild
     )
     // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
     sh moveSurefireReportsScript()
