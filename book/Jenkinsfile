@@ -154,6 +154,7 @@ def upstreamProjects = [
 
 // JDK versions
 if (!binding.hasVariable('deployJdk')) {
+  // Matches build.yml:java-version
   binding.setVariable('deployJdk', '21')
 }
 if (!binding.hasVariable('buildJdks')) {
