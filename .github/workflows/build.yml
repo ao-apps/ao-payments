@@ -21,7 +21,7 @@ jobs:
       - name: Setup Maven
         uses: stCarolas/setup-maven@v.4.5
         with:
-          maven-version: '3.9.5'
+          maven-version: '3.9.6'
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
         with:
