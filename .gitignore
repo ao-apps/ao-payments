@@ -12,4 +12,6 @@ buildNumber.properties
 .mvn/timing.properties
 .LCKpom.xml~
 .directory
+desktop.ini
+Thumbs.db
 .DS_Store
