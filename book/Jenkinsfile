@@ -1141,14 +1141,14 @@ void analysisSteps() {
           skipPublishingChecks: true,
           sourceCodeEncoding: 'UTF-8',
           tools: [
-            checkStyle(),
+            checkStyle(pattern: 'target/checkstyle-result.xml', skipSymbolicLinks: true),
             java(),
             javaDoc(),
             // junitParser(),
             mavenConsole(),
             // php()
-            sonarQube(),
-            spotBugs()
+            // sonarQube(), // TODO: sonar-report.json not found
+            spotBugs(pattern: 'target/spotbugsXml.xml', skipSymbolicLinks: true)
             // taskScanner()
           ]
         )
