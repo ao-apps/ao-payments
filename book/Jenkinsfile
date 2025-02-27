@@ -545,7 +545,20 @@ pipeline {
     disableConcurrentBuilds(abortPrevious: true)
     quietPeriod(quietPeriod)
     skipDefaultCheckout()
-    timeout(time: 2, unit: 'HOURS')
+    //
+    // It is difficult to differentiate the cause of status ABORTED.  It can be a normal status when caused by a
+    // dependency build still in-progress.  Or it can be an unexpected status when caused by a timeout.  In the former
+    // cause, the build will be started again automatically by the upstream project.  In the latter case, the build
+    // must be manually restarted.  Without being able to distinguish, it is less clear when the build system is not
+    // making progress (all jobs can be in ABORTED state), and it is tedious to find which builds to start manually.
+    //
+    // This pipeline-level timeout does not convert status from ABORTED to FAILURE and should be a higher than the sum
+    // of all individual per-steps timeouts below, and thus is never expected to be reached, but remains as a fallback.
+    //
+    // Individual "steps" blocks below perform timeouts within catch blocks to convert status ABORTED to FAILURE.
+    // See https://devops.stackexchange.com/a/9692
+    //
+    timeout(time: 6, unit: 'HOURS')
     // Only allowed to copy build artifacts from self
     // See https://plugins.jenkins.io/copyartifact/
     copyArtifactPermission("/${JOB_NAME}")
@@ -623,52 +636,72 @@ or any build that adds or removes build artifacts."""
         }
       }
       steps {
-        catchError(message: 'Aborted due to dependencies not ready', buildResult: 'ABORTED', stageResult: 'ABORTED') {
-          script {
-            // See https://javadoc.jenkins.io/jenkins/model/Jenkins.html
-            // See https://javadoc.jenkins.io/hudson/model/Job.html
-            // See https://javadoc.jenkins.io/hudson/model/Run.html
-            // See https://javadoc.jenkins.io/hudson/model/Result.html
-            def jenkins = Jenkins.get();
-            // Get the mapping of all active dependencies and their current status
-            def upstreamProjectsCache = [:]
-            def allUpstreamProjectsCache = [:]
-            // Find the current project
-            def currentWorkflowJob = currentBuild.rawBuild.parent
-            if (!(currentWorkflowJob instanceof org.jenkinsci.plugins.workflow.job.WorkflowJob)) {
-              throw new Exception("currentWorkflowJob is not a WorkflowJob: ${currentWorkflowJob.fullName}")
+        script {
+          try {
+            timeout(time: 15, unit: 'MINUTES') {
+              try {
+                // See https://javadoc.jenkins.io/jenkins/model/Jenkins.html
+                // See https://javadoc.jenkins.io/hudson/model/Job.html
+                // See https://javadoc.jenkins.io/hudson/model/Run.html
+                // See https://javadoc.jenkins.io/hudson/model/Result.html
+                def jenkins = Jenkins.get();
+                // Get the mapping of all active dependencies and their current status
+                def upstreamProjectsCache = [:]
+                def allUpstreamProjectsCache = [:]
+                // Find the current project
+                def currentWorkflowJob = currentBuild.rawBuild.parent
+                if (!(currentWorkflowJob instanceof org.jenkinsci.plugins.workflow.job.WorkflowJob)) {
+                  throw new Exception("currentWorkflowJob is not a WorkflowJob: ${currentWorkflowJob.fullName}")
+                }
+                // Get all upstream projects (and the current)
+                def allUpstreamProjects = getAllUpstreamProjects(
+                  jenkins,
+                  upstreamProjectsCache,
+                  allUpstreamProjectsCache,
+                  currentWorkflowJob
+                )
+                // Remove current project
+                if (!allUpstreamProjects.removeElement(currentWorkflowJob.fullName)) {
+                  throw new Exception("currentWorkflowJob is not in allUpstreamProjects: ${currentWorkflowJob.fullName}")
+                }
+                // Check queue and get statuses, stop searching on first found unready
+                allUpstreamProjects.each {upstreamProject ->
+                  def upstreamWorkflowJob = jenkins.getItemByFullName(upstreamProject)
+                  if (upstreamWorkflowJob == null) {
+                    throw new Exception("${currentWorkflowJob.fullName}: upstreamWorkflowJob not found: '$upstreamProject'")
+                  }
+                  if (!(upstreamWorkflowJob instanceof org.jenkinsci.plugins.workflow.job.WorkflowJob)) {
+                    throw new Exception("${currentWorkflowJob.fullName}: $upstreamProject: upstreamWorkflowJob is not a WorkflowJob: $upstreamWorkflowJob")
+                  }
+                  def lastBuild = upstreamWorkflowJob.getLastBuild();
+                  if (lastBuild == null) {
+                    throw new IllegalStateException("${currentWorkflowJob.fullName}: Aborting due to dependency never built: ${upstreamWorkflowJob.fullName}")
+                  }
+                  if (lastBuild.isBuilding()) {
+                    throw new IllegalStateException("${currentWorkflowJob.fullName}: Aborting due to dependency currently building: ${upstreamWorkflowJob.fullName} #${lastBuild.number}")
+                  }
+                  def result = lastBuild.result;
+                  if (result != hudson.model.Result.SUCCESS) {
+                    throw new IllegalStateException("${currentWorkflowJob.fullName}: Aborting due to dependency last build not successful: ${upstreamWorkflowJob.fullName} #${lastBuild.number} is $result")
+                  }
+                }
+              } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+                // rethrow timeout
+                throw e;
+              } catch (IllegalStateException e) {
+                // It is assumed the only cause of IllegalStateException is our own throws
+                catchError(message: 'Aborted due to dependencies not ready', buildResult: 'ABORTED', stageResult: 'ABORTED') {
+                  error(e.message)
+                }
+              }
             }
-            // Get all upstream projects (and the current)
-            def allUpstreamProjects = getAllUpstreamProjects(
-              jenkins,
-              upstreamProjectsCache,
-              allUpstreamProjectsCache,
-              currentWorkflowJob
-            )
-            // Remove current project
-            if (!allUpstreamProjects.removeElement(currentWorkflowJob.fullName)) {
-              throw new Exception("currentWorkflowJob is not in allUpstreamProjects: ${currentWorkflowJob.fullName}")
+          } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+            if (e.isActualInterruption()) {
+              echo 'Rethrowing actual interruption instead of converting timeout to failure'
+              throw e;
             }
-            // Check queue and get statuses, stop searching on first found unready
-            allUpstreamProjects.each {upstreamProject ->
-              def upstreamWorkflowJob = jenkins.getItemByFullName(upstreamProject)
-              if (upstreamWorkflowJob == null) {
-                throw new Exception("${currentWorkflowJob.fullName}: upstreamWorkflowJob not found: '$upstreamProject'")
-              }
-              if (!(upstreamWorkflowJob instanceof org.jenkinsci.plugins.workflow.job.WorkflowJob)) {
-                throw new Exception("${currentWorkflowJob.fullName}: $upstreamProject: upstreamWorkflowJob is not a WorkflowJob: $upstreamWorkflowJob")
-              }
-              def lastBuild = upstreamWorkflowJob.getLastBuild();
-              if (lastBuild == null) {
-                error("${currentWorkflowJob.fullName}: Aborting due to dependency never built: ${upstreamWorkflowJob.fullName}")
-              }
-              if (lastBuild.isBuilding()) {
-                error("${currentWorkflowJob.fullName}: Aborting due to dependency currently building: ${upstreamWorkflowJob.fullName} #${lastBuild.number}")
-              }
-              def result = lastBuild.result;
-              if (result != hudson.model.Result.SUCCESS) {
-                error("${currentWorkflowJob.fullName}: Aborting due to dependency last build not successful: ${upstreamWorkflowJob.fullName} #${lastBuild.number} is $result")
-              }
+            if (currentBuild.result == null || currentBuild.result == hudson.model.Result.ABORTED) {
+              error((e.message == null) ? 'Converting timeout to failure' : "Converting timeout to failure: ${e.message}")
             }
           }
         }
@@ -685,48 +718,62 @@ or any build that adds or removes build artifacts."""
         }
       }
       steps {
-        // See https://www.jenkins.io/doc/pipeline/steps/params/gitscm/
-        // See https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/#checkout-check-out-from-version-control
-        // See https://stackoverflow.com/questions/43293334/sparsecheckout-in-jenkinsfile-pipeline
-        /*
-         * Git version 2.34.1 is failing when fetching without submodules, which is our most common usage.
-         * It fails only on the first fetch, then succeeds on subsequent fetches.
-         * This issue is expected to be resolved in 2.35.1.
-         *
-         * To workaround this issue, we are allowing to retry the Git fetch by catching the first failure.
-         *
-         * See https://github.com/git/git/commit/c977ff440735e2ddc2ef18b18ae9a653bb8650fe
-         * See https://gitlab.com/gitlab-org/gitlab/-/issues/27287
-         *
-         * TODO: Remove once on Git >= 2.35.1
-         */
-        catchError(message: 'Git 2.34.1 first fetch fails when not fetching submodules, will retry', buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-          checkout scm: [$class: 'GitSCM',
-            userRemoteConfigs: [[
-              url: scmUrl,
-              refspec: "+refs/heads/$scmBranch:refs/remotes/origin/$scmBranch"
-            ]],
-            branches: [[name: "refs/heads/$scmBranch"]],
-            browser: scmBrowser,
-            extensions: [
-              // CleanCheckout was too aggressive and removed the workspace .m2 folder, added "sh" steps below
-              // [$class: 'CleanCheckout'],
-              [$class: 'CloneOption',
-                // See https://issues.jenkins.io/browse/JENKINS-45586
-                shallow: false,
-                // depth: 20,
-                honorRefspec: true
-              ],
-              [$class: 'SparseCheckoutPaths',
-                sparseCheckoutPaths: sparseCheckoutPaths
-              ],
-              [$class: 'SubmoduleOption',
-                disableSubmodules: disableSubmodules,
-                shallow: false
-                // depth: 20
-              ]
-            ]
-          ]
+        script {
+          try {
+            timeout(time: 15, unit: 'MINUTES') {
+              // See https://www.jenkins.io/doc/pipeline/steps/params/gitscm/
+              // See https://www.jenkins.io/doc/pipeline/steps/workflow-scm-step/#checkout-check-out-from-version-control
+              // See https://stackoverflow.com/questions/43293334/sparsecheckout-in-jenkinsfile-pipeline
+              /*
+               * Git version 2.34.1 is failing when fetching without submodules, which is our most common usage.
+               * It fails only on the first fetch, then succeeds on subsequent fetches.
+               * This issue is expected to be resolved in 2.35.1.
+               *
+               * To workaround this issue, we are allowing to retry the Git fetch by catching the first failure.
+               *
+               * See https://github.com/git/git/commit/c977ff440735e2ddc2ef18b18ae9a653bb8650fe
+               * See https://gitlab.com/gitlab-org/gitlab/-/issues/27287
+               *
+               * TODO: Remove once on Git >= 2.35.1
+               */
+              catchError(message: 'Git 2.34.1 first fetch fails when not fetching submodules, will retry', buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                checkout scm: [$class: 'GitSCM',
+                  userRemoteConfigs: [[
+                    url: scmUrl,
+                    refspec: "+refs/heads/$scmBranch:refs/remotes/origin/$scmBranch"
+                  ]],
+                  branches: [[name: "refs/heads/$scmBranch"]],
+                  browser: scmBrowser,
+                  extensions: [
+                    // CleanCheckout was too aggressive and removed the workspace .m2 folder, added "sh" steps below
+                    // [$class: 'CleanCheckout'],
+                    [$class: 'CloneOption',
+                      // See https://issues.jenkins.io/browse/JENKINS-45586
+                      shallow: false,
+                      // depth: 20,
+                      honorRefspec: true
+                    ],
+                    [$class: 'SparseCheckoutPaths',
+                      sparseCheckoutPaths: sparseCheckoutPaths
+                    ],
+                    [$class: 'SubmoduleOption',
+                      disableSubmodules: disableSubmodules,
+                      shallow: false
+                      // depth: 20
+                    ]
+                  ]
+                ]
+              }
+            }
+          } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+            if (e.isActualInterruption()) {
+              echo 'Rethrowing actual interruption instead of converting timeout to failure'
+              throw e;
+            }
+            if (currentBuild.result == null || currentBuild.result == hudson.model.Result.ABORTED) {
+              error((e.message == null) ? 'Converting timeout to failure' : "Converting timeout to failure: ${e.message}")
+            }
+          }
         }
       }
     }
@@ -741,38 +788,52 @@ or any build that adds or removes build artifacts."""
         }
       }
       steps {
-        checkout scm: [$class: 'GitSCM',
-          userRemoteConfigs: [[
-            url: scmUrl,
-            refspec: "+refs/heads/$scmBranch:refs/remotes/origin/$scmBranch"
-          ]],
-          branches: [[name: "refs/heads/$scmBranch"]],
-          browser: scmBrowser,
-          extensions: [
-            // CleanCheckout was too aggressive and removed the workspace .m2 folder, added "sh" steps below
-            // [$class: 'CleanCheckout'],
-            [$class: 'CloneOption',
-              // See https://issues.jenkins.io/browse/JENKINS-45586
-              shallow: false,
-              // depth: 20,
-              honorRefspec: true
-            ],
-            [$class: 'SparseCheckoutPaths',
-              sparseCheckoutPaths: sparseCheckoutPaths
-            ],
-            [$class: 'SubmoduleOption',
-              disableSubmodules: disableSubmodules,
-              shallow: false
-              // depth: 20
-            ]
-          ]
-        ]
-        sh "${niceCmd}git verify-commit HEAD"
-        sh "${niceCmd}git reset --hard"
-        // git clean -fdx was iterating all of /.m2 despite being ignored
-        sh "${niceCmd}git clean -fx -e ${(projectDir == '.') ? '/.m2' : ('/' + projectDir + '/.m2')}"
-        // Make sure working tree not modified after checkout
-        sh checkTreeUnmodifiedScriptCheckout(niceCmd)
+        script {
+          try {
+            timeout(time: 15, unit: 'MINUTES') {
+              checkout scm: [$class: 'GitSCM',
+                userRemoteConfigs: [[
+                  url: scmUrl,
+                  refspec: "+refs/heads/$scmBranch:refs/remotes/origin/$scmBranch"
+                ]],
+                branches: [[name: "refs/heads/$scmBranch"]],
+                browser: scmBrowser,
+                extensions: [
+                  // CleanCheckout was too aggressive and removed the workspace .m2 folder, added "sh" steps below
+                  // [$class: 'CleanCheckout'],
+                  [$class: 'CloneOption',
+                    // See https://issues.jenkins.io/browse/JENKINS-45586
+                    shallow: false,
+                    // depth: 20,
+                    honorRefspec: true
+                  ],
+                  [$class: 'SparseCheckoutPaths',
+                    sparseCheckoutPaths: sparseCheckoutPaths
+                  ],
+                  [$class: 'SubmoduleOption',
+                    disableSubmodules: disableSubmodules,
+                    shallow: false
+                    // depth: 20
+                  ]
+                ]
+              ]
+              sh "${niceCmd}git verify-commit HEAD"
+              sh "${niceCmd}git reset --hard"
+              // git clean -fdx was iterating all of /.m2 despite being ignored
+              sh "${niceCmd}git clean -fx -e ${(projectDir == '.') ? '/.m2' : ('/' + projectDir + '/.m2')}"
+              // Make sure working tree not modified after checkout
+              sh checkTreeUnmodifiedScriptCheckout(niceCmd)
+            }
+          } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+            if (e.isActualInterruption()) {
+              echo 'Rethrowing actual interruption instead of converting timeout to failure'
+              throw e;
+            }
+            if (currentBuild.result == null || currentBuild.result == hudson.model.Result.ABORTED) {
+              error((e.message == null) ? 'Converting timeout to failure' : "Converting timeout to failure: ${e.message}")
+            }
+          }
+        }
       }
     }
     stage('Builds') {
@@ -795,24 +856,38 @@ or any build that adds or removes build artifacts."""
         stages {
           stage('Build') {
             steps {
-              dir(projectDir) {
-                withMaven(
-                  maven: maven,
-                  mavenOpts: mavenOpts,
-                  mavenLocalRepo: ".m2/repository-jdk-$jdk",
-                  jdk: "jdk-$jdk"
-                ) {
-                  sh "${niceCmd}$MVN_CMD $mvnCommon ${jdk == deployJdk ? '' : "-Dalt.build.dir=target-jdk-$jdk -Pjenkins-build-altjdk "}$buildPhases"
-                }
-              }
               script {
-                // Create a separate copy for full test matrix
-                if (testWhenExpression.call()) {
-                  testJdks.each() {testJdk ->
-                    if (testJdk != jdk) {
-                      sh "${niceCmd}rm $projectDir/target-jdk-$jdk-$testJdk -rf"
-                      sh "${niceCmd}cp -al $projectDir/target${jdk == deployJdk ? '' : "-jdk-$jdk"} $projectDir/target-jdk-$jdk-$testJdk"
+                try {
+                  timeout(time: 1, unit: 'HOURS') {
+                    dir(projectDir) {
+                      withMaven(
+                        maven: maven,
+                        mavenOpts: mavenOpts,
+                        mavenLocalRepo: ".m2/repository-jdk-$jdk",
+                        jdk: "jdk-$jdk"
+                      ) {
+                        sh "${niceCmd}$MVN_CMD $mvnCommon ${jdk == deployJdk ? '' : "-Dalt.build.dir=target-jdk-$jdk -Pjenkins-build-altjdk "}$buildPhases"
+                      }
                     }
+                    script {
+                      // Create a separate copy for full test matrix
+                      if (testWhenExpression.call()) {
+                        testJdks.each() {testJdk ->
+                          if (testJdk != jdk) {
+                            sh "${niceCmd}rm $projectDir/target-jdk-$jdk-$testJdk -rf"
+                            sh "${niceCmd}cp -al $projectDir/target${jdk == deployJdk ? '' : "-jdk-$jdk"} $projectDir/target-jdk-$jdk-$testJdk"
+                          }
+                        }
+                      }
+                    }
+                  }
+                } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+                  if (e.isActualInterruption()) {
+                    echo 'Rethrowing actual interruption instead of converting timeout to failure'
+                    throw e;
+                  }
+                  if (currentBuild.result == null || currentBuild.result == hudson.model.Result.ABORTED) {
+                    error((e.message == null) ? 'Converting timeout to failure' : "Converting timeout to failure: ${e.message}")
                   }
                 }
               }
@@ -850,14 +925,28 @@ or any build that adds or removes build artifacts."""
               testGoals = "${(coverage == '-Pcoverage') ? 'jacoco:prepare-agent surefire:test jacoco:report' : 'surefire:test'}"
             }
             steps {
-              dir(projectDir) {
-                withMaven(
-                  maven: maven,
-                  mavenOpts: mavenOpts,
-                  mavenLocalRepo: ".m2/repository-jdk-$jdk",
-                  jdk: "jdk-$testJdk"
-                ) {
-                  sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=$buildDir $coverage $testGoals"
+              script {
+                try {
+                  timeout(time: 1, unit: 'HOURS') {
+                    dir(projectDir) {
+                      withMaven(
+                        maven: maven,
+                        mavenOpts: mavenOpts,
+                        mavenLocalRepo: ".m2/repository-jdk-$jdk",
+                        jdk: "jdk-$testJdk"
+                      ) {
+                        sh "${niceCmd}$MVN_CMD $mvnCommon -Dalt.build.dir=$buildDir $coverage $testGoals"
+                      }
+                    }
+                  }
+                } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+                  if (e.isActualInterruption()) {
+                    echo 'Rethrowing actual interruption instead of converting timeout to failure'
+                    throw e;
+                  }
+                  if (currentBuild.result == null || currentBuild.result == hudson.model.Result.ABORTED) {
+                    error((e.message == null) ? 'Converting timeout to failure' : "Converting timeout to failure: ${e.message}")
+                  }
                 }
               }
             }
@@ -942,52 +1031,80 @@ or any build that adds or removes build artifacts."""
 // Steps moved to separate function to avoid "Method too large"
 // See https://stackoverflow.com/a/47631522
 void deploySteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mvnCommon) {
-  // Make sure working tree not modified by build or test
-  sh checkTreeUnmodifiedScriptBuild(niceCmd)
-  dir(projectDir) {
-    // Download artifacts from last successful build of this job
-    // See https://plugins.jenkins.io/copyartifact/
-    // See https://www.jenkins.io/doc/pipeline/steps/copyartifact/#copyartifacts-copy-artifacts-from-another-project
-    copyArtifacts(
-      projectName: "/${JOB_NAME}",
-      selector: lastSuccessful(stable: true),
-      // *.pom included so pom-only projects have something to successfully download
-      // The other extensions match the types processed by ao-ant-tasks
-      filter: '**/*.pom, **/*.aar, **/*.jar, **/*.war, **/*.zip',
-      target: 'target/last-successful-artifacts',
-      flatten: true,
-      optional: (params.requireLastBuild == null) ? true : !params.requireLastBuild
-    )
-    // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
-    sh moveSurefireReportsScript()
-    withMaven(
-      maven: maven,
-      mavenOpts: mavenOpts,
-      mavenLocalRepo: ".m2/repository-jdk-$deployJdk",
-      jdk: "jdk-$deployJdk"
-    ) {
-      sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish deploy"
+  script {
+    try {
+      timeout(time: 1, unit: 'HOURS') {
+        // Make sure working tree not modified by build or test
+        sh checkTreeUnmodifiedScriptBuild(niceCmd)
+        dir(projectDir) {
+          // Download artifacts from last successful build of this job
+          // See https://plugins.jenkins.io/copyartifact/
+          // See https://www.jenkins.io/doc/pipeline/steps/copyartifact/#copyartifacts-copy-artifacts-from-another-project
+          copyArtifacts(
+            projectName: "/${JOB_NAME}",
+            selector: lastSuccessful(stable: true),
+            // *.pom included so pom-only projects have something to successfully download
+            // The other extensions match the types processed by ao-ant-tasks
+            filter: '**/*.pom, **/*.aar, **/*.jar, **/*.war, **/*.zip',
+            target: 'target/last-successful-artifacts',
+            flatten: true,
+            optional: (params.requireLastBuild == null) ? true : !params.requireLastBuild
+          )
+          // Temporarily move surefire-reports before withMaven to avoid duplicate logging of test results
+          sh moveSurefireReportsScript()
+          withMaven(
+            maven: maven,
+            mavenOpts: mavenOpts,
+            mavenLocalRepo: ".m2/repository-jdk-$deployJdk",
+            jdk: "jdk-$deployJdk"
+          ) {
+            sh "${niceCmd}$MVN_CMD $mvnCommon -Pnexus,jenkins-deploy,publish deploy"
+          }
+          // Restore surefire-reports
+          sh restoreSurefireReportsScript()
+        }
+        // Make sure working tree not modified by deploy
+        sh checkTreeUnmodifiedScriptDeploy(niceCmd)
+      }
+    } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+      if (e.isActualInterruption()) {
+        echo 'Rethrowing actual interruption instead of converting timeout to failure'
+        throw e;
+      }
+      if (currentBuild.result == null || currentBuild.result == hudson.model.Result.ABORTED) {
+        error((e.message == null) ? 'Converting timeout to failure' : "Converting timeout to failure: ${e.message}")
+      }
     }
-    // Restore surefire-reports
-    sh restoreSurefireReportsScript()
   }
-  // Make sure working tree not modified by deploy
-  sh checkTreeUnmodifiedScriptDeploy(niceCmd)
 }
 
 // Steps moved to separate function to avoid "Method too large"
 // See https://stackoverflow.com/a/47631522
 void sonarQubeAnalysisSteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mvnCommon) {
-  // Not doing shallow: sh "${niceCmd}git fetch --unshallow || true" // SonarQube does not currently support shallow fetch
-  dir(projectDir) {
-    withSonarQubeEnv(installationName: 'AO SonarQube') {
-      withMaven(
-        maven: maven,
-        mavenOpts: mavenOpts,
-        mavenLocalRepo: ".m2/repository-jdk-$deployJdk",
-        jdk: "jdk-$deployJdk"
-      ) {
-        sh "${niceCmd}$MVN_CMD $mvnCommon -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml sonar:sonar"
+  script {
+    try {
+      timeout(time: 15, unit: 'MINUTES') {
+        // Not doing shallow: sh "${niceCmd}git fetch --unshallow || true" // SonarQube does not currently support shallow fetch
+        dir(projectDir) {
+          withSonarQubeEnv(installationName: 'AO SonarQube') {
+            withMaven(
+              maven: maven,
+              mavenOpts: mavenOpts,
+              mavenLocalRepo: ".m2/repository-jdk-$deployJdk",
+              jdk: "jdk-$deployJdk"
+            ) {
+              sh "${niceCmd}$MVN_CMD $mvnCommon -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml sonar:sonar"
+            }
+          }
+        }
+      }
+    } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+      if (e.isActualInterruption()) {
+        echo 'Rethrowing actual interruption instead of converting timeout to failure'
+        throw e;
+      }
+      if (currentBuild.result == null || currentBuild.result == hudson.model.Result.ABORTED) {
+        error((e.message == null) ? 'Converting timeout to failure' : "Converting timeout to failure: ${e.message}")
       }
     }
   }
@@ -996,28 +1113,54 @@ void sonarQubeAnalysisSteps(niceCmd, projectDir, deployJdk, maven, mavenOpts, mv
 // Steps moved to separate function to avoid "Method too large"
 // See https://stackoverflow.com/a/47631522
 void qualityGateSteps() {
-  timeout(time: 1, unit: 'HOURS') {
-    waitForQualityGate(webhookSecretId: 'SONAR_WEBHOOK', abortPipeline: false)
+  script {
+    try {
+      timeout(time: 1, unit: 'HOURS') {
+        waitForQualityGate(webhookSecretId: 'SONAR_WEBHOOK', abortPipeline: false)
+      }
+    } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+      if (e.isActualInterruption()) {
+        echo 'Rethrowing actual interruption instead of converting timeout to failure'
+        throw e;
+      }
+      if (currentBuild.result == null || currentBuild.result == hudson.model.Result.ABORTED) {
+        error((e.message == null) ? 'Converting timeout to failure' : "Converting timeout to failure: ${e.message}")
+      }
+    }
   }
 }
 
 // Steps moved to separate function to avoid "Method too large"
 // See https://stackoverflow.com/a/47631522
 void analysisSteps() {
-  recordIssues(
-    aggregatingResults: true,
-    skipPublishingChecks: true,
-    sourceCodeEncoding: 'UTF-8',
-    tools: [
-      checkStyle(),
-      java(),
-      javaDoc(),
-      // junitParser(),
-      mavenConsole(),
-      // php()
-      sonarQube(),
-      spotBugs()
-      // taskScanner()
-    ]
-  )
+  script {
+    try {
+      timeout(time: 15, unit: 'MINUTES') {
+        recordIssues(
+          aggregatingResults: true,
+          skipPublishingChecks: true,
+          sourceCodeEncoding: 'UTF-8',
+          tools: [
+            checkStyle(),
+            java(),
+            javaDoc(),
+            // junitParser(),
+            mavenConsole(),
+            // php()
+            sonarQube(),
+            spotBugs()
+            // taskScanner()
+          ]
+        )
+      }
+    } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+      if (e.isActualInterruption()) {
+        echo 'Rethrowing actual interruption instead of converting timeout to failure'
+        throw e;
+      }
+      if (currentBuild.result == null || currentBuild.result == hudson.model.Result.ABORTED) {
+        error((e.message == null) ? 'Converting timeout to failure' : "Converting timeout to failure: ${e.message}")
+      }
+    }
+  }
 }
