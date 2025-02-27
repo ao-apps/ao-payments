@@ -1136,21 +1136,24 @@ void analysisSteps() {
   script {
     try {
       timeout(time: 15, unit: 'MINUTES') {
+        tools = []
+        tools << checkStyle(pattern: 'target/checkstyle-result.xml', skipSymbolicLinks: true)
+        tools << java()
+        tools << javaDoc()
+        // Detect JUnit results from presence of surefire-reports directory
+        if (fileExists('target/surefire-reports')) {
+          tools << junitParser(pattern: 'target*/surefire-reports/TEST-*.xml', skipSymbolicLinks: true)
+        }
+        tools << mavenConsole()
+        // php()
+        // sonarQube(), // TODO: sonar-report.json not found
+        tools << spotBugs(pattern: 'target/spotbugsXml.xml', skipSymbolicLinks: true)
+        // taskScanner()
         recordIssues(
           aggregatingResults: true,
           skipPublishingChecks: true,
           sourceCodeEncoding: 'UTF-8',
-          tools: [
-            checkStyle(pattern: 'target/checkstyle-result.xml', skipSymbolicLinks: true),
-            java(),
-            javaDoc(),
-            // junitParser(),
-            mavenConsole(),
-            // php()
-            // sonarQube(), // TODO: sonar-report.json not found
-            spotBugs(pattern: 'target/spotbugsXml.xml', skipSymbolicLinks: true)
-            // taskScanner()
-          ]
+          tools: tools
         )
       }
     } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
