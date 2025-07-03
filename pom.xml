@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
-Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -91,9 +91,9 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
   <repositories>
     <!-- Repository required here, too, so can find parent -->
     <repository>
-      <id>sonatype-nexus-snapshots-s01</id>
-      <name>Sonatype Nexus Snapshots S01</name>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+      <id>central-snapshots</id>
+      <name>Central Snapshot Repository</name>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
       <releases>
         <enabled>false</enabled>
       </releases>

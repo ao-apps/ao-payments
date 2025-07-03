@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
-Copyright (C) 2016, 2017, 2019, 2020, 2021, 2022, 2023  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2025  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -34,7 +34,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     title="@{documented.name}"
     description="@{documented.description}"
     datePublished="2016-10-16T21:44:00-05:00"
-    dateModified="2023-04-14T16:43:04Z"
+    dateModified="2025-07-02T23:05:45Z"
   >
     <core:child page="changelog.jspx" />
     <core:child book="/payments/bom" page="/index.jspx" />
@@ -72,7 +72,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
       <ul>
         <li><core:link page="index.jspx">Project Home</core:link></li>
         <li><core:link page="changelog.jspx">Changelog</core:link></li>
-        <li><ao:a href="https://central.sonatype.com/artifact/${ao:encodeURIComponent('@{project.groupId}')}/${ao:encodeURIComponent('@{documented.artifactId}')}">Maven Central Repository</ao:a></li>
+        <li><ao:a href="https://central.sonatype.com/artifact/${ao:encodeURIComponent('@{project.groupId}')}/${ao:encodeURIComponent('@{documented.artifactId}')}">Central Repository</ao:a></li>
         <li><ao:a href="@{project.scm.url}">GitHub</ao:a></li>
       </ul>
     </section:nav>
