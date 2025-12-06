@@ -55,6 +55,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
         arg.license="lgpl-3.0"
         arg.scmUrl="@{project.scm.url}"
         arg.githubBuildWorkflow="Build"
+        arg.githubBuildFile="build.yml"
         arg.mavenBadge="maven-central"
         arg.groupId="@{project.groupId}"
         arg.artifactId="@{documented.artifactId}"

@@ -7,7 +7,7 @@
 [![semantic versioning: 2.0.0](https://oss.aoapps.com/ao-badges/semver-2.0.0.svg)](https://semver.org/spec/v2.0.0.html)
 [![license: LGPL v3](https://oss.aoapps.com/ao-badges/license-lgpl-3.0.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
-[![Build](https://github.com/ao-apps/ao-payments/workflows/Build/badge.svg?branch=master)](https://github.com/ao-apps/ao-payments/actions?query=workflow%3ABuild)
+[![Build](https://github.com/ao-apps/ao-payments/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/ao-apps/ao-payments/actions?query=workflow%3ABuild)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.aoapps/ao-payments/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.aoapps/ao-payments)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?branch=master&project=com.aoapps%3Aao-payments&metric=alert_status)](https://sonarcloud.io/dashboard?branch=master&id=com.aoapps%3Aao-payments)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?branch=master&project=com.aoapps%3Aao-payments&metric=ncloc)](https://sonarcloud.io/component_measures?branch=master&id=com.aoapps%3Aao-payments&metric=ncloc)  
