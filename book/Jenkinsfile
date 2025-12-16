@@ -35,7 +35,7 @@ def upstreamProjects = [
 
   // Direct
   '../badges-1.x', // <groupId>com.aoapps</groupId><artifactId>ao-badges</artifactId>
-  '../taglib', // <groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId>
+  '../taglib-javaee', // <groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId>
   '../../semanticcms-1.x/changelog-taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-changelog-taglib</artifactId>
   '../../semanticcms-1.x/core/taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-taglib</artifactId>
   '../../semanticcms-1.x/section/taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-section-taglib</artifactId>
