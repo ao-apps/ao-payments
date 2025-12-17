@@ -62,24 +62,29 @@ def upstreamProjects = [
  *                                                                                        *
  * projectDir           The directory within the workspace containing the Maven project.  *
  *                      Default depends on the path of Jenkinsfile:                       *
- *                          'Jenkinsfile'       -> '.'                                    *
- *                          'book/Jenkinsfile'  -> 'book'                                 *
- *                          'devel/Jenkinsfile' -> 'devel'                                *
+ *                          'Jenkinsfile'             -> '.'                              *
+ *                          'book/Jenkinsfile'        -> 'book'                           *
+ *                          'book-javaee/Jenkinsfile' -> 'book-javaee'                    *
+ *                          'devel/Jenkinsfile'       -> 'devel'                          *
  *                                                                                        *
  * disableSubmodules    Disables checkout of Git submodules.                              *
  *                      Defaults to true                                                  *
  *                                                                                        *
  * sparseCheckoutPaths  The sparse paths for Git checkout.                                *
  *                      Default depends on projectDir:                                    *
- *                          '.'     -> [[path:'/*'],                                      *
- *                                      [path:'!/book/'],                                 *
- *                                      [path:'!/devel/']]                                *
- *                          'book'  -> [[path:'/.gitignore'],                             *
- *                                      [path:'/.gitmodules'],                            *
- *                                      [path:'/book/']]                                  *
- *                          'devel' -> [[path:'/.gitignore'],                             *
- *                                      [path:'/.gitmodules'],                            *
- *                                      [path:'/devel/']]                                 *
+ *                          '.'           -> [[path:'/*'],                                *
+ *                                            [path:'!/book/'],                           *
+ *                                            [path:'!/book-javaee/'],                    *
+ *                                            [path:'!/devel/']]                          *
+ *                          'book'        -> [[path:'/.gitignore'],                       *
+ *                                            [path:'/.gitmodules'],                      *
+ *                                            [path:'/book/']]                            *
+ *                          'book-javaee' -> [[path:'/.gitignore'],                       *
+ *                                            [path:'/.gitmodules'],                      *
+ *                                            [path:'/book-javaee/']]                     *
+ *                          'devel'       -> [[path:'/.gitignore'],                       *
+ *                                            [path:'/.gitmodules'],                      *
+ *                                            [path:'/devel/']]                           *
  *                                                                                        *
  * scmUrl               The Git URL.                                                      *
  *                      Default depends on the project's SCM settings:                    *
@@ -162,6 +167,8 @@ if (!binding.hasVariable('projectDir')) {
     projectDir = '.'
   } else if (scriptPath == 'book/Jenkinsfile') {
     projectDir = 'book'
+  } else if (scriptPath == 'book-javaee/Jenkinsfile') {
+    projectDir = 'book-javaee'
   } else if (scriptPath == 'devel/Jenkinsfile') {
     projectDir = 'devel'
   } else {
@@ -178,9 +185,10 @@ if (!binding.hasVariable('sparseCheckoutPaths')) {
     sparseCheckoutPaths = [
       [path:'/*'],
       [path:'!/book/'],
+      [path:'!/book-javaee/'],
       [path:'!/devel/']
     ]
-  } else if (projectDir == 'book' || projectDir == 'devel') {
+  } else if (projectDir == 'book' || projectDir == 'book-javaee' || projectDir == 'devel') {
     sparseCheckoutPaths = [
       [path:'/.gitignore'],
       [path:'/.gitmodules'],
