@@ -105,10 +105,10 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
 
   <profiles>
     <profile>
-      <id>javaee</id>
+      <id>jakartaee</id>
       <activation>
         <property>
-          <name>javaee.skip</name>
+          <name>jakartaee.skip</name>
           <value>!true</value>
         </property>
       </activation>
@@ -122,6 +122,26 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
         <module>stripe/book</module>
         <module>test/book</module>
         <module>usaepay/book</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>javaee</id>
+      <activation>
+        <property>
+          <name>javaee.skip</name>
+          <value>!true</value>
+        </property>
+      </activation>
+      <modules>
+        <module>book-javaee</module>
+        <module>bom/book-javaee</module>
+        <module>all/book-javaee</module>
+        <module>api/book-javaee</module>
+        <module>authorizeNet/book-javaee</module>
+        <module>payflowPro/book-javaee</module>
+        <module>stripe/book-javaee</module>
+        <module>test/book-javaee</module>
+        <module>usaepay/book-javaee</module>
       </modules>
     </profile>
   </profiles>

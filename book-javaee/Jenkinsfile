@@ -34,11 +34,11 @@ def upstreamProjects = [
   '../checkstyle-config', // <groupId>com.aoapps</groupId><artifactId>ao-checkstyle-config</artifactId>
 
   // Direct
-  '../badges', // <groupId>com.aoapps</groupId><artifactId>ao-badges</artifactId>
-  '../taglib', // <groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId>
-  '../../semanticcms-2.x/changelog-taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-changelog-taglib</artifactId>
-  '../../semanticcms-2.x/core/taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-taglib</artifactId>
-  '../../semanticcms-2.x/section/taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-section-taglib</artifactId>
+  '../badges-javaee', // <groupId>com.aoapps</groupId><artifactId>ao-badges</artifactId>
+  '../taglib-javaee', // <groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId>
+  '../../semanticcms-1.x/changelog-taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-changelog-taglib</artifactId>
+  '../../semanticcms-1.x/core/taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-taglib</artifactId>
+  '../../semanticcms-1.x/section/taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-section-taglib</artifactId>
   // No Jenkins: <groupId>org.apache.taglibs</groupId><artifactId>taglibs-standard-spec</artifactId>
 
   // Runtime Direct
