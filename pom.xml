@@ -103,24 +103,38 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     </repository>
   </repositories>
 
+  <profiles>
+    <profile>
+      <id>javaee</id>
+      <activation>
+        <property>
+          <name>javaee.skip</name>
+          <value>!true</value>
+        </property>
+      </activation>
+      <modules>
+        <module>book</module>
+        <module>bom/book</module>
+        <module>all/book</module>
+        <module>api/book</module>
+        <module>authorizeNet/book</module>
+        <module>payflowPro/book</module>
+        <module>stripe/book</module>
+        <module>test/book</module>
+        <module>usaepay/book</module>
+      </modules>
+    </profile>
+  </profiles>
+
   <modules>
-    <module>book</module>
     <module>bom</module>
-    <module>bom/book</module>
     <module>all</module>
-    <module>all/book</module>
     <module>api</module>
-    <module>api/book</module>
     <module>api/devel</module>
     <module>authorizeNet</module>
-    <module>authorizeNet/book</module>
     <module>payflowPro</module>
-    <module>payflowPro/book</module>
     <module>stripe</module>
-    <module>stripe/book</module>
     <module>test</module>
-    <module>test/book</module>
     <module>usaepay</module>
-    <module>usaepay/book</module>
   </modules>
 </project>
