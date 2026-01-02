@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
-Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -145,7 +145,11 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
               <instructions>
                 <!--
                   Releases use "Automatic-Module-Name" instead of "module-info.java"
-                  since has direct dependencies that are not yet modularized.
+                  since has direct dependencies that are not yet modularized:
+                  javax.servlet-api-3.1.0.jar
+                  javax.el-api-3.0.0.jar
+                  javax.servlet.jsp-api-2.3.3.jar
+                  taglibs-standard-spec-1.2.5.jar
                 -->
                 <Automatic-Module-Name>${module.name}</Automatic-Module-Name>
                 <Private-Package>!.</Private-Package>
