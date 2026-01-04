@@ -452,10 +452,10 @@ if (!binding.hasVariable('quietPeriod')) {
   binding.setVariable('quietPeriod', 10 + buildPriority * 2)
 }
 if (!binding.hasVariable('nice')) {
-  def nice = (params.BuildPriority == null) ? 0 : ((params.BuildPriority as Integer) - 1);
-  if (nice < 0) nice = 0;
-  else if (nice > 19) nice = 19;
-  binding.setVariable('nice', nice)
+  def defaultNice = (params.BuildPriority == null) ? 0 : ((params.BuildPriority as Integer) - 1);
+  if (defaultNice < 0) defaultNice = 0;
+  else if (defaultNice > 19) defaultNice = 19;
+  binding.setVariable('nice', defaultNice)
 }
 if (!binding.hasVariable('maven')) {
   binding.setVariable('maven', 'maven-3')
