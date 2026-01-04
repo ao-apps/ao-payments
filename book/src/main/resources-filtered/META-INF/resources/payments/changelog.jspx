@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
-Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -23,10 +23,10 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
 -->
 <jsp:root
   xmlns:ao="https://oss.aoapps.com/taglib/"
-  xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:c="jakarta.tags.core"
   xmlns:changelog="https://semanticcms.com/changelog/taglib/"
   xmlns:core="https://semanticcms.com/core/taglib/"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  xmlns:fn="jakarta.tags.functions"
   xmlns:jsp="http://java.sun.com/JSP/Page"
   version="2.1"
 >

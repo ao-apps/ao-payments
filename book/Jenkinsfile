@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 /*
  * ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
- * Copyright (C) 2021, 2022, 2023, 2024, 2025  AO Industries, Inc.
+ * Copyright (C) 2021, 2022, 2023, 2024, 2025, 2026  AO Industries, Inc.
  *     support@aoindustries.com
  *     7262 Bull Pen Cir
  *     Mobile, AL 36695
@@ -36,16 +36,16 @@ def upstreamProjects = [
   // Direct
   '../badges', // <groupId>com.aoapps</groupId><artifactId>ao-badges</artifactId>
   '../taglib', // <groupId>com.aoapps</groupId><artifactId>ao-taglib</artifactId>
+  // No Jenkins: <groupId>jakarta.servlet.jsp.jstl</groupId><artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
   '../../semanticcms-2.x/changelog-taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-changelog-taglib</artifactId>
   '../../semanticcms-2.x/core/taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-core-taglib</artifactId>
   '../../semanticcms-2.x/section/taglib', // <groupId>com.semanticcms</groupId><artifactId>semanticcms-section-taglib</artifactId>
-  // No Jenkins: <groupId>org.apache.taglibs</groupId><artifactId>taglibs-standard-spec</artifactId>
 
   // Runtime Direct
-  // No Jenkins: <groupId>org.apache.taglibs</groupId><artifactId>taglibs-standard-impl</artifactId>
+  // No Jenkins: <groupId>org.glassfish.web</groupId><artifactId>jakarta.servlet.jsp.jstl</artifactId>
 
   // BOM
-  '../javaee-web-api-bom', // <groupId>com.aoapps</groupId><artifactId>javaee-web-api-bom</artifactId>
+  '../jakartaee-web-profile-bom', // <groupId>com.aoapps</groupId><artifactId>jakartaee-web-profile-bom</artifactId>
 ]
 
 // Java 17
