@@ -180,34 +180,34 @@ if (!binding.hasVariable('upstreamProjects')) {
 }
 if (!binding.hasVariable('projectDir')) {
   def scriptPath = currentBuild.rawBuild.parent.definition.scriptPath
-  def projectDir
+  def defaultProjectDir
   if (scriptPath == 'Jenkinsfile') {
-    projectDir = '.'
+    defaultProjectDir = '.'
   } else if (scriptPath == 'book/Jenkinsfile') {
-    projectDir = 'book'
+    defaultProjectDir = 'book'
   } else if (scriptPath == 'book-javaee/Jenkinsfile') {
-    projectDir = 'book-javaee'
+    defaultProjectDir = 'book-javaee'
   } else if (scriptPath == 'devel/Jenkinsfile') {
-    projectDir = 'devel'
+    defaultProjectDir = 'devel'
   } else {
     throw new Exception("Unexpected value for 'scriptPath': '$scriptPath'")
   }
-  binding.setVariable('projectDir', projectDir)
+  binding.setVariable('projectDir', defaultProjectDir)
 }
 if (!binding.hasVariable('disableSubmodules')) {
   binding.setVariable('disableSubmodules', true)
 }
 if (!binding.hasVariable('sparseCheckoutPaths')) {
-  def sparseCheckoutPaths
+  def defaultSparseCheckoutPaths
   if (projectDir == '.') {
-    sparseCheckoutPaths = [
+    defaultSparseCheckoutPaths = [
       [path:'/*'],
       [path:'!/book/'],
       [path:'!/book-javaee/'],
       [path:'!/devel/']
     ]
   } else if (projectDir == 'book' || projectDir == 'book-javaee' || projectDir == 'devel') {
-    sparseCheckoutPaths = [
+    defaultSparseCheckoutPaths = [
       [path:'/.gitignore'],
       [path:'/.gitmodules'],
       [path:"/$projectDir/"]
@@ -215,7 +215,7 @@ if (!binding.hasVariable('sparseCheckoutPaths')) {
   } else {
     throw new Exception("Unexpected value for 'projectDir': '$projectDir'")
   }
-  binding.setVariable('sparseCheckoutPaths', sparseCheckoutPaths)
+  binding.setVariable('sparseCheckoutPaths', defaultSparseCheckoutPaths)
 }
 if (!binding.hasVariable('scmUrl')) {
   // Automatically determine Git URL: https://stackoverflow.com/a/38255364
@@ -229,12 +229,12 @@ if (!binding.hasVariable('scmBranch')) {
   // Automatically determine branch
   if (scm.branches.size() == 1) {
     def scmBranchPrefix = 'refs/heads/'
-    def scmBranch = scm.branches[0].name
-    if (scmBranch.startsWith(scmBranchPrefix)) {
-      scmBranch = scmBranch.substring(scmBranchPrefix.length())
-      binding.setVariable('scmBranch', scmBranch)
+    def defaultScmBranch = scm.branches[0].name
+    if (defaultScmBranch.startsWith(scmBranchPrefix)) {
+      defaultScmBranch = defaultScmBranch.substring(scmBranchPrefix.length())
+      binding.setVariable('scmBranch', defaultScmBranch)
     } else {
-      throw new Exception("SCM branch does not start with '$scmBranchPrefix': '$scmBranch'")
+      throw new Exception("SCM branch does not start with '$scmBranchPrefix': '$defaultScmBranch'")
     }
   } else {
     throw new Exception("Precisely one SCM branch expected: '" + scm.branches + "'")
@@ -244,14 +244,14 @@ if (!binding.hasVariable('scmBrowser')) {
   // Automatically determine SCM browser
   def aoappsPrefix        = '/srv/git/ao-apps/'
   def newmediaworksPrefix = '/srv/git/nmwoss/'
-  def scmBrowser
+  def defaultScmBrowser
   if (scmUrl.startsWith(aoappsPrefix)) {
     // Is also mirrored to GitHub user "ao-apps"
     def repo = scmUrl.substring(aoappsPrefix.length())
     if (repo.endsWith('.git')) {
       repo = repo.substring(0, repo.length() - 4)
     }
-    scmBrowser = [$class: 'GithubWeb',
+    defaultScmBrowser = [$class: 'GithubWeb',
       repoUrl: 'https://github.com/ao-apps/' + repo
     ]
   } else if (scmUrl.startsWith(newmediaworksPrefix)) {
@@ -260,16 +260,16 @@ if (!binding.hasVariable('scmBrowser')) {
     if (repo.endsWith('.git')) {
       repo = repo.substring(0, repo.length() - 4)
     }
-    scmBrowser = [$class: 'GithubWeb',
+    defaultScmBrowser = [$class: 'GithubWeb',
       repoUrl: 'https://github.com/newmediaworks/' + repo
     ]
   } else if (scmUrl.startsWith('/srv/git/') || scmUrl.startsWith('ssh://')) {
     // No default
-    scmBrowser = null
+    defaultScmBrowser = null
   } else {
     throw new Exception("Unexpected SCM URL: '$scmUrl'")
   }
-  binding.setVariable('scmBrowser', scmBrowser)
+  binding.setVariable('scmBrowser', defaultScmBrowser)
 }
 
 /*
@@ -435,9 +435,9 @@ if (!binding.hasVariable('buildPriority')) {
   // nice value.  This will ensure proper build order in all cases.  However, it may prevent some
   // possible concurrency since reduction to simple job priority number loses information about which
   // are critical paths on the upstream project graph.
-  def buildPriority = getDepth(tempJenkins, tempUpstreamProjectsCache, [:], tempCurrentWorkflowJob, prunedUpstreamProjects)
-  if (buildPriority > 30) throw new Exception("buildPriority > 30, increase global configuration: $buildPriority")
-  binding.setVariable('buildPriority', buildPriority)
+  def defaultBuildPriority = getDepth(tempJenkins, tempUpstreamProjectsCache, [:], tempCurrentWorkflowJob, prunedUpstreamProjects)
+  if (defaultBuildPriority > 30) throw new Exception("defaultBuildPriority > 30, increase global configuration: $defaultBuildPriority")
+  binding.setVariable('buildPriority', defaultBuildPriority)
 }
 if (buildPriority < 1 || buildPriority > 30) {
   throw new Exception("buildPriority out of range 1 - 30: $buildPriority")
