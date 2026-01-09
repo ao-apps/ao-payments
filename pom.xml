@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 ao-payments - Aggregator POM for payment processing API supporting multiple payment gateways.
-Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025  AO Industries, Inc.
+Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026  AO Industries, Inc.
     support@aoindustries.com
     7262 Bull Pen Cir
     Mobile, AL 36695
@@ -116,26 +116,6 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
   </modules>
 
   <profiles>
-    <profile>
-      <id>javaee</id>
-      <activation>
-        <property>
-          <name>javaee.skip</name>
-          <value>!true</value>
-        </property>
-      </activation>
-      <modules>
-        <module>book-javaee</module>
-        <module>bom/book-javaee</module>
-        <module>all/book-javaee</module>
-        <module>api/book-javaee</module>
-        <module>authorizeNet/book-javaee</module>
-        <module>payflowPro/book-javaee</module>
-        <module>stripe/book-javaee</module>
-        <module>test/book-javaee</module>
-        <module>usaepay/book-javaee</module>
-      </modules>
-    </profile>
     <profile>
       <id>jakartaee</id>
       <activation>
