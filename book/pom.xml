@@ -124,17 +124,13 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
         <configuration>
           <usedDependencies>
             <!-- JSP Only -->
+            <dependency>com.aoapps:ao-badges</dependency>
             <dependency>com.aoapps:ao-taglib</dependency>
             <dependency>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api</dependency>
             <dependency>com.semanticcms:semanticcms-changelog-taglib</dependency>
             <dependency>com.semanticcms:semanticcms-core-taglib</dependency>
             <dependency>com.semanticcms:semanticcms-section-taglib</dependency>
           </usedDependencies>
-          <ignoredDependencies>
-            <!-- No "module-info.java" in some release builds -->
-            <dependency>com.aoapps:ao-badges</dependency>
-            <dependency>com.aoapps:ao-web-resources-registry</dependency>
-          </ignoredDependencies>
         </configuration>
       </plugin>
     </plugins>
