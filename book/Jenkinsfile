@@ -91,6 +91,7 @@ def testJdks = ['17', '21'] // Changes must be copied to matrix axes!
  *                      Default depends on projectDir:                                    *
  *                          '.'     -> [[path:'/*'],                                      *
  *                                      [path:'!/book/'],                                 *
+ *                                      [path:'/book/pom.xml'],                           *
  *                                      [path:'!/devel/']]                                *
  *                          'book'  -> [[path:'/.gitignore'],                             *
  *                                      [path:'/.gitmodules'],                            *
@@ -196,6 +197,7 @@ if (!binding.hasVariable('sparseCheckoutPaths')) {
     defaultSparseCheckoutPaths = [
       [path:'/*'],
       [path:'!/book/'],
+      [path:'/book/pom.xml'],
       [path:'!/devel/']
     ]
   } else if (projectDir == 'book' || projectDir == 'devel') {
