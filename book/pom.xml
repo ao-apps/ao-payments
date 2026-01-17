@@ -40,6 +40,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
     <!-- Java 17 -->
     <javase.version>17</javase.version>
     <javase.release>17</javase.release>
+    <javadoc.link.javase>${javadoc.link.javase.17}</javadoc.link.javase>
     <!-- Jakarta EE 10 -->
     <javaee.version>10</javaee.version>
     <javadoc.link.javaee>${javadoc.link.jakartaee.10}</javadoc.link.javaee>
