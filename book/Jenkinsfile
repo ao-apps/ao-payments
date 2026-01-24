@@ -475,7 +475,21 @@ if (!binding.hasVariable('failureEmailTo')) {
 }
 
 // Common settings
-def mvnCommon   = "-Dstyle.color=always -Dmaven.gitcommitid.nativegit=true -DrequireLastBuild=${params.requireLastBuild == null ? false : params.requireLastBuild} -Djenkins.buildNumber=${currentBuild.number} -N -U -Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
+def mvnCommonArgs = [
+  '-Dstyle.color=always',
+  '-Dmaven.gitcommitid.nativegit=true',
+  "-DrequireLastBuild=${params.requireLastBuild ?: false}",
+  "-Djenkins.buildNumber=${currentBuild.number}",
+  '-N',
+  '-U',
+  "-Pjenkins,POST-SNAPSHOT${extraProfiles.isEmpty() ? '' : (',' + extraProfiles.join(','))}"
+]
+if (params.mavenDebug) {
+  mvnCommonArgs.add(0, '-X')
+}
+def mvnCommon = mvnCommonArgs.join(' ')
+
+// Phases for Build stage
 def buildPhases = 'clean process-test-classes'
 
 // Determine nice command prefix or empty string for none
@@ -626,6 +640,12 @@ May also want to set BuildPriority to \"1\" to put at the top of the build queue
       description: """Is the last build required for the zip-timestamp-merge Ant task?
 Defaults to true and will typically only be false for either the first build
 or any build that adds or removes build artifacts."""
+    )
+    booleanParam(
+      name: 'mavenDebug',
+      defaultValue: false,
+      description: """Enables Maven -X debug output.
+Defaults to false and will typically only be true when debugging the build process itself."""
     )
   }
   triggers {
