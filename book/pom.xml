@@ -218,7 +218,7 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
         <groupId>com.aoapps</groupId><artifactId>ao-web-resources-registry</artifactId><version>0.7.0${POST-SNAPSHOT}</version>
       </dependency>
       <dependency>
-        <groupId>com.aoapps</groupId><artifactId>ao-web-resources-servlet</artifactId><version>0.7.0-SNAPSHOT<!-- ${POST-SNAPSHOT} --></version>
+        <groupId>com.aoapps</groupId><artifactId>ao-web-resources-servlet</artifactId><version>0.7.0${POST-SNAPSHOT}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>3.20.0</version>
