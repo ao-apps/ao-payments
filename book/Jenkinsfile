@@ -182,7 +182,7 @@ pipeline {
         }
       }
     }
-    stage('Tests') {
+    stage('Self Tests') {
       matrix {
         when {
           expression {
@@ -191,19 +191,45 @@ pipeline {
         }
         axes {
           axis {
-            name 'jdk'
-            values '17', '21', '25', '26' // buildJdks
+            name 'testJdk'
+            values '17', '21', '25', '26' // testJdks
           }
+        }
+        stages {
+          stage('Self Test') {
+            steps {
+              script {
+                ao.testSteps(projectDir, niceCmd, deployJdk, maven, mavenOpts, mvnCommon, testJdk, testJdk)
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy Tests') {
+      matrix {
+        when {
+          expression {
+            ao.continueCurrentBuild() && testWhenExpression.call()
+          }
+        }
+        axes {
           axis {
             name 'testJdk'
             values '17', '21', '25', '26' // testJdks
           }
         }
         stages {
-          stage('Test') {
+          stage('Deploy Test') {
+            when {
+              expression {
+                // deployJdk vs deployJdk is already tested in "Self Tests" stage
+                deployJdk != testJdk
+              }
+            }
             steps {
               script {
-                ao.testSteps(projectDir, niceCmd, deployJdk, maven, mavenOpts, mvnCommon, jdk, testJdk)
+                ao.testSteps(projectDir, niceCmd, deployJdk, maven, mavenOpts, mvnCommon, deployJdk, testJdk)
               }
             }
           }
