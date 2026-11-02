@@ -46,8 +46,8 @@ binding.setVariable('upstreamProjects', [
 ])
 
 // Java 17
-binding.setVariable('buildJdks', ['17', '21', '25', '26']) // Changes must be copied to matrix axes!
-binding.setVariable('testJdks', ['17', '21', '25', '26']) // Changes must be copied to matrix axes!
+binding.setVariable('buildJdks', ['17', '21', '25', '27']) // Changes must be copied to matrix axes!
+binding.setVariable('testJdks', ['17', '21', '25', '27']) // Changes must be copied to matrix axes!
 
 /******************************************************************************************
  *                                                                                        *
@@ -173,7 +173,7 @@ pipeline {
         axes {
           axis {
             name 'jdk'
-            values '17', '21', '25', '26' // buildJdks
+            values '17', '21', '25', '27' // buildJdks
           }
         }
         stages {
@@ -197,7 +197,7 @@ pipeline {
         axes {
           axis {
             name 'testJdk'
-            values '17', '21', '25', '26' // testJdks
+            values '17', '21', '25', '27' // testJdks
           }
         }
         stages {
@@ -221,7 +221,7 @@ pipeline {
         axes {
           axis {
             name 'testJdk'
-            values '17', '21', '25', '26' // testJdks
+            values '17', '21', '25', '27' // testJdks
           }
         }
         stages {
