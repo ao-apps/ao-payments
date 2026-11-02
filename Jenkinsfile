@@ -46,6 +46,17 @@ binding.setVariable('upstreamProjects', [
 // TODO: Replace master with a specific tag version number once working
 @Library('ao@master') _
 ao.setVariables(binding, currentBuild, scm, params)
+if (!binding.hasVariable('testWhenExpression')) {
+  binding.setVariable('testWhenExpression', {return ao.defaultTestWhenExpression()})
+}
+if (!binding.hasVariable('sonarqubeEnabledExpression')) {
+  binding.setVariable('sonarqubeEnabledExpression', {return ao.defaultSonarqubeEnabledExpression()})
+}
+if (!binding.hasVariable('sonarqubeWhenExpression')) {
+  binding.setVariable('sonarqubeWhenExpression', {
+    return ao.defaultSonarqubeWhenExpression(sonarqubeEnabledExpression)
+  })
+}
 
 pipeline {
   agent any
