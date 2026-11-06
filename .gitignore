@@ -1,3 +1,5 @@
+/audit-release-branch/
+audit-output.log
 target/
 target-jdk-*/
 .m2/
