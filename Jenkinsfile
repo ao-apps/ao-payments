@@ -285,15 +285,15 @@ pipeline {
         }
       }
     }
-    stage('Audit Release Branch') {
+    stage('Audit Additional Branches') {
       when {
         expression {
-          ao.continueCurrentBuild() && ao.auditReleaseBranchWhen()
+          ao.continueCurrentBuild() && ao.auditAdditionalBranchesWhen()
         }
       }
       steps {
         script {
-          ao.auditReleaseBranch()
+          ao.auditAdditionalBranches()
         }
       }
     }
