@@ -34,6 +34,9 @@ binding.setVariable('upstreamProjects', [
   '../checkstyle-config', // <groupId>com.aoapps</groupId><artifactId>ao-checkstyle-config</artifactId>
 ])
 
+// This is an Aggregator POM project used at build-time only, audits are skipped with "Skipping; POM module".
+binding.setVariable('scmAdditionalAuditBranches', [])
+
 /******************************************************************************************
  *                                                                                        *
  * Everything below this line is identical for all projects, except the copied matrix     *
