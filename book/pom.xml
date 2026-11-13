@@ -106,9 +106,9 @@ along with ao-payments.  If not, see <https://www.gnu.org/licenses/>.
   <repositories>
     <!-- Repository required here, too, so can find parent -->
     <repository>
-      <id>central-snapshots</id>
-      <name>Central Snapshot Repository</name>
-      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+      <id>aoapps-snapshots</id>
+      <name>AOApps Snapshot Repository</name>
+      <url>https://snapshots.maven.aoapps.com/</url>
       <releases>
         <enabled>false</enabled>
       </releases>
